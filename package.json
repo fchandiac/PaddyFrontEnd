@@ -9,14 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.10",
+    "@mui/material": "^6.4.10",
+    "@mui/material-nextjs": "^6.4.3",
+    "@mui/x-data-grid": "^7.28.3",
+    "next": "14.2.15",
+    "next-auth": "^5.0.0-beta.25",
     "react": "^18",
+    "react-barcode": "^1.6.1",
     "react-dom": "^18",
-    "next": "14.2.15"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
-    "@types/react-dom": "^18"
+    "@types/react-dom": "^18",
+    "typescript": "^5"
   }
 }
