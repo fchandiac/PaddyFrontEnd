@@ -1,7 +1,7 @@
 import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 const backendUrl =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+  process.env.NEXT_PUBLIC_BACKEND_URL 
 
 
 export default {
