@@ -1,6 +1,6 @@
 import NextAuth, { Session } from 'next-auth';
 import authConfig from '@/auth.config';
-const wsHost = process.env.NEXT_PUBLIC_WS_HOST;
+
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,

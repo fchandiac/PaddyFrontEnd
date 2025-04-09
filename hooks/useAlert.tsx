@@ -11,10 +11,13 @@ export const useAlert = () => {
   const [open, setOpen] = useState(false);
 
   // Función para mostrar la alerta
-  const showAlert = useCallback((message: string, severity: AlertType["severity"]) => {
-    setAlert({ message, severity });
-    setOpen(true);
-  }, []);
+  const showAlert = useCallback(
+    (message: string, severity: AlertType["severity"]) => {
+      setAlert({ message, severity });
+      setOpen(true);
+    },
+    []
+  );
 
   // Función para cerrar la alerta
   const closeAlert = useCallback(() => {
@@ -23,19 +26,16 @@ export const useAlert = () => {
 
   // Componente JSX que renderiza la alerta
   const AlertComponent = alert ? (
-
-    <Snackbar open={open} autoHideDuration={4000} onClose={closeAlert}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-       
-     
+    <Snackbar
+      open={open}
+      autoHideDuration={4000}
+      onClose={closeAlert}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
     >
-      <Alert onClose={closeAlert} severity={alert.severity} sx={{ width: "100%" }}
-       style={{
-        padding: "20px",
-        borderStyle: "solid",
-        borderColor: "#ccc",
-        borderWidth: "1px",
-    }}
+      <Alert
+        onClose={closeAlert}
+        severity={alert.severity}
+        sx={{ width: "100%" }}
       >
         {alert.message}
       </Alert>

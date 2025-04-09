@@ -1,6 +1,5 @@
 import TopBar from "@/components/appBar/AppBar";
 import { Box, Container } from "@mui/material";
-import { AlertProvider } from "@/contexts/AlertContext";
 
 export default function RootLayout({
   children,
@@ -9,10 +8,10 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <AlertProvider>
+    
         <TopBar />
         {children}
-      </AlertProvider>
+
     </>
   );
 }

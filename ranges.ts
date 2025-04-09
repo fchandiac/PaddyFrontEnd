@@ -1,0 +1,127 @@
+const secado = [
+    { start: 15.01, end: 17.0, percent: 1.5 },
+    { start: 17.01, end: 20.0, percent: 2.5 },
+    { start: 20.01, end: 22.5, percent: 3.5 },
+    { start: 22.51, end: 100.0, percent: 4.5 },
+  ];
+  
+  const granosYesososYYesados = [
+    { start: 0.0, end: 1.0, percent: 0.0 },
+    { start: 1.01, end: 1.5, percent: -0.5 },
+    { start: 1.51, end: 2.0, percent: -1.0 },
+    { start: 2.01, end: 2.5, percent: -1.5 },
+    { start: 2.51, end: 3.0, percent: -2.0 },
+    { start: 3.01, end: 3.5, percent: -2.5 },
+    { start: 3.51, end: 4.0, percent: -3.0 },
+    { start: 4.01, end: 4.5, percent: -3.5 },
+    { start: 4.51, end: 5.0, percent: -4.0 },
+    { start: 5.01, end: 100.0, percent: -100.0 },
+  ];
+  
+  const granosPeladosYPartidos = [
+    { start: 0.0, end: 1.0, percent: 0.0 },
+    { start: 1.01, end: 2.0, percent: -1.0 },
+    { start: 2.01, end: 3.0, percent: -2.0 },
+    { start: 3.01, end: 4.0, percent: -3.0 },
+    { start: 4.01, end: 5.0, percent: -4.0 },
+    { start: 5.01, end: 6.0, percent: -5.0 },
+    { start: 6.01, end: 7.0, percent: -6.0 },
+    { start: 7.01, end: 8.0, percent: -7.0 },
+    { start: 8.01, end: 9.0, percent: -8.0 },
+    { start: 9.01, end: 10.0, percent: -9.0 },
+    { start: 10.01, end: 100.0, percent: -100.0 },
+  ];
+  
+  const hualcacho = [
+    { start: 0.01, end: 0.5, percent: -0.75 },
+    { start: 0.51, end: 1.0, percent: -1.5 },
+    { start: 1.01, end: 1.5, percent: -2.25 },
+    { start: 1.51, end: 2.0, percent: -3.0 },
+    { start: 2.01, end: 2.5, percent: -3.75 },
+    { start: 2.51, end: 3.0, percent: -4.5 },
+    { start: 3.01, end: 3.5, percent: -5.25 },
+    { start: 3.51, end: 4.0, percent: -6.0 },
+    { start: 4.01, end: 4.5, percent: -6.75 },
+    { start: 4.51, end: 5.0, percent: -7.5 },
+  ];
+  
+  const granosManchadosYDanados = [
+    { start: 0.01, end: 0.5, percent: -0.5 },
+    { start: 0.51, end: 1.0, percent: -1.0 },
+    { start: 1.01, end: 1.5, percent: -1.5 },
+    { start: 1.51, end: 2.0, percent: -2.0 },
+    { start: 2.01, end: 2.5, percent: -2.5 },
+    { start: 2.51, end: 3.0, percent: -3.0 },
+    { start: 3.01, end: 3.05, percent: -3.0 },
+  ];
+  
+  const impurezas = [
+    { start: 0.0, end: 0.5, percent: 0.0 },
+    { start: 0.51, end: 1.0, percent: 0.0 },
+    { start: 1.01, end: 1.5, percent: 0.0 },
+    { start: 1.51, end: 1.99, percent: 0.0 },
+    { start: 2.0, end: 2.0, percent: 0.0 },
+    { start: 2.01, end: 2.5, percent: -0.5 },
+    { start: 2.51, end: 3.0, percent: -1.0 },
+    { start: 3.01, end: 3.5, percent: -1.5 },
+    { start: 3.51, end: 4.0, percent: -2.0 },
+    { start: 4.01, end: 4.5, percent: -2.5 },
+    { start: 4.51, end: 5.0, percent: -3.0 },
+    { start: 5.01, end: 5.5, percent: -3.5 },
+    { start: 5.51, end: 6.0, percent: -4.0 },
+    { start: 6.01, end: 6.5, percent: -4.5 },
+    { start: 6.51, end: 7.0, percent: -5.0 },
+    { start: 7.01, end: 7.5, percent: -5.5 },
+    { start: 7.51, end: 8.0, percent: -6.0 },
+    { start: 8.01, end: 8.5, percent: -6.5 },
+    { start: 8.51, end: 9.0, percent: -7.0 },
+    { start: 9.01, end: 9.5, percent: -7.5 },
+    { start: 9.51, end: 10.0, percent: -8.0 },
+    { start: 10.0, end: 100.0, percent: -8.0 },
+  ];
+  
+  const granosVerdes = [
+    { start: 0.0, end: 2.0, percent: 0.0 },
+    { start: 2.01, end: 2.5, percent: -0.25 },
+    { start: 2.51, end: 3.0, percent: -0.5 },
+    { start: 3.01, end: 3.5, percent: -0.75 },
+    { start: 3.51, end: 4.0, percent: -1.0 },
+    { start: 4.01, end: 4.5, percent: -1.25 },
+    { start: 4.51, end: 5.0, percent: -1.5 },
+    { start: 5.01, end: 5.5, percent: -1.75 },
+    { start: 5.51, end: 6.0, percent: -2.0 },
+    { start: 6.01, end: 6.5, percent: -2.25 },
+    { start: 6.51, end: 7.0, percent: -2.5 },
+    { start: 7.01, end: 7.5, percent: -2.75 },
+    { start: 7.51, end: 8.0, percent: -3.0 },
+    { start: 8.01, end: 8.5, percent: -3.25 },
+    { start: 8.51, end: 9.0, percent: -3.5 },
+    { start: 9.01, end: 9.5, percent: -3.75 },
+    { start: 9.51, end: 10.0, percent: -4.0 },
+    { start: 10.01, end: 100.0, percent: -100.0 },
+  ];
+  
+  const humedad = [
+    { start: 15.01, end: 15.5, percent: -1.0 },
+    { start: 15.51, end: 16.0, percent: -1.5 },
+    { start: 16.01, end: 16.5, percent: -2.0 },
+    { start: 16.51, end: 17.0, percent: -2.5 },
+    { start: 17.01, end: 17.5, percent: -3.0 },
+    { start: 17.51, end: 18.0, percent: -4.03 },
+    { start: 18.01, end: 18.5, percent: -4.62 },
+    { start: 18.51, end: 19.0, percent: -5.21 },
+    { start: 19.01, end: 19.5, percent: -5.79 },
+    { start: 19.51, end: 20.0, percent: -6.38 },
+    { start: 20.01, end: 20.5, percent: -6.97 },
+    { start: 20.51, end: 21.0, percent: -7.56 },
+    { start: 21.01, end: 21.5, percent: -8.15 },
+    { start: 21.51, end: 22.0, percent: -8.74 },
+    { start: 22.01, end: 22.5, percent: -9.32 },
+    { start: 22.51, end: 23.0, percent: -9.91 },
+    { start: 23.01, end: 23.5, percent: -10.5 },
+    { start: 23.51, end: 24.0, percent: -11.09 },
+    { start: 24.01, end: 24.5, percent: -11.68 },
+    { start: 24.51, end: 25.0, percent: -12.26 },
+    { start: 25.51, end: 100.0, percent: -100.0 },
+  ];
+

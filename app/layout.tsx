@@ -1,10 +1,17 @@
 // app/layout.tsx
 import MuiProvider from '../MUI/MuiProvider';
 import { SessionProvider } from 'next-auth/react';
+import { AlertProvider } from '@/context/AlertContext';
+import RootWrapper from './RootWrapper'; // 👈 Nuevo archivo que usará el hook y envolverá el resto
 
 export const metadata = {
-  title: 'Bitácora Vehicular',
-  description: 'Gestión de vehículos y servicios',
+  title: 'Paddy AyG',
+  description: 'Arrocera Aparicio y García Ltda.',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -12,7 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body>
         <SessionProvider>
-          <MuiProvider>{children}</MuiProvider>
+          <MuiProvider>
+            <AlertProvider>
+              <RootWrapper>{children}</RootWrapper>
+            </AlertProvider>
+          </MuiProvider>
         </SessionProvider>
       </body>
     </html>

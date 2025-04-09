@@ -38,7 +38,7 @@ export default function Home() {
       if (result?.error) {
         setError("Credenciales incorrectas");
       } else {
-        router.push("/userApp");
+        router.push("/paddy");
       }
     } catch (err) {
       console.error(err);

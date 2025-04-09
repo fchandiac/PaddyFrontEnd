@@ -16,5 +16,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/userApp/:path*'], // Protege solo esa ruta
+  matcher: ['/paddy/:path*'], // Protege solo esa ruta
 };

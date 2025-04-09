@@ -18,6 +18,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import esESGrid from "./translate";
 import { formatNumericColumns } from "./gridFormatters";
 
+//       valueFormatter: (params) => params.value.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 2  })
 import * as XLSX from "xlsx";
 import { getVisibleRows } from "@mui/x-data-grid/internals";
 import { useTheme, useMediaQuery } from "@mui/material";
@@ -40,7 +41,6 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
   onOpenDialog,
   FormComponent,
 }) => {
-  const theme = useTheme();
   const isSmall = useMediaQuery("(max-width:500px)");
 
   return (
@@ -68,7 +68,9 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
         </Typography>
 
         {FormComponent && (
-          <IconButton aria-label="Nuevo" onClick={onOpenDialog}>
+          <IconButton aria-label="Nuevo" onClick={onOpenDialog}
+          size='large'
+          >
             <AddCircleIcon />
           </IconButton>
         )}

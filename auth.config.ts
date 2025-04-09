@@ -1,5 +1,8 @@
 import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+
 
 export default {
   providers: [
@@ -13,17 +16,29 @@ export default {
         // Simulación de autenticación sin conexión
         const { email, password } = credentials;
 
-        if (email === 'admin@test.com' && password === '1234') {
+        try {
+          const res = await fetch(`${backendUrl}/auth/sign-in`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, pass: password }),
+          });
+
+          if (!res.ok) return null;
+
+          const user = await res.json();
+
           return {
-            id: '123',
-            name: 'Admin Test',
-            email: 'admin@test.com',
-            role: 'admin',
+            id: user.userId.toString(),
+            name: user.email,
+            email: user.email,
+            role: user.role,
           };
+        } catch (error) {
+          console.error('Error en autorización:', error);
+          return null;
         }
 
-        // Credenciales inválidas
-        return null;
+
       },
     }),
   ],

@@ -12,7 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 
-const AppName = "App Name";
+const AppName = "Paddy AyG";
 const AppVersion = "v1.0.0";
 
 interface SideBarProps {
@@ -49,7 +49,7 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
         <List>
           <MenuItem
             onClick={() => {
-              router.push("/");
+              router.push("/paddy");
               toggleDrawer(false);
             }}
           >
@@ -58,14 +58,23 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
 
           <MenuItem
             onClick={() => {
-              router.push("/");
+              router.push("/paddy/receptions/receptions");
               toggleDrawer(false);
             }}
           >
-            Menú
+            Recepciones
           </MenuItem>
 
           <MenuItem
+            onClick={() => {
+              router.push("/paddy/producers/producers");
+              toggleDrawer(false);
+            }}
+          >
+            Productores
+          </MenuItem>
+
+          {/* <MenuItem
             onClick={() => {
               router.push("/");
               toggleDrawer(false);
@@ -73,21 +82,46 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
           >
             Menú
           </MenuItem>
-
-          <MenuItem
+ */}
+          {/* <MenuItem
             onClick={() => {
               router.push("/");
               toggleDrawer(false);
             }}
           >
             Menú
+          </MenuItem> */}
+
+          {/* <MenuItem
+            onClick={() => {
+              router.push("/");
+              toggleDrawer(false);
+            }}
+          >
+            Menú
+          </MenuItem> */}
+
+          <MenuItem
+            onClick={() => {
+              router.push("/paddy/users");
+              toggleDrawer(false);
+            }}
+          >
+            Usuarios
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              router.push("/paddy/records");
+              toggleDrawer(false);
+            }}
+          >
+            Registros
           </MenuItem>
 
           <Divider sx={{ my: 1 }} />
 
-          <MenuItem onClick={handleLogout}>
-            Cerrar sesión
-          </MenuItem>
+          <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
         </List>
       </Box>
     </Drawer>
