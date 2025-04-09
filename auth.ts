@@ -3,7 +3,7 @@ import authConfig from '@/auth.config';
 
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: 'lucho',
   session: {
     strategy: 'jwt',
   },
@@ -11,14 +11,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.user = user;
+ 
       return token;
     },
     async session({ session, token }) {
-      if (token.user) {
-        // @ts-ignore
-        session.user = token.user  
-      }
+    
       return session;
     },
   },
