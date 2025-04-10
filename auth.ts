@@ -1,4 +1,4 @@
-// app/auth.ts
+// app/auth.ts test
 
 import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
