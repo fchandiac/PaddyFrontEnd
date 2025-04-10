@@ -31,7 +31,7 @@ export default function Home() {
 
     try {
       const result = await signIn("credentials", {
-        redirect: false,
+        redirect: true,
         email, 
         password,
         callbackUrl: "/paddy",
