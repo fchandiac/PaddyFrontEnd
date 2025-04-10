@@ -1,6 +1,4 @@
-// middleware.ts
-
-import { NextResponse, NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(req: NextRequest) {
@@ -9,12 +7,10 @@ export async function middleware(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
-  // Rutas públicas permitidas (opcional)
-  const isPublicPath = req.nextUrl.pathname === '/';
+  console.log('📦 TOKEN DESDE MIDDLEWARE:', token); // 👈 REVISAR EN LOGS DE VERCEL
 
-  if (!token && !isPublicPath) {
-    const url = new URL('/', req.url);
-    return NextResponse.redirect(url);
+  if (!token) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next();
