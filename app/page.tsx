@@ -24,6 +24,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
 
+
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;

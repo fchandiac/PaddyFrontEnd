@@ -1,10 +1,11 @@
+// app/auth.config.ts
+
 import { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-const backendUrl =
-  process.env.NEXT_PUBLIC_BACKEND_URL 
 
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export default {
+const authConfig = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -13,7 +14,6 @@ export default {
         password: { label: 'Password', type: 'password' },
       },
       authorize: async (credentials) => {
-        // Simulación de autenticación sin conexión
         const { email, password } = credentials;
 
         try {
@@ -37,9 +37,9 @@ export default {
           console.error('Error en autorización:', error);
           return null;
         }
-
-
       },
     }),
   ],
 } satisfies NextAuthConfig;
+
+export default authConfig;

@@ -4,7 +4,7 @@ import { getToken } from 'next-auth/jwt';
 export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
-    secret: 'lucho',
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   // Si el usuario no está autenticado, redirige al login (/)
