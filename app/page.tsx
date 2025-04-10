@@ -32,9 +32,13 @@ export default function Home() {
     try {
       const result = await signIn("credentials", {
         redirect: false,
-        email,
+        email, 
         password,
+        callbackUrl: "/paddy",
       });
+
+
+      console.log(result);
 
       if (result?.error) {
         setError("Credenciales incorrectas");
