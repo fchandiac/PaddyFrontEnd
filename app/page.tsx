@@ -10,7 +10,6 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -21,36 +20,8 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    try {
-      const result = await signIn("credentials", {
-        redirect: true,
-        email, 
-        password,
-        callbackUrl: "/paddy",
-      });
-
-
-      console.log(result);
-
-      if (result?.error) {
-        setError("Credenciales incorrectas");
-      } else {
-        router.push("/paddy");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Ocurrió un error inesperado.");
-    } finally {
-      setLoading(false);
-    }
+    router.push("/paddy");
   };
 
   return (
