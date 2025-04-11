@@ -23,14 +23,7 @@ const authConfig = {
             body: JSON.stringify({ email, pass: password }),
           });
 
-          if (!res.ok) return {
-          
-              id: '0',
-              name: 'Anonymous',
-              email: 'mail@mail.com',
-              role: 'administrador',
-            };
-      
+          if (!res.ok) return null;
 
           const user = await res.json();
 

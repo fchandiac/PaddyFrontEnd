@@ -7,6 +7,8 @@ export async function middleware(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
 
+  console.log(process.env.NEXTAUTH_SECRET)
+
   console.log('📦 TOKEN DESDE MIDDLEWARE:', token); // 👈 REVISAR EN LOGS DE VERCEL
 
   if (!token) {
