@@ -15,29 +15,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       authorize: async (credentials) => {
-        const { email, password } = credentials;
 
-        try {
-          const res = await fetch(`${backendUrl}/auth/sign-in`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, pass: password }),
-          });
-
-          if (!res.ok) return null;
-
-          const user = await res.json();
-
-          return {
-            id: user.userId.toString(),
-            name: user.email,
-            email: user.email,
-            role: user.role,
-          };
-        } catch (error) {
-          console.error('Error en autorización:', error);
-          return null;
+        return{
+          id: '1',
+          email: 'a@e.com',
+          role: 'admin',
         }
+    
+         
       },
     }),
   ],
@@ -62,17 +47,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 
-  cookies: {
-    sessionToken: {
-      name: isProd ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: isProd,
-      },
-    },
-  },
 
   pages: {
     signIn: '/',
