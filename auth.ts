@@ -3,6 +3,8 @@
 import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 
@@ -42,6 +44,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     signOut: async (user) => {
       console.log('User signed out:', user);
+    },
+  },
+  cookies: {
+    sessionToken: {
+      name: isProd ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: isProd,
+      },
     },
   },
 
