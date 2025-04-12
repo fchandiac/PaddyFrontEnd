@@ -10,6 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { getDiscountPercentsByCode } from "@/app/actions/discount-percent";
+import { useReceptionContext } from "@/context/ReceptionDataContext";
 
 type Range = {
   start: number;
@@ -18,33 +19,47 @@ type Range = {
 };
 
 interface Props {
-  label: string;
+  label:
+    | "humedad"
+    | "granosVerdes"
+    | "impurezas"
+    | "granosManchados"
+    | "hualcacho"
+    | "granosPelados"
+    | "granosYesosos"
+    | "bonificacion"
+    | "secado";
   discountCode: number;
-  netWeight: number;
   withTolerance?: boolean;
-  onChange?: (
-    label: string,
-    porcentaje: number,
-    tolerancia: number,
-    kgCastigo: number
-  ) => void;
+  withPenalty?: boolean;
+  penaltyLabel?: string;
+  withRange?: boolean;
+  withPercent?: boolean;
 }
 
 const PercentageByRange: React.FC<Props> = ({
   label,
   discountCode,
-  netWeight,
   withTolerance = true,
-  onChange,
+  withPenalty = true,
+  penaltyLabel = "Castigo",
+  withRange = true,
+  withPercent = true,
 }) => {
-  const validNetWeight = Math.max(0, netWeight);
+  const { data, updateField } = useReceptionContext();
+  const netWeight = Math.max(0, data.netWeight);
 
   const [inputValue, setInputValue] = useState<string>("");
-  const [percentage, setPercentage] = useState<number>(0);
-  const [tolerance, setTolerance] = useState<number>(0);
+  const [percentageInput, setPercentageInput] = useState<string>("");
+  const [toleranceInput, setToleranceInput] = useState<string>("");
   const [kgDiscount, setKgDiscount] = useState<number>(0);
   const [ranges, setRanges] = useState<Range[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const cleanLeadingZeros = (value: string): string => {
+    if (value === "" || value === "0" || value.startsWith("0.")) return value;
+    return value.replace(/^0+/, "");
+  };
 
   const getPercentage = (value: number): number => {
     const match = ranges.find((r) => value >= r.start && value <= r.end);
@@ -54,42 +69,58 @@ const PercentageByRange: React.FC<Props> = ({
   const calculateKgDiscount = (pct: number, tol: number): number => {
     const effectiveTolerance = withTolerance ? tol : 0;
     const realPct = Math.max(pct - effectiveTolerance, 0);
-    return parseFloat(((realPct * validNetWeight) / 100).toFixed(2));
+    return parseFloat(((realPct * netWeight) / 100).toFixed(2));
   };
 
   const updateAll = (rango: number, pct: number, tol: number) => {
     const newKg = calculateKgDiscount(pct, tol);
     setKgDiscount(newKg);
-    onChange?.(label, pct, tol, newKg);
+
+    updateField(`percent${capitalize(label)}` as any, pct);
+    if (withTolerance) updateField(`tolerance${capitalize(label)}` as any, tol);
+    if (withPenalty) updateField(`penalty${capitalize(label)}` as any, newKg);
   };
 
+  const capitalize = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
+
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valStr = e.target.value;
+    const valStr = cleanLeadingZeros(e.target.value);
     setInputValue(valStr);
 
     const val = parseFloat(valStr);
     if (isNaN(val) || val < 0 || val > 100) {
-      setPercentage(0);
-      updateAll(0, 0, tolerance);
+      setPercentageInput("0");
+      updateAll(0, 0, parseFloat(toleranceInput) || 0);
     } else {
       const pct = getPercentage(val);
-      setPercentage(pct);
-      updateAll(val, pct, tolerance);
+      setPercentageInput(pct.toString());
+      updateAll(val, pct, parseFloat(toleranceInput) || 0);
     }
   };
 
   const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    const pct = isNaN(val) ? 0 : Math.abs(val);
-    setPercentage(pct);
-    updateAll(parseFloat(inputValue) || 0, pct, tolerance);
+    const valStr = cleanLeadingZeros(e.target.value);
+    setPercentageInput(valStr);
+
+    const pct = parseFloat(valStr);
+    updateAll(
+      parseFloat(inputValue) || 0,
+      isNaN(pct) ? 0 : pct,
+      parseFloat(toleranceInput) || 0
+    );
   };
 
   const handleToleranceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    const tol = isNaN(val) ? 0 : val;
-    setTolerance(tol);
-    updateAll(parseFloat(inputValue) || 0, percentage, tol);
+    const valStr = cleanLeadingZeros(e.target.value);
+    setToleranceInput(valStr);
+
+    const tol = parseFloat(valStr);
+    updateAll(
+      parseFloat(inputValue) || 0,
+      parseFloat(percentageInput) || 0,
+      isNaN(tol) ? 0 : tol
+    );
   };
 
   useEffect(() => {
@@ -106,17 +137,17 @@ const PercentageByRange: React.FC<Props> = ({
     const val = parseFloat(inputValue);
     if (!isNaN(val)) {
       const pct = getPercentage(val);
-      setPercentage(pct);
-      updateAll(val, pct, tolerance);
+      setPercentageInput(pct.toString());
+      updateAll(val, pct, parseFloat(toleranceInput) || 0);
     } else {
       updateAll(0, 0, 0);
     }
-  }, [ranges, validNetWeight, withTolerance]);
+  }, [ranges, netWeight, withTolerance]);
 
   if (loading) {
     return (
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-        <CircularProgress size={20} />
+        <CircularProgress size={12} />
         <Typography variant="body2" color="text.secondary">
           Cargando rangos...
         </Typography>
@@ -126,30 +157,37 @@ const PercentageByRange: React.FC<Props> = ({
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography variant="caption" sx={{ color: "text.secondary" }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: "text.secondary",
+          textTransform: "capitalize",
+          fontWeight: 600,
+          lineHeight: 1.5,
+        }}
+      >
         {label}
       </Typography>
-      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" mt={0.5}>
+
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        flexWrap="wrap"
+        mt={withRange ? 0.5 : 0}
+      >
         <TextField
           label="Rango"
           type="number"
           size="small"
-          sx={{ width: 110 }}
-          InputLabelProps={{
-            sx: { fontSize: "0.7rem" },
+          sx={{
+            flex: "1 1 110px",
+            minWidth: 110,
+            visibility: withRange ? "visible" : "hidden",
           }}
-          InputProps={{
-            sx: {
-              height: 25,
-              fontSize: "0.75rem",
-              padding: "0 8px",
-            },
-          }}
-          inputProps={{
-            min: 0,
-            max: 100,
-            style: { padding: 4 },
-          }}
+          InputLabelProps={labelStyle}
+          InputProps={inputStyle}
+          inputProps={{ min: 0, max: 100 }}
           value={inputValue}
           onChange={handleValueChange}
         />
@@ -158,24 +196,22 @@ const PercentageByRange: React.FC<Props> = ({
           label="Porcentaje"
           type="number"
           size="small"
-          sx={{ width: 110 }}
-          InputLabelProps={{
-            sx: { fontSize: "0.7rem" },
+          sx={{
+            flex: "1 1 110px",
+            minWidth: 110,
+            visibility: withPercent ? "visible" : "hidden",
           }}
+          InputLabelProps={labelStyle}
           InputProps={{
-            sx: {
-              height: 25,
-              fontSize: "0.75rem",
-              padding: "0 8px",
-            },
-            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            ...inputStyle,
+            endAdornment: (
+              <InputAdornment position="end">
+                <span style={{ fontSize: "inherit" }}>%</span>
+              </InputAdornment>
+            ),
           }}
-          inputProps={{
-            min: 0,
-            max: 100,
-            style: { padding: 4 },
-          }}
-          value={percentage}
+          inputProps={{ min: 0, max: 100 }}
+          value={percentageInput}
           onChange={handlePercentageChange}
         />
 
@@ -183,55 +219,78 @@ const PercentageByRange: React.FC<Props> = ({
           label="Tolerancia"
           type="number"
           size="small"
-          sx={{ width: 110 , visibility: withTolerance ? "visible" : "hidden",}}
-          InputLabelProps={{
-            sx: { fontSize: "0.7rem" },
+          sx={{
+            flex: "1 1 110px",
+            minWidth: 110,
+            visibility: withTolerance ? "visible" : "hidden",
           }}
+          InputLabelProps={labelStyle}
           InputProps={{
-            sx: {
-              height: 25,
-              fontSize: "0.75rem",
-              padding: "0 8px",
-            },
-            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            ...inputStyle,
+            endAdornment: (
+              <InputAdornment position="end">
+                <span style={{ fontSize: "inherit" }}>%</span>
+              </InputAdornment>
+            ),
           }}
-          inputProps={{
-            min: 0,
-            max: 100,
-            style: { padding: 4 },
-          }}
-          value={withTolerance ? tolerance : 0}
+          inputProps={{ min: 0, max: 100 }}
+          value={withTolerance ? toleranceInput : ""}
           onChange={handleToleranceChange}
           disabled={!withTolerance}
         />
 
         <TextField
-          label="Castigo"
+          label={penaltyLabel}
           type="number"
           size="small"
-          sx={{ width: 110 }}
-          InputLabelProps={{
-            sx: { fontSize: "0.7rem" },
+          sx={{
+            flex: "1 1 110px",
+            minWidth: 110,
+            visibility: withPenalty ? "visible" : "hidden",
           }}
+          InputLabelProps={labelStyle}
           InputProps={{
-            sx: {
-              height: 26,
-              fontSize: "0.75rem",
-              padding: "0 8px",
-            },
-            endAdornment: <InputAdornment position="end" sx={{
-              fontSize: "0.4rem",
-            }}>kg</InputAdornment>,
+            ...inputStyle,
+            endAdornment: (
+              <InputAdornment position="end">
+                <span style={{ fontSize: "inherit" }}>kg</span>
+              </InputAdornment>
+            ),
           }}
-          inputProps={{
-            readOnly: true,
-            style: { padding: 4 },
-          }}
+          inputProps={{ readOnly: true }}
           value={kgDiscount}
         />
       </Stack>
     </Box>
   );
+};
+
+const labelStyle = {
+  sx: {
+    fontSize: "0.7rem",
+    "@media (min-height: 900px)": { fontSize: "0.85rem" },
+    "@media (min-height: 1100px)": { fontSize: "1rem" },
+  },
+};
+
+const inputStyle = {
+  sx: {
+    height: 25,
+    fontSize: "0.75rem",
+    "& input": {
+      padding: "0 8px",
+      height: "100%",
+      boxSizing: "border-box",
+    },
+    "@media (min-height: 900px)": {
+      height: 35,
+      fontSize: "1rem",
+    },
+    "@media (min-height: 1100px)": {
+      height: 40,
+      fontSize: "1.25rem",
+    },
+  },
 };
 
 export default PercentageByRange;

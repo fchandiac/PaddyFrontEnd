@@ -9,8 +9,6 @@ import { Producer } from "@/types/producer";
 import moment from "moment";
 import { Transaction } from "@/types/transaction";
 
-
-
 const TransactionTypeCode = [
   { code: 1, name: "Ingreso" },
   { code: 2, name: "Gasto" },
@@ -22,7 +20,6 @@ const TransactionTypeCode = [
   { code: 8, name: "Nota de débito" },
   { code: 9, name: "Pre-liquidación" },
 ];
-
 
 export default function Page() {
   const [producers, setProducers] = useState<Producer[]>([]);
@@ -57,6 +54,60 @@ export default function Page() {
     }
   }, [selectedProducer]);
 
+  const columns = [
+    { field: "id", headerName: "ID", flex: 1 },
+    {
+      field: "typeCode",
+      headerName: "Tipo",
+      flex: 1,
+      valueFormatter: (params: any) => {
+        const type = TransactionTypeCode.find(
+          (type: any) => type.code === params
+        );
+        return type ? type.name : "";
+      },
+    },
+    { field: "description", headerName: "Descripción", flex: 2 },
+    {
+      field: "debit",
+      headerName: "Débito",
+      flex: 1,
+      valueFormatter: (params: any) =>
+        params.toLocaleString("es-CL", {
+          style: "currency",
+          currency: "CLP",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }),
+    },
+    {
+      field: "credit",
+      headerName: "Crédito",
+      flex: 1,
+      valueFormatter: (params: any) =>
+        params.toLocaleString("es-CL", {
+          style: "currency",
+          currency: "CLP",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }),
+    },
+    {
+      field: "balance",
+      headerName: "Balance",
+      flex: 1,
+      valueFormatter: (params: any) =>
+        params.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })
+    },
+    {
+      field: "createdAt",
+      headerName: "Fecha",
+      flex: 1,
+      valueFormatter: (params: any) =>
+        moment(params).subtract(4, "hours").format("DD-MM-YYYY HH:mm"),
+    },
+  ];
+
   return (
     <Box sx={{ p: 2 }}>
       <Grid container spacing={2}>
@@ -73,58 +124,7 @@ export default function Page() {
         <Grid item xs={9}>
           <AppDataGrid
             rows={transactions}
-            columns={[
-              { field: "id", headerName: "ID", flex: 1 },
-              { field: "typeCode", headerName: "Tipo", flex: 1,
-                valueFormatter: (params: any) => {
-                  const type = TransactionTypeCode.find(
-                    (type:any) => type.code === params
-                  );
-                  return type ? type.name : "";
-                },
-               },
-               { field: "description", headerName: "Descripción", flex: 2 },
-              { field: "debit", headerName: "Débito", flex: 1,
-                valueFormatter: (params: any) => {
-                  return params.toLocaleString("es-CL", {
-                    style: "currency",
-                    currency: "CLP",
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  });
-                },
-               },
-              { field: "credit", headerName: "Crédito", flex: 1,
-                valueFormatter: (params: any) => {
-                  return params.toLocaleString("es-CL", {
-                    style: "currency",
-                    currency: "CLP",
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  });
-                },
-               },
-              { field: "balance", headerName: "Balance", flex: 1,
-                valueFormatter: (params: any) => {
-                  return params.toLocaleString("es-CL", {
-                    style: "currency",
-                    currency: "CLP",
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  });
-                },
-               },
-              {
-                field: "createdAt",
-                headerName: "Fecha",
-                flex: 1,
-                 valueFormatter: (params: any) => {
-                              return moment(params)
-                              .subtract(4, "hours") // Resta 4 horas manualmente
-                              .format("DD-MM-YYYY HH:mm");
-                            },
-              },
-            ]}
+            columns={columns}
             title={`Transacciones ${selectedProducer ? `de ${selectedProducer.name}` : ""}`}
             height="75vh"
           />

@@ -40,7 +40,6 @@ export default function ReceptionsLayout({
         allowScrollButtonsMobile
         sx={{
           paddingX: 2,
-          position: "sticky",
           top: 60,
           zIndex: 1000, // Asegurar que la barra esté por encima de otros elementos
           bgcolor: "background.paper", // Fondo para que no sea transparente

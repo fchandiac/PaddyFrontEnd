@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,29 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    router.push("/paddy");
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    setLoading(true);
+    setError(null);
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    setLoading(false);
+    if (res?.error) {
+      setError("Usuario o contraseña incorrectos");
+      return;
+    }
+    if (res?.ok) {
+      setError(null);
+    }
+    if (res?.ok) {
+      router.push("/paddy");
+      return;
+    }
+
   };
 
   return (
