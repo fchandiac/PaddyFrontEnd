@@ -8,9 +8,11 @@ import {
   Stack,
   Typography,
   CircularProgress,
+  IconButton,
 } from "@mui/material";
 import { getDiscountPercentsByCode } from "@/app/actions/discount-percent";
 import { useReceptionContext } from "@/context/ReceptionDataContext";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 type Range = {
   start: number;
@@ -55,6 +57,8 @@ const PercentageByRange: React.FC<Props> = ({
   const [kgDiscount, setKgDiscount] = useState<number>(0);
   const [ranges, setRanges] = useState<Range[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [toleranceVisible, setToleranceVisible] =
+    useState<boolean>(withTolerance);
 
   const cleanLeadingZeros = (value: string): string => {
     if (value === "" || value === "0" || value.startsWith("0.")) return value;
@@ -176,90 +180,116 @@ const PercentageByRange: React.FC<Props> = ({
         flexWrap="wrap"
         mt={withRange ? 0.5 : 0}
       >
-        <TextField
-          label="Rango"
-          type="number"
-          size="small"
-          sx={{
-            flex: "1 1 110px",
-            minWidth: 110,
-            visibility: withRange ? "visible" : "hidden",
-          }}
-          InputLabelProps={labelStyle}
-          InputProps={inputStyle}
-          inputProps={{ min: 0, max: 100 }}
-          value={inputValue}
-          onChange={handleValueChange}
-        />
+        <Box sx={boxStyle("center")}>
+          <TextField
+            label="Rango"
+            type="number"
+            size="small"
+            sx={{
+              flex: "1 1 110px",
+              minWidth: 110,
+              visibility: withRange ? "visible" : "hidden",
+            }}
+            InputLabelProps={labelStyle}
+            // InputProps={inputStyle}
+            inputProps={{ min: 0, max: 100 }}
+            value={inputValue}
+            onChange={handleValueChange}
+          />
+        </Box>
 
-        <TextField
-          label="Porcentaje"
-          type="number"
-          size="small"
-          sx={{
-            flex: "1 1 110px",
-            minWidth: 110,
-            visibility: withPercent ? "visible" : "hidden",
-          }}
-          InputLabelProps={labelStyle}
-          InputProps={{
-            ...inputStyle,
-            endAdornment: (
-              <InputAdornment position="end">
-                <span style={{ fontSize: "inherit" }}>%</span>
-              </InputAdornment>
-            ),
-          }}
-          inputProps={{ min: 0, max: 100 }}
-          value={percentageInput}
-          onChange={handlePercentageChange}
-        />
+        <Box sx={boxStyle("center")}>
+          <TextField
+            label="Porcentaje"
+            type="number"
+            size="small"
+            sx={{
+   
+              flex: "1 1 110px",
+              minWidth: 110,
+              visibility: withPercent ? "visible" : "hidden",
+            }}
+            InputLabelProps={labelStyle}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <span style={{ fontSize: ".8rem" }}>%</span>
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{ min: 0, max: 100 }}
+            value={percentageInput}
+            onChange={handlePercentageChange}
+          />
+        </Box>
+        <Box sx={boxStyle("center")}>
+          <TextField
+            label="Tolerancia"
+            type="number"
+            size="small"
+            sx={{
+              flex: "1 1 110px",
+              minWidth: 100,
+              visibility: toleranceVisible ? "visible" : "hidden",
+            }}
+            InputLabelProps={labelStyle}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <span style={{ fontSize: ".8rem" }}>%</span>
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{ min: 0, max: 100 }}
+            value={toleranceVisible ? toleranceInput : ""}
+            onChange={handleToleranceChange}
+            disabled={!toleranceVisible}
+          />
 
-        <TextField
-          label="Tolerancia"
-          type="number"
-          size="small"
-          sx={{
-            flex: "1 1 110px",
-            minWidth: 110,
-            visibility: withTolerance ? "visible" : "hidden",
-          }}
-          InputLabelProps={labelStyle}
-          InputProps={{
-            ...inputStyle,
-            endAdornment: (
-              <InputAdornment position="end">
-                <span style={{ fontSize: "inherit" }}>%</span>
-              </InputAdornment>
-            ),
-          }}
-          inputProps={{ min: 0, max: 100 }}
-          value={withTolerance ? toleranceInput : ""}
-          onChange={handleToleranceChange}
-          disabled={!withTolerance}
-        />
-
-        <TextField
-          label={penaltyLabel}
-          type="number"
-          size="small"
-          sx={{
-            flex: "1 1 110px",
-            minWidth: 110,
-            visibility: withPenalty ? "visible" : "hidden",
-          }}
-          InputLabelProps={labelStyle}
-          InputProps={{
-            ...inputStyle,
-            endAdornment: (
-              <InputAdornment position="end">
-                <span style={{ fontSize: "inherit" }}>kg</span>
-              </InputAdornment>
-            ),
-          }}
-          inputProps={{ readOnly: true }}
-          value={kgDiscount}
-        />
+          {(label !== "secado" && label !== "bonificacion") && (
+            <IconButton
+              size="small"
+              onClick={() => setToleranceVisible((prev) => !prev)}
+              edge="end"
+            >
+              {toleranceVisible ? (
+                <VisibilityOff
+                  sx={{
+                    fontSize: "0.9rem",
+                  }}
+                />
+              ) : (
+                <Visibility
+                  sx={{
+                    fontSize: "0.9rem",
+                  }}
+                />
+              )}
+            </IconButton>
+          )}
+        </Box>
+        <Box sx={boxStyle("center")}>
+          <TextField
+            label={penaltyLabel}
+            type="number"
+            size="small"
+            sx={{
+              flex: "1 1 110px",
+              minWidth: 110,
+              visibility: withPenalty ? "visible" : "hidden",
+            }}
+            InputLabelProps={labelStyle}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <span style={{ fontSize: ".8rem" }}>kg</span>
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{ readOnly: true }}
+            value={kgDiscount}
+          />
+        </Box>
       </Stack>
     </Box>
   );
@@ -273,24 +303,11 @@ const labelStyle = {
   },
 };
 
-const inputStyle = {
-  sx: {
-    height: 25,
-    fontSize: "0.75rem",
-    "& input": {
-      padding: "0 8px",
-      height: "100%",
-      boxSizing: "border-box",
-    },
-    "@media (min-height: 900px)": {
-      height: 35,
-      fontSize: "1rem",
-    },
-    "@media (min-height: 1100px)": {
-      height: 40,
-      fontSize: "1.25rem",
-    },
-  },
-};
+const boxStyle = (align: "center" | "start" = "center") => ({
+  flex: "1 1 110px",
+  minWidth: 110,
+  display: "flex",
+  justifyContent: align,
+});
 
 export default PercentageByRange;

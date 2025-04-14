@@ -33,9 +33,6 @@ interface CustomToolbarProps {
   FormComponent?: React.FC<FormComponentProps>; // Componente opcional para el formulario
 }
 
-
-
-
 const CustomToolbar: React.FC<CustomToolbarProps> = ({
   title = "",
   onOpenDialog,
@@ -59,21 +56,25 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
         sx={{
           display: "flex",
           width: "100%",
-          justifyContent: "space-between",
+
           alignItems: "center",
         }}
       >
-        <Typography variant="h6" fontSize={isSmall ? "1rem" : "1.50rem"}>
-          {title}
-        </Typography>
-
         {FormComponent && (
-          <IconButton aria-label="Nuevo" onClick={onOpenDialog}
-          size='large'
+          <IconButton
+            aria-label="Nuevo"
+            onClick={onOpenDialog}
+            size="large"
+            sx={{
+              marginRight: 1,
+            }}
           >
             <AddCircleIcon />
           </IconButton>
         )}
+        <Typography fontSize={isSmall ? "1.3rem" : "1.50rem"}>
+          {title}
+        </Typography>
       </Box>
 
       {/* Segunda línea: buscador */}
@@ -148,55 +149,19 @@ const CustomFooter: React.FC<CustomFooterProps> = ({
     XLSX.writeFile(workbook, filename);
   };
 
-  // const handleExport = () => {
-  //   if (!apiRef.current) return;
-
-  //   const rows: any[] = [];
-  //   const sortedIds = apiRef.current.getSortedRowIds();
-
-  //   // Solo filas visibles (filtradas)
-  //   sortedIds.forEach((id) => {
-  //     const index = apiRef.current.getRowIndexRelativeToVisibleRows(id);
-  //     if (index !== -1) {
-  //       const row = apiRef.current.getRow(id);
-  //       rows.push(row);
-  //     }
-  //   });
-
-  //   // // Columnas visibles
-  //   // const columns = apiRef.current
-  //   //   .getAllColumns()
-
-  //   const columns = apiRef.current
-  //     .getVisibleColumns()
-  //     .filter((col) => col.field !== "__check__");
-
-  //   // Filtrar solo campos visibles en cada fila
-  //   const dataWithVisibleFields = rows.map((row) => {
-  //     const filtered: Record<string, any> = {};
-  //     columns.forEach((col) => {
-  //       filtered[col.headerName || col.field] = row[col.field];
-  //     });
-  //     return filtered;
-  //   });
-
-  //   // Exportar
-  //   const worksheet = XLSX.utils.json_to_sheet(dataWithVisibleFields);
-  //   const workbook = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
-
-  //   XLSX.writeFile(workbook, "bitacora_export.xlsx");
-  // };
-
   return (
     <Box
       sx={{
+        textAlign: "left",
         display: "flex",
-        justifyContent: "flex-end",
         alignItems: "center",
-        padding: 2,
+        pl: 2,
+        pr: 2,
+        pt: 1,
+        pb: 1,
+        width: "100%",
         gap: 2,
-        borderTop: "1px solid #ccc",
+ 
       }}
     >
       <IconButton
@@ -247,7 +212,6 @@ export default function AppDataGrid({
   const [openDialog, setOpenDialog] = useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
-  const theme = useTheme();
   const isSmall = useMediaQuery("(max-width:500px)");
 
   const handleRefresh = () => {
@@ -274,48 +238,52 @@ export default function AppDataGrid({
   const formattedColumns = formatColumns(columns);
   return (
     <>
-      <Box sx={{ width: "100%", overflowX: "auto" }}>
-        <Box sx={{ minWidth: 500 }}>
-          <DataGrid
-            sx={{
-              height: height,
-              backgroundColor: "white",
-              border: "1px solid #ccc",
-              borderRadius: 1,
-              fontSize: isSmall ? "0.75rem" : "0.875rem",
-              "& .MuiDataGrid-columnHeaders": {
-                //borderBottom: "1px solid #ccc", // Borde inferior del header
-              },
-            }}
-            initialState={{
-              columns: {
-                columnVisibilityModel: {
-                  id: false,
-                },
-              },
-            }}
-            rows={rows}
-            columns={formattedColumns}
-            localeText={esESGrid}
-            density="compact"
-            getRowHeight={() => "auto"}
-            slots={{
-              toolbar: () => (
-                <CustomToolbar
-                  title={title}
-                  onOpenDialog={handleOpenDialog}
-                  FormComponent={FormComponent}
-                />
-              ),
-              footer: () => <CustomFooter setGridApiRef={setGridApiRef} />,
-            }}
-          />
-        </Box>
-      </Box>
+      <DataGrid
+        sx={{
+          height: height,
+          backgroundColor: "white",
+          border: "1px solid #ccc",
+          borderRadius: 1,
+          fontSize: isSmall ? "0.7rem" : "inherit",
+          "& .MuiDataGrid-columnHeaders": {
+            //borderBottom: "1px solid #ccc", // Borde inferior del header
+          },
+          overflowX: "auto",
+          "& .MuiDataGrid-virtualScroller": {
+            overflowX: "auto",
+          },
 
-      {/* Botón para abrir el diálogo */}
+          "& .MuiDataGrid-main": {
+            minWidth: "1000px", // 👉 fuerza columnas anchas para que aparezca scroll
+          },
+        }}
+        initialState={{
+          scroll: { top: 0, left: 0 },
+          columns: {
+            columnVisibilityModel: {
+              id: false,
+            },
+          },
+        }}
+        rows={rows}
+        columns={formattedColumns}
+        localeText={esESGrid}
+        density="compact"
+        getRowHeight={() => "auto"}
+        slots={{
+          toolbar: () => (
+            <CustomToolbar
+              title={title}
+              onOpenDialog={handleOpenDialog}
+              FormComponent={FormComponent}
+            />
+          ),
+          footer: () => <CustomFooter setGridApiRef={setGridApiRef} />,
+        }}
+      />
 
-      {/* Dialog para mostrar el formulario */}
+      {/* Diálogo de formulario */}
+
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}

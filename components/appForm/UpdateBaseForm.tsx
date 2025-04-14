@@ -17,12 +17,20 @@ import { useEffect, useState } from "react";
 interface BaseUpdateFormField {
   name: string;
   label: string;
-  type: "text" | "textarea" | "autocomplete" | "number" | "email" | "password" | "switch";
+  type:
+    | "text"
+    | "textarea"
+    | "autocomplete"
+    | "number"
+    | "email"
+    | "password"
+    | "switch";
   required?: boolean;
   options?: { id: string; name: string }[]; // para autocomplete
   multiline?: boolean;
   rows?: number;
   disabled?: boolean;
+  formatFn?: (input: string) => string; // ✅ nueva propiedad para formateo en tiempo real
 }
 
 interface BaseUpdateFormProps {
@@ -32,6 +40,7 @@ interface BaseUpdateFormProps {
   isSubmitting?: boolean;
   errors?: string[];
   title?: string;
+  
 }
 
 export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
@@ -87,6 +96,7 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
                 size="small"
                 required={field.required}
                 multiline={field.multiline}
+                autoComplete="off"
                 rows={field.rows}
                 fullWidth
                 type={
@@ -98,7 +108,12 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
                 }
                 disabled={field.disabled}
                 value={values[field.name] ?? ""}
-                onChange={(e) => handleChange(field.name, e.target.value)}
+                onChange={(e) =>
+                  handleChange(
+                    field.name,
+                    field.formatFn ? field.formatFn(e.target.value) : e.target.value
+                  )
+                }
                 inputProps={
                   field.type === "email"
                     ? {
@@ -134,7 +149,9 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
                 control={
                   <Switch
                     checked={Boolean(values[field.name])}
-                    onChange={(e) => handleChange(field.name, e.target.checked)}
+                    onChange={(e) =>
+                      handleChange(field.name, e.target.checked)
+                    }
                     color="primary"
                   />
                 }

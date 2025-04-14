@@ -43,7 +43,6 @@ const TopBar: React.FC = () => {
         <Toolbar>
           {/* Left Section */}
           <Typography
-            variant="h6"
             sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}
           >
             {AppName}

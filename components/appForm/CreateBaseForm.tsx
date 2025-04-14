@@ -11,16 +11,28 @@ import {
   Stack,
   Switch,
   FormControlLabel,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import React, { useState } from "react";
 
 interface BaseFormField {
   name: string;
   label: string;
-  type: "text" | "textarea" | "autocomplete" | "number" | "email" | "password" | "switch";
+  type:
+    | "text"
+    | "textarea"
+    | "autocomplete"
+    | "number"
+    | "email"
+    | "password"
+    | "switch";
   required?: boolean;
   options?: { id: string; name: string }[]; // para autocomplete
   multiline?: boolean;
   rows?: number;
+  formatFn?: (input: string) => string; // ✅ función de formateo opcional
 }
 
 interface BaseFormProps {
@@ -31,7 +43,7 @@ interface BaseFormProps {
   isSubmitting?: boolean;
   submitLabel?: string;
   title?: string;
-  errors?: string[]; // errores del servidor
+  errors?: string[];
 }
 
 export const BaseForm: React.FC<BaseFormProps> = ({
@@ -44,6 +56,8 @@ export const BaseForm: React.FC<BaseFormProps> = ({
   title,
   errors = [],
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <form
       onSubmit={(e) => {
@@ -52,14 +66,12 @@ export const BaseForm: React.FC<BaseFormProps> = ({
       }}
     >
       <Grid container spacing={2} direction="column">
-        {/* Título del formulario */}
         {title && (
           <Grid item>
             <Typography variant="h6">{`Nuevo ${title}`}</Typography>
           </Grid>
         )}
 
-        {/* Mostrar errores del servidor */}
         {errors.length > 0 && (
           <Grid item>
             <Stack spacing={1}>
@@ -72,10 +84,11 @@ export const BaseForm: React.FC<BaseFormProps> = ({
           </Grid>
         )}
 
-        {/* Render de campos */}
         {fields.map((field) => (
           <Grid item key={field.name}>
-            {["text", "textarea", "number", "email", "password"].includes(field.type) ? (
+            {["text", "textarea", "number", "email", "password"].includes(
+              field.type
+            ) ? (
               <TextField
                 label={field.label}
                 variant="outlined"
@@ -83,16 +96,26 @@ export const BaseForm: React.FC<BaseFormProps> = ({
                 required={field.required}
                 multiline={field.multiline}
                 rows={field.rows}
+                autoComplete="off"
                 fullWidth
                 type={
-                  field.type === "number"
+                  field.type === "password"
+                    ? showPassword
+                      ? "text"
+                      : "password"
+                    : field.type === "number"
                     ? "number"
                     : field.type === "email"
                     ? "text"
                     : field.type
                 }
                 value={values[field.name] || ""}
-                onChange={(e) => onChange(field.name, e.target.value)}
+                onChange={(e) =>
+                  onChange(
+                    field.name,
+                    field.formatFn ? field.formatFn(e.target.value) : e.target.value
+                  )
+                }
                 inputProps={
                   field.type === "email"
                     ? {
@@ -101,13 +124,27 @@ export const BaseForm: React.FC<BaseFormProps> = ({
                       }
                     : undefined
                 }
+                InputProps={{
+                  endAdornment:
+                    field.type === "password" ? (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ) : undefined,
+                }}
               />
             ) : field.type === "autocomplete" ? (
               <Autocomplete
                 options={field.options || []}
                 getOptionLabel={(option) => option.name}
                 value={
-                  field.options?.find((opt) => opt.id === values[field.name]) || null
+                  field.options?.find((opt) => opt.id === values[field.name]) ||
+                  null
                 }
                 onChange={(_, newValue) =>
                   onChange(field.name, newValue?.id || "")
@@ -128,7 +165,9 @@ export const BaseForm: React.FC<BaseFormProps> = ({
                 control={
                   <Switch
                     checked={Boolean(values[field.name])}
-                    onChange={(e) => onChange(field.name, e.target.checked)}
+                    onChange={(e) =>
+                      onChange(field.name, e.target.checked)
+                    }
                     color="primary"
                   />
                 }
@@ -138,7 +177,6 @@ export const BaseForm: React.FC<BaseFormProps> = ({
           </Grid>
         ))}
 
-        {/* Botón de guardar */}
         <Grid item textAlign="right">
           <Button
             variant="contained"

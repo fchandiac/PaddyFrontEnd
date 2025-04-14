@@ -6,7 +6,7 @@ import { getAllProducers } from "@/app/actions/producer";
 import { getTransactionsByProducer } from "@/app/actions/transaction";
 import AppDataGrid from "@/components/appDataGrid";
 import { Producer } from "@/types/producer";
-import moment from "moment";
+import moment from "moment-timezone";
 import { Transaction } from "@/types/transaction";
 
 const TransactionTypeCode = [
@@ -23,7 +23,9 @@ const TransactionTypeCode = [
 
 export default function Page() {
   const [producers, setProducers] = useState<Producer[]>([]);
-  const [selectedProducer, setSelectedProducer] = useState<Producer | null>(null);
+  const [selectedProducer, setSelectedProducer] = useState<Producer | null>(
+    null
+  );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
@@ -39,31 +41,26 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    if (selectedProducer) {
-      const fetchTransactions = async () => {
-        try {
-          const trx = await getTransactionsByProducer(selectedProducer.id);
-          setTransactions(trx);
-        } catch (err) {
-          console.error("Error al cargar transacciones del productor", err);
-        }
-      };
-      fetchTransactions();
-    } else {
-      setTransactions([]);
-    }
+    const fetchTransactions = async () => {
+      if (!selectedProducer) return;
+      try {
+        const trx = await getTransactionsByProducer(selectedProducer.id);
+        setTransactions(trx);
+      } catch (err) {
+        console.error("Error al cargar transacciones del productor", err);
+      }
+    };
+    fetchTransactions();
   }, [selectedProducer]);
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 1 },
+    { field: "id", headerName: "Id", flex: 1 },
     {
       field: "typeCode",
       headerName: "Tipo",
       flex: 1,
       valueFormatter: (params: any) => {
-        const type = TransactionTypeCode.find(
-          (type: any) => type.code === params
-        );
+        const type = TransactionTypeCode.find((type) => type.code === params);
         return type ? type.name : "";
       },
     },
@@ -73,11 +70,9 @@ export default function Page() {
       headerName: "Débito",
       flex: 1,
       valueFormatter: (params: any) =>
-        params.toLocaleString("es-CL", {
+        Number(params).toLocaleString("es-CL", {
           style: "currency",
           currency: "CLP",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
         }),
     },
     {
@@ -85,11 +80,9 @@ export default function Page() {
       headerName: "Crédito",
       flex: 1,
       valueFormatter: (params: any) =>
-        params.toLocaleString("es-CL", {
+        Number(params).toLocaleString("es-CL", {
           style: "currency",
           currency: "CLP",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
         }),
     },
     {
@@ -97,14 +90,17 @@ export default function Page() {
       headerName: "Balance",
       flex: 1,
       valueFormatter: (params: any) =>
-        params.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })
+        Number(params).toLocaleString("es-CL", {
+          style: "currency",
+          currency: "CLP",
+        }),
     },
     {
       field: "createdAt",
       headerName: "Fecha",
       flex: 1,
       valueFormatter: (params: any) =>
-        moment(params).subtract(4, "hours").format("DD-MM-YYYY HH:mm"),
+        moment(params).tz("America/Santiago").format("DD-MM-YYYY HH:mm"),
     },
   ];
 
@@ -117,7 +113,13 @@ export default function Page() {
             getOptionLabel={(option) => `${option.name} (${option.rut})`}
             onChange={(_, value) => setSelectedProducer(value)}
             renderInput={(params) => (
-              <TextField {...params} label="Buscar productor" variant="outlined" size="small" fullWidth />
+              <TextField
+                {...params}
+                label="Buscar productor"
+                variant="outlined"
+                size="small"
+                fullWidth
+              />
             )}
           />
         </Grid>
@@ -125,7 +127,9 @@ export default function Page() {
           <AppDataGrid
             rows={transactions}
             columns={columns}
-            title={`Transacciones ${selectedProducer ? `de ${selectedProducer.name}` : ""}`}
+            title={`Transacciones ${
+              selectedProducer ? `de ${selectedProducer.name}` : ""
+            }`}
             height="75vh"
           />
         </Grid>

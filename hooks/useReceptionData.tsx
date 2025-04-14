@@ -202,7 +202,8 @@ export const useReceptionData = () => {
       data.toleranceGranosManchados +
       data.toleranceHualcacho +
       data.toleranceGranosPelados +
-      data.toleranceGranosYesosos
+      data.toleranceGranosYesosos +
+      data.toleranceBonificacion
     );
   };
 

@@ -28,7 +28,7 @@ export default function Page() {
       field: 'price',
       headerName: 'Precio',
       type: 'number',
-      width: 120,
+      flex: 1,
       valueFormatter: (params:any) =>
         params.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' }),
     },
