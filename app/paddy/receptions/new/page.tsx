@@ -27,7 +27,7 @@ import TemplateComponent from "./ui/template/Template";
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
-  const { data, liveClusters } = useReceptionContext();
+  const { data, liveClusters, setTemplate } = useReceptionContext();
   const { user } = useUserContext();
 
   const [loadingTemplate, setLoadingTemplate] = useState(true);
@@ -39,18 +39,20 @@ export default function NewReceptionPage() {
 
   useEffect(() => {
     const fetchTemplate = async () => {
+      console.log('🔥 Fetching default template on page load');
       setLoadingTemplate(true);
       const template = await getDefaultTemplate();
       if (template) {
-        // setTemplate(template);
-        data.template = template;
+        console.log('🔥 Default template found:', template);
+        setTemplate(template);
       } else {
+        console.log('🔥 No default template found');
         showAlert("No se encontró la plantilla por defecto", "error");
       }
       setLoadingTemplate(false);
     };
     fetchTemplate();
-  }, []);
+  }, [setTemplate]);
 
   const handleSave = async () => {
     console.log("data", data);

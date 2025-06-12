@@ -23,7 +23,7 @@ interface TemplateProps {
 }
 
 export default function TemplateComponent({ closeDialog }: TemplateProps) {
-  const { data, set, setTemplate, setTemplateField } = useReceptionContext();
+  const { data, setField, setTemplate, setTemplateField } = useReceptionContext();
 
   const { showAlert } = useAlertContext();
 

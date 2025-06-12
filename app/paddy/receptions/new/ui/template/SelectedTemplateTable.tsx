@@ -63,6 +63,19 @@ const SelectedTemplateTable: React.FC<SelectedTemplateTableProps> = ({selectedTe
 
   const handleApply = () => {
     if (!selectedTemplate) return;
+    console.log('🔥 Cargando plantilla:', selectedTemplate);
+    console.log('🔥 Available flags:', {
+      availableHumedad: selectedTemplate.availableHumedad,
+      availableGranosVerdes: selectedTemplate.availableGranosVerdes,
+      availableImpurezas: selectedTemplate.availableImpurezas,
+      availableVano: selectedTemplate.availableVano,
+      availableHualcacho: selectedTemplate.availableHualcacho,
+      availableGranosManchados: selectedTemplate.availableGranosManchados,
+      availableGranosPelados: selectedTemplate.availableGranosPelados,
+      availableGranosYesosos: selectedTemplate.availableGranosYesosos,
+      availableBonus: selectedTemplate.availableBonus,
+      availableDry: selectedTemplate.availableDry,
+    });
     setTemplate(selectedTemplate);
     closeDialog();
   };

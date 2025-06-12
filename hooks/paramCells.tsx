@@ -485,18 +485,15 @@ function createParamCluster(
 
   // Paso 3: Asignar el nodo de porcentaje al clúster
   cluster.percent = createPercentNode(keyNode(key, "percent"), cluster);
-  if (cluster.showTolerance) {
-    cluster.percent.backgroundColor = "#c8e6c9";
-  }
-
+  // No establecer color de fondo por defecto
+  
   cluster.percent.setError = (error: boolean) => {  
     cluster.percent.error = error;
     if (error) {
-      cluster.percent.backgroundColor = "#ffcdd2";
+      cluster.percent.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.percent.backgroundColor = "#c8e6c9";
+      cluster.percent.backgroundColor = "inherit"; // Sin color especial cuando no hay error
     }
-    
   }
 
 
@@ -532,38 +529,38 @@ function createGroupSummaryCluster(
 
   // Paso 2: Asignar el nodo de porcentaje al clúster
   cluster.percent = createPercentNode(keyNode(key, "percent"), cluster);
-  cluster.percent.backgroundColor = "#c8e6c9";
+  // Sin color de fondo por defecto
   cluster.percent.setError = (error: boolean) => {
     cluster.percent.error = error;
     if (error) {
-      cluster.percent.backgroundColor = "#ffcdd2";
+      cluster.percent.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.percent.backgroundColor = "#c8e6c9";
+      cluster.percent.backgroundColor = "inherit"; // Sin color cuando no hay error
     }
   }
 
   // Paso 3: Asignar el nodo de tolerancia al clúster
   cluster.tolerance = createToleranceNode(keyNode(key, "tolerance"), cluster);
 
-  cluster.tolerance.backgroundColor = "#c8e6c9";
+  // Sin color de fondo por defecto
   cluster.tolerance.setError = (error: boolean) => {
     cluster.tolerance.error = error;
     if (error) {
-      cluster.tolerance.backgroundColor = "#ffcdd2";
+      cluster.tolerance.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.tolerance.backgroundColor = "#c8e6c9";
+      cluster.tolerance.backgroundColor = "inherit"; // Sin color cuando no hay error
     }
   }
 
   // Paso 4: Asignar el nodo de penalización al clúster
   cluster.penalty = createPenaltyNode(keyNode(key, "penalty"), cluster);
-  cluster.penalty.backgroundColor = "#c8e6c9";
+  // Sin color de fondo por defecto
   cluster.penalty.setError = (error: boolean) => {
     cluster.penalty.error = error;
     if (error) {
-      cluster.penalty.backgroundColor = "#ffcdd2";
+      cluster.penalty.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.penalty.backgroundColor = "#c8e6c9";
+      cluster.penalty.backgroundColor = "inherit"; // Sin color cuando no hay error
     }
   }
 

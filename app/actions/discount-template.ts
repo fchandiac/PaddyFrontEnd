@@ -80,17 +80,24 @@ export async function getDiscountTemplatesByProducer(
 
 export async function setDefaultTemplate(id: number): Promise<TemplateType | { error: string }> {
   try {
+    console.log('🔥 Backend: Setting template as default, id:', id);
     const res = await fetch(`${backendUrl}/template/set-default/${id}`, {
       method: 'PATCH',
     });
 
+    console.log('🔥 Backend: Response status:', res.status, res.statusText);
+
     if (!res.ok) {
       const err = await res.json();
+      console.error('🔥 Backend: Error response:', err);
       throw new Error(err.message || 'Error al marcar como predeterminada');
     }
 
-    return await res.json();
+    const result = await res.json();
+    console.log('🔥 Backend: Success response:', result);
+    return result;
   } catch (error: any) {
+    console.error('🔥 Backend: Exception in setDefaultTemplate:', error);
     return { error: error.message || 'Error inesperado al marcar como predeterminada' };
   }
 }

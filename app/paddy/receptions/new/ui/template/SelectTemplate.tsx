@@ -64,7 +64,6 @@ export default function SelectTemplate({ closeDialog }: SelectTemplateProps) {
   const [selectedTemplate, setSelectedTemplate] =
     useState<TemplateType | null>(null);
 
-
   useEffect(() => {
     fetchProducers();
     fetchTemplates();
@@ -90,8 +89,7 @@ export default function SelectTemplate({ closeDialog }: SelectTemplateProps) {
 
   const fetchTemplatesByProducer = async (producerId: number) => {
     setLoading(true);
-    const result =
-      await getDiscountTemplatesByProducer(producerId);
+    const result = await getDiscountTemplatesByProducer(producerId);
     setTemplates(result);
     setLoading(false);
   };
@@ -106,9 +104,22 @@ export default function SelectTemplate({ closeDialog }: SelectTemplateProps) {
   };
 
   const handleSetDefault = async (id: number) => {
+    console.log("🔥 Setting template as default, id:", id);
     setLoading(true);
-    await setDefaultTemplate(id);
+    const result = await setDefaultTemplate(id);
+    console.log("🔥 setDefaultTemplate result:", result);
+
+    if ("error" in result) {
+      console.error("🔥 Error setting default template:", result.error);
+    } else {
+      console.log("🔥 Successfully set default template");
+      // Actualizar la plantilla seleccionada también
+      await fetchDefault();
+    }
+
     await fetchTemplates();
+    console.log("🔥 Templates refreshed after setting default");
+    setLoading(false);
   };
 
   const handleDelete = async () => {
@@ -120,7 +131,6 @@ export default function SelectTemplate({ closeDialog }: SelectTemplateProps) {
       setOpenDeleteDialog(false);
     }
   };
-
 
   const filteredTemplates = templates
     .filter((t) =>
@@ -226,7 +236,7 @@ export default function SelectTemplate({ closeDialog }: SelectTemplateProps) {
                           selectedTemplate?.id === tpl.id
                             ? "#e3f2fd"
                             : undefined,
-                            display: "table-row",
+                        display: "table-row",
                       }}
                     >
                       <TableCell sx={{ fontSize: 12 }}>
