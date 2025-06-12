@@ -4,6 +4,7 @@ import { AlertProvider } from "@/context/AlertContext";
 import RootWrapper from "./RootWrapper"; // 👈 Nuevo archivo que usará el hook y envolverá el resto
 import { ReceptionDataProvider } from "@/context/ReceptionDataContext";
 import { SessionProvider } from 'next-auth/react';
+import '@/app/globals.css';
 
 export const metadata = {
   title: "Paddy AyG",

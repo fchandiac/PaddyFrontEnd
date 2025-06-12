@@ -20,7 +20,7 @@ import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
 import { useAlertContext } from "@/context/AlertContext";
 
 const DISCOUNT_CODE = 8;
-const TITLE = "Rangos de bonificación por secado";
+const TITLE = "Rangos % de secado";
 
 export default function DryingDiscountPage() {
   const [rows, setRows] = useState<DiscountPercent[]>([]);

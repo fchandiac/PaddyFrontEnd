@@ -11,7 +11,7 @@ import { Delete, Edit } from "@mui/icons-material";
 import { useAlertContext } from "@/context/AlertContext";
 import { CreateRiceTypeForm } from "./ui/CreateRiceTypeForm";
 import { UpdateRiceTypeForm } from "./ui/UpdateRiceTypeForm";
-import moment from "moment";
+import moment from "moment-timezone";
 
 export default function RiceTypePage() {
   const [riceTypes, setRiceTypes] = useState<RiceType[]>([]);
@@ -49,7 +49,7 @@ export default function RiceTypePage() {
               type: "number",
               valueFormatter: (params: any) =>
               {
-                return params.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 2  })
+                return Number(params).toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })
               }
             },
             {
@@ -63,9 +63,8 @@ export default function RiceTypePage() {
               headerName: "Creado",
               flex: 1,
               valueFormatter: (params: any) => {
-                return moment(params)
-                  .subtract(4, "hours") // Resta 4 horas manualmente
-                  .format("DD-MM-YYYY HH:mm");
+                return moment(params).tz("America/Santiago").format("DD-MM-YYYY HH:mm");
+                  
               },
             },
             {
@@ -145,6 +144,7 @@ export default function RiceTypePage() {
           />
         </Box>
       </Dialog>
+
     </>
   );
 }

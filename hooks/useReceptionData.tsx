@@ -1,284 +1,140 @@
-import { useState } from "react";
+"use client";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import {
+  DataReceptionContextType,
+  defaultReceptionData,
+} from "@/types/reception";
+import { TemplateType } from "@/types/discount-template";
+import { clusters, Node } from "./paramCells";
 
-export interface ReceptionData {
-  producerId: number;
-  riceTypeId: number;
-  price: number;
-  guide: string;
-  licensePlate: string;
-  grossWeight: number;
-  tare: number;
-  netWeight: number;
+export function useReceptionData(
+  initial: Partial<DataReceptionContextType> = {}
+) {
+  const [data, setData] = useState<DataReceptionContextType>({
+    ...defaultReceptionData,
+    ...initial,
+  });
+  const [, setVersion] = useState(0);
 
-  percentHumedad: number;
-  toleranceHumedad: number;
-  penaltyHumedad: number;
+  const liveClusters = useMemo(() => clusters, []);
 
-  percentGranosVerdes: number;
-  toleranceGranosVerdes: number;
-  penaltyGranosVerdes: number;
+  useEffect(() => {
+    const unsubscribeFns: (() => void)[] = [];
 
-  percentImpurezas: number;
-  toleranceImpurezas: number;
-  penaltyImpurezas: number;
+    const nodes: Node[] = [
+      liveClusters.price.node,
+      liveClusters.grossWeight.node,
+      liveClusters.tare.node,
+      liveClusters.netWeight.node,
 
-  percentGranosManchados: number;
-  toleranceGranosManchados: number;
-  penaltyGranosManchados: number;
+      liveClusters.Humedad.range,
+      liveClusters.Humedad.percent,
+      liveClusters.Humedad.tolerance,
+      liveClusters.Humedad.penalty,
 
-  percentHualcacho: number;
-  toleranceHualcacho: number;
-  penaltyHualcacho: number;
+      liveClusters.GranosVerdes.range,
+      liveClusters.GranosVerdes.percent,
+      liveClusters.GranosVerdes.tolerance,
+      liveClusters.GranosVerdes.penalty,
 
-  percentGranosPelados: number;
-  toleranceGranosPelados: number;
-  penaltyGranosPelados: number;
+      liveClusters.Impurezas.range,
+      liveClusters.Impurezas.percent,
+      liveClusters.Impurezas.tolerance,
+      liveClusters.Impurezas.penalty,
 
-  percentGranosYesosos: number;
-  toleranceGranosYesosos: number;
-  penaltyGranosYesosos: number;
+      liveClusters.Vano.range,
+      liveClusters.Vano.percent,
+      liveClusters.Vano.tolerance,
+      liveClusters.Vano.penalty,
 
-  percentBonificacion: number;
-  toleranceBonificacion: number;
-  weightBonificacion: number;
+      liveClusters.Hualcacho.range,
+      liveClusters.Hualcacho.percent,
+      liveClusters.Hualcacho.tolerance,
+      liveClusters.Hualcacho.penalty,
 
-  percentSecado: number;
+      liveClusters.GranosManchados.range,
+      liveClusters.GranosManchados.percent,
+      liveClusters.GranosManchados.tolerance,
+      liveClusters.GranosManchados.penalty,
 
-  totalDiscounts: number;
-  postTotal: number;
-  totalToPay: number;
+      liveClusters.GranosPelados.range,
+      liveClusters.GranosPelados.percent,
+      liveClusters.GranosPelados.tolerance,
+      liveClusters.GranosPelados.penalty,
 
-  note: string;
-}
+      liveClusters.GranosYesosos.range,
+      liveClusters.GranosYesosos.percent,
+      liveClusters.GranosYesosos.tolerance,
+      liveClusters.GranosYesosos.penalty,
 
-const initialReceptionData: ReceptionData = {
-  producerId: 0,
-  riceTypeId: 0,
-  price: 0,
-  guide: "",
-  licensePlate: "",
-  grossWeight: 0,
-  tare: 0,
-  netWeight: 0,
+      liveClusters.Summary.percent,
+      liveClusters.Summary.tolerance,
+      liveClusters.Summary.penalty,
 
-  percentHumedad: 0,
-  toleranceHumedad: 0,
-  penaltyHumedad: 0,
+    ];
 
-  percentGranosVerdes: 0,
-  toleranceGranosVerdes: 0,
-  penaltyGranosVerdes: 0,
-
-  percentImpurezas: 0,
-  toleranceImpurezas: 0,
-  penaltyImpurezas: 0,
-
-  percentGranosManchados: 0,
-  toleranceGranosManchados: 0,
-  penaltyGranosManchados: 0,
-
-  percentHualcacho: 0,
-  toleranceHualcacho: 0,
-  penaltyHualcacho: 0,
-
-  percentGranosPelados: 0,
-  toleranceGranosPelados: 0,
-  penaltyGranosPelados: 0,
-
-  percentGranosYesosos: 0,
-  toleranceGranosYesosos: 0,
-  penaltyGranosYesosos: 0,
-
-  percentBonificacion: 0,
-  toleranceBonificacion: 0,
-  weightBonificacion: 0,
-
-  percentSecado: 0,
-
-  totalDiscounts: 0,
-  postTotal: 0,
-  totalToPay: 0,
-
-  note: "",
-};
-
-export const useReceptionData = () => {
-  const [data, setData] = useState<ReceptionData>(initialReceptionData);
-
-  const updateField = <K extends keyof ReceptionData>(key: K, value: ReceptionData[K]) => {
-    setData((prev) => {
-      const updated = { ...prev, [key]: value };
-
-      const match = key.match(/^(percent|tolerance)(.+)$/);
-      if (match) {
-        const [, , label] = match;
-        const percentKey = `percent${label}` as keyof ReceptionData;
-        const toleranceKey = `tolerance${label}` as keyof ReceptionData;
-        const penaltyKey = `penalty${label}` as keyof ReceptionData;
-
-        const percent = (key === percentKey ? value : prev[percentKey]) as number;
-        const tolerance = (key === toleranceKey ? value : prev[toleranceKey]) as number;
-
-        const netWeight = updated.netWeight;
-        const penalty = percent > tolerance ? ((percent - tolerance) * netWeight) / 100 : 0;
-        (updated as any)[penaltyKey] = penalty;
-      }
-
-      return recalculate(updated);
-    });
-  };
-
-  const setMultipleFields = (fields: Partial<ReceptionData>) => {
-    setData((prev) => {
-      const updated = { ...prev, ...fields };
-      return recalculate(updated);
-    });
-  };
-
-  const resetData = () => setData(initialReceptionData);
-
-  const recalculate = (current: ReceptionData): ReceptionData => {
-    const updated = { ...current };
-
-    updated.netWeight = Math.max(0, updated.grossWeight - updated.tare);
-
-    updated.weightBonificacion = parseFloat(
-      ((updated.toleranceBonificacion * updated.netWeight) / 100).toFixed(2)
-    );
-
-    updated.totalDiscounts = [
-      updated.penaltyHumedad,
-      updated.penaltyGranosVerdes,
-      updated.penaltyImpurezas,
-      updated.penaltyGranosManchados,
-      updated.penaltyHualcacho,
-      updated.penaltyGranosPelados,
-      updated.penaltyGranosYesosos,
-    ].reduce((sum, v) => sum + v, 0);
-
-    updated.postTotal = updated.netWeight - updated.totalDiscounts + updated.weightBonificacion;
-    updated.totalToPay = parseFloat((updated.postTotal * updated.price).toFixed(2));
-
-    return updated;
-  };
-
-  const applyAutoPenalties = () => {
-    setData((prev) => {
-      const updatePenalty = (percent: number, tolerance: number) =>
-        percent > tolerance ? ((percent - tolerance) * prev.netWeight) / 100 : 0;
-
-      const updated: ReceptionData = {
-        ...prev,
-        penaltyHumedad: updatePenalty(prev.percentHumedad, prev.toleranceHumedad),
-        penaltyGranosVerdes: updatePenalty(prev.percentGranosVerdes, prev.toleranceGranosVerdes),
-        penaltyImpurezas: updatePenalty(prev.percentImpurezas, prev.toleranceImpurezas),
-        penaltyGranosManchados: updatePenalty(prev.percentGranosManchados, prev.toleranceGranosManchados),
-        penaltyHualcacho: updatePenalty(prev.percentHualcacho, prev.toleranceHualcacho),
-        penaltyGranosPelados: updatePenalty(prev.percentGranosPelados, prev.toleranceGranosPelados),
-        penaltyGranosYesosos: updatePenalty(prev.percentGranosYesosos, prev.toleranceGranosYesosos),
+    nodes.forEach((node) => {
+      // Store the original onChange function
+      const originalOnChange = node.onChange;
+      const wrappedOnChange = (value: number) => {
+        setVersion((v) => v + 1);
+        originalOnChange?.(value);
       };
+      node.onChange = wrappedOnChange;
 
-      return recalculate(updated);
+      unsubscribeFns.push(() => {
+        node.onChange = originalOnChange;
+      });
+
+      // --- envolvemos setShow (no recibe parámetro) ---
+      const originalSetShow = node.setShow;
+      const wrappedSetShow = () => {
+        setVersion((v) => v + 1);
+        originalSetShow();
+      };
+      node.setShow = wrappedSetShow;
+      unsubscribeFns.push(() => {
+        node.setShow = originalSetShow;
+      });
     });
-  };
 
-  const getTotalPercentDiscounts = () => {
-    return (
-      data.percentHumedad +
-      data.percentGranosVerdes +
-      data.percentImpurezas +
-      data.percentGranosManchados +
-      data.percentHualcacho +
-      data.percentGranosPelados +
-      data.percentGranosYesosos
-    );
-  };
+    return () => {
+      unsubscribeFns.forEach((fn) => fn());
+    };
+  }, [liveClusters]);
 
-  const getTotalTolerances = () => {
-    return (
-      data.toleranceHumedad +
-      data.toleranceGranosVerdes +
-      data.toleranceImpurezas +
-      data.toleranceGranosManchados +
-      data.toleranceHualcacho +
-      data.toleranceGranosPelados +
-      data.toleranceGranosYesosos +
-      data.toleranceBonificacion
-    );
-  };
+  const setTemplateField = useCallback(
+    (field: keyof TemplateType, value: any) => {
+      setData((prev) => ({
+        ...prev,
+        template: {
+          ...prev.template,
+          [field]: value,
+        },
+      }));
+    },
+    []
+  );
 
-  const getTotalKgPenalties = () => {
-    return (
-      data.penaltyHumedad +
-      data.penaltyGranosVerdes +
-      data.penaltyImpurezas +
-      data.penaltyGranosManchados +
-      data.penaltyHualcacho +
-      data.penaltyGranosPelados +
-      data.penaltyGranosYesosos -
-      data.weightBonificacion
-    );
-  };
+  const setField = useCallback(
+    (field: keyof DataReceptionContextType, value: any) => {
+      setData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
 
-  const setProducerId = (value: number) => updateField("producerId", value);
-  const setRiceTypeId = (value: number) => updateField("riceTypeId", value);
-  const setPrice = (value: number) => updateField("price", value);
-  const setGuide = (value: string) => updateField("guide", value);
-  const setLicensePlate = (value: string) => updateField("licensePlate", value);
-  const setGrossWeight = (value: number) => updateField("grossWeight", value);
-  const setTare = (value: number) => updateField("tare", value);
-  const setPercentHumedad = (value: number) => updateField("percentHumedad", value);
-  const setToleranceHumedad = (value: number) => updateField("toleranceHumedad", value);
-  const setPercentGranosVerdes = (value: number) => updateField("percentGranosVerdes", value);
-  const setToleranceGranosVerdes = (value: number) => updateField("toleranceGranosVerdes", value);
-  const setPercentImpurezas = (value: number) => updateField("percentImpurezas", value);
-  const setToleranceImpurezas = (value: number) => updateField("toleranceImpurezas", value);
-  const setPercentGranosManchados = (value: number) => updateField("percentGranosManchados", value);
-  const setToleranceGranosManchados = (value: number) => updateField("toleranceGranosManchados", value);
-  const setPercentHualcacho = (value: number) => updateField("percentHualcacho", value);
-  const setToleranceHualcacho = (value: number) => updateField("toleranceHualcacho", value);
-  const setPercentGranosPelados = (value: number) => updateField("percentGranosPelados", value);
-  const setToleranceGranosPelados = (value: number) => updateField("toleranceGranosPelados", value);
-  const setPercentGranosYesosos = (value: number) => updateField("percentGranosYesosos", value);
-  const setToleranceGranosYesosos = (value: number) => updateField("toleranceGranosYesosos", value);
-  const setToleranceBonificacion = (value: number) => updateField("toleranceBonificacion", value);
-  const setPercentBonificacion = (value: number) => updateField("percentBonificacion", value);
-  const setPercentSecado = (value: number) => updateField("percentSecado", value);
-  const setNote = (value: string) => updateField("note", value);
+  const setTemplate = useCallback((template: TemplateType) => {
+    setData((prev) => ({
+      ...prev,
+      template,
+    }));
+  }, []);
 
   return {
     data,
-    updateField,
-    setMultipleFields,
-    resetData,
-    applyAutoPenalties,
-    getTotalPercentDiscounts,
-    getTotalTolerances,
-    getTotalKgPenalties,
-    setProducerId,
-    setRiceTypeId,
-    setPrice,
-    setGuide,
-    setLicensePlate,
-    setGrossWeight,
-    setTare,
-    setPercentHumedad,
-    setToleranceHumedad,
-    setPercentGranosVerdes,
-    setToleranceGranosVerdes,
-    setPercentImpurezas,
-    setToleranceImpurezas,
-    setPercentGranosManchados,
-    setToleranceGranosManchados,
-    setPercentHualcacho,
-    setToleranceHualcacho,
-    setPercentGranosPelados,
-    setToleranceGranosPelados,
-    setPercentGranosYesosos,
-    setToleranceGranosYesosos,
-    setToleranceBonificacion,
-    setPercentBonificacion,
-    setPercentSecado,
-    setNote,
+    setField,
+    setTemplateField,
+    setTemplate,
+    liveClusters,
   };
-};
+}

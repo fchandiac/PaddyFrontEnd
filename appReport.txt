@@ -1,0 +1,119 @@
+# Análisis de ParamCells: Arquitectura y Lógica
+
+El archivo `hooks/paramCells.tsx` implementa un sistema sofisticado de cálculo para el procesamiento de arroz (paddy), utilizando un patrón de diseño basado en nodos reactivos.
+
+## Estructura principal
+
+El código organiza los datos y cálculos en dos niveles principales:
+
+1. **Clusters**: Representan categorías o grupos de parámetros relacionados (ej: Humedad, Granos Verdes, etc.)
+2. **Nodos**: Componentes individuales dentro de cada cluster que contienen valores y funciones específicas
+
+## Tipos de Clusters
+
+- `GenericCluster`: Para valores simples como precio, peso bruto
+- `ParamCluster`: Para parámetros que requieren rango, porcentaje, tolerancia y penalización
+- `GroupSummaryCluster`: Para totales de grupos de parámetros
+- `SummaryCluster`: Para resúmenes de todos los análisis
+- `BonusCluster`: Para bonificaciones
+- `DryCluster`: Para cálculos de secado
+
+## Tipos de Nodos
+
+- `generic`: Nodos genéricos para valores simples
+- `range`: Para rangos de valores
+- `percent`: Para porcentajes
+- `tolerance`: Para valores de tolerancia
+- `penalty`: Para penalizaciones calculadas
+
+## Sistema de Propagación Reactiva
+
+La arquitectura implementa un sistema reactivo donde:
+
+1. Cada nodo tiene `nodeSources` (nodos que lo alimentan) y `nodeConsumers` (nodos que consumen su valor)
+2. Cuando un nodo cambia, notifica a sus consumidores a través de `effect()`
+3. Los consumidores recalculan sus valores y propagan los cambios
+
+Por ejemplo, cuando cambias los valores de `grossWeight` o `tare`, esto dispara el recálculo automático de `netWeight`, que a su vez afecta los cálculos de penalización.
+
+## Lógica de Cálculo Principal
+
+- Cada parámetro (Humedad, Granos Verdes, etc.) tiene un nodo de rango que determina su porcentaje
+- El porcentaje menos la tolerancia determina la penalización efectiva
+- Las penalizaciones se calculan como un porcentaje del peso neto
+- El sistema suma todas las penalizaciones para calcular descuentos totales
+
+## Validación y Feedback Visual
+
+El sistema incluye validación de datos con feedback visual:
+- Porcentajes mayores a 100% generan errores visuales
+- Tolerancias mayores que los porcentajes generan errores
+- Penalizaciones totales mayores que el peso neto generan errores
+
+Este sistema permite una interfaz de usuario reactiva donde los cambios en cualquier parámetro se propagan automáticamente a través de toda la cadena de cálculos, manteniendo consistencia en todos los valores relacionados.
+
+# Sistema de Plantillas (Templates) en la Aplicación de Recepción de Arroz
+
+El sistema de plantillas es un componente fundamental que permite configurar parámetros predefinidos para el análisis de granos de arroz. Estas plantillas se pueden asociar a productores específicos para agilizar el proceso de recepción.
+
+## Estructura de las Plantillas
+
+Una plantilla (`TemplateType`) contiene:
+
+1. **Información básica**:
+   - `id`: Identificador único
+   - `name`: Nombre de la plantilla
+   - `producerId`: ID del productor asociado
+   - `useToleranceGroup`: Indicador de uso de tolerancia grupal
+   - `groupToleranceValue`: Valor de tolerancia para el grupo
+
+2. **Configuración para cada parámetro** (Humedad, Granos Verdes, Impurezas, etc.):
+   - `available[Parámetro]`: Si el parámetro está disponible/activo
+   - `percent[Parámetro]`: Valor porcentual base del parámetro
+   - `tolerance[Parámetro]`: Valor de tolerancia específico
+   - `showTolerance[Parámetro]`: Si se muestra la tolerancia
+   - `groupTolerance[Parámetro]`: Si el parámetro usa tolerancia grupal
+
+## Componentes principales de las plantillas
+
+### 1. `SelectTemplate.tsx`
+- Permite al usuario buscar y seleccionar plantillas existentes
+- Muestra una lista de plantillas filtrable por productor
+- Permite marcar plantillas como favoritas/predeterminadas
+- Ofrece funcionalidad para eliminar plantillas
+
+### 2. `Template.tsx`
+- Permite crear nuevas plantillas
+- Incluye campos para nombre y productor asociado
+- Integra `TemplateTable` para configurar los parámetros
+
+### 3. `TemplateTable.tsx`
+- Muestra una tabla interactiva con todos los parámetros configurables
+- Permite habilitar/deshabilitar parámetros individualmente
+- Permite configurar porcentajes y tolerancias para cada parámetro
+- Soporta la configuración de tolerancia grupal
+
+### 4. `SelectedTemplateTable.tsx`
+- Muestra los detalles de una plantilla seleccionada
+- Permite aplicar la plantilla a la recepción actual
+
+## Integración con el sistema de paramCells
+
+Las plantillas se conectan con el sistema `paramCells` a través del hook `useReceptionData`:
+
+1. Cuando se selecciona una plantilla, sus valores se cargan en el contexto de recepción
+2. Estos valores configuran los nodos correspondientes en `paramCells`
+3. Por ejemplo, si `availableHumedad` es `true` y tiene un valor de `percentHumedad` de 14%, estos valores inicializan los nodos de humedad en `paramCells`
+4. Los valores de tolerancia de la plantilla configuran los nodos de tolerancia correspondientes
+5. La arquitectura reactiva de `paramCells` se encarga de propagar estos valores iniciales a través del sistema de cálculo
+
+## Flujo de uso típico
+
+1. El usuario inicia una nueva recepción
+2. Selecciona un productor
+3. Selecciona una plantilla asociada al productor o una plantilla general
+4. La plantilla configura automáticamente los parámetros de análisis de granos
+5. El usuario puede ajustar los valores según necesidades específicas
+6. Los cálculos se realizan automáticamente según la configuración de la plantilla
+
+Las plantillas esencialmente funcionan como "presets" que configuran todo el sistema de cálculo de `paramCells`, ahorrando tiempo al usuario y asegurando consistencia en las recepciones para un mismo productor o tipo de arroz.

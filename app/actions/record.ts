@@ -4,6 +4,7 @@ const backendUrl =
 
 import { CreateRecordDto } from "@/types/record"; // O define la interfaz aquí si no la tienes
 
+
 export async function getAllRecords() {
   try {
     const res = await fetch(`${backendUrl}/records`, {

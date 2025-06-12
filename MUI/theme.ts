@@ -10,6 +10,25 @@ const theme = createTheme({
       main: '#9c27b0',
     },
   },
+  mixins: {
+    toolbar: {
+      minHeight: 40,
+      '@media (min-width:0px)': {
+        minHeight: 40,
+      },
+      '@media (min-width:600px)': {
+        minHeight: 40,
+      },
+      
+    },
+  },
+
 });
 
+
+
+
+
+
 export default theme;
+

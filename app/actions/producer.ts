@@ -61,3 +61,43 @@ export async function deleteProducer(id: number): Promise<void> {
     throw new Error("Error al eliminar productor");
   }
 }
+
+
+
+// 🟢 Crear productor con cuenta bancaria
+export async function createProducerWithBankAccount(data: any): Promise<any> {
+  const res = await fetch(`${backendUrl}/producers/with-bank`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    return await res.json(); // backend podría devolver { error, message }
+  }
+
+  return await res.json();
+}
+
+// 🟢 Agregar cuenta bancaria a un productor existente
+export async function addBankAccountToProducer(
+  producerId: number,
+  account: {
+    bank: string;
+    accountNumber: string;
+    accountType: string;
+    holderName: string;
+  }
+): Promise<any> {
+  const res = await fetch(`${backendUrl}/producers/${producerId}/add-bank-account`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(account),
+  });
+
+  if (!res.ok) {
+    return await res.json();
+  }
+
+  return await res.json();
+}

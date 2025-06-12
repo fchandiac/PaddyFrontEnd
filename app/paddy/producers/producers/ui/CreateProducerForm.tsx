@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { BaseForm } from "@/components/appForm/CreateBaseForm";
-import { createProducer } from "@/app/actions/producer";
+import {
+  createProducer,
+  createProducerWithBankAccount,
+} from "@/app/actions/producer";
 import { useAlertContext } from "@/context/AlertContext";
 import { createRecord } from "@/app/actions/record";
 import { useUserContext } from "@/context/UserContext";
 import { createTransaction } from "@/app/actions/transaction";
 import { TransactionTypeCode } from "@/types/transaction";
+import { bankOptions, accountBankTypes } from "@/types/producer"; // asegúrate que estén exportados así
+import { useReceptionContext } from "@/context/ReceptionDataContext";
+import { usePathname } from "next/navigation";
+
 
 const initialForm = {
   name: "",
@@ -15,24 +22,54 @@ const initialForm = {
   rut: "",
   address: "",
   phone: "",
+  bank: "",
+  accountType: "",
+  accountNumber: "",
+  holderName: "",
 };
 
-export const CreateProducerForm = ({ afterSubmit }: { afterSubmit: () => void }) => {
+export const CreateProducerForm = ({
+  afterSubmit,
+}: {
+  afterSubmit: () => void;
+}) => {
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const { user } = useUserContext();
   const { showAlert } = useAlertContext();
+  const { setProducerId } = useReceptionContext();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    nameInputRef.current?.focus();
+  }, []);
+
+  const isBankAccountComplete = () => {
+    const { bank, accountNumber, accountType, holderName } = formData;
+    return bank && accountNumber && accountType && holderName;
+  };
 
   const saveProducer = async () => {
     setIsSubmitting(true);
     setErrors([]);
 
     try {
-      const result = await createProducer(formData);
+      let result;
+
+      if (isBankAccountComplete()) {
+        result = await createProducerWithBankAccount(formData);
+      } else {
+        const { bank, accountNumber, accountType, holderName, ...rest } =
+          formData;
+        result = await createProducer(rest);
+      }
 
       if (result?.error) {
-        setErrors(Array.isArray(result.message) ? result.message : [result.error]);
+        setErrors(
+          Array.isArray(result.message) ? result.message : [result.error]
+        );
         return;
       }
 
@@ -42,9 +79,7 @@ export const CreateProducerForm = ({ afterSubmit }: { afterSubmit: () => void })
         description: `Creación de productor ${formData.name} (${formData.rut})`,
       });
 
-      console.log("result", result);
-
-      const trans = await createTransaction({
+      await createTransaction({
         userId: user?.id ?? 0,
         producerId: result.id,
         typeCode: TransactionTypeCode.OPEN_ACCOUNT,
@@ -52,14 +87,19 @@ export const CreateProducerForm = ({ afterSubmit }: { afterSubmit: () => void })
         credit: 0,
         balance: 0,
         previousBalance: 0,
-        description: 'Apertura de cuenta',
+        description: "Apertura de cuenta",
         lastTransaction: null,
         isDraft: false,
       });
 
-      console.log(trans)
-
       showAlert("Productor creado correctamente", "success");
+
+      if (pathname === "/paddy/receptions/new") {
+        setProducerId(result.id);
+      }
+
+     
+
       afterSubmit();
       setFormData(initialForm);
     } catch (err) {
@@ -73,11 +113,74 @@ export const CreateProducerForm = ({ afterSubmit }: { afterSubmit: () => void })
     <BaseForm
       title="Productor"
       fields={[
-        { name: "name", label: "Nombre", type: "text", required: true },
-        { name: "businessName", label: "Razón Social", type: "text", required: true },
-        { name: "rut", label: "RUT", type: "text", required: true },
-        { name: "address", label: "Dirección", type: "text", required: true },
-        { name: "phone", label: "Teléfono", type: "text", required: true },
+        {
+          name: "name",
+          label: "Nombre",
+          type: "text",
+          required: true,
+          inputRef: nameInputRef,
+        },
+        {
+          name: "businessName",
+          label: "Razón Social",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "rut",
+          label: "RUT",
+          type: "text",
+          required: true,
+          formatFn: (input: string) => {
+            const cleaned = input
+              .toUpperCase()
+              .replace(/[^0-9K]/g, "")
+              .slice(0, 9);
+            if (cleaned.length <= 1) return cleaned;
+            const body = cleaned.slice(0, -1);
+            const dv = cleaned.slice(-1);
+            return `${body}-${dv}`;
+          },
+        },
+        { name: "address", label: "Dirección", type: "text", required: false },
+        {
+          name: "phone",
+          label: "Teléfono",
+          type: "text",
+          required: false,
+          startAdornment: "+56",
+          formatFn: (input: string) => input.replace(/\D/g, "").slice(0, 9),
+        },
+        // 🏦 Datos de cuenta bancaria opcionales
+        {
+          name: "bank",
+          label: "Banco",
+          type: "autocomplete",
+          required: false,
+          options: bankOptions.map((b: any) => ({ id: b.name, name: b.name })),
+        },
+        {
+          name: "accountType",
+          label: "Tipo de cuenta",
+          type: "autocomplete",
+          required: false,
+          options: accountBankTypes.map((a: any) => ({
+            id: a.type,
+            name: a.type,
+          })),
+        },
+        {
+          name: "accountNumber",
+          label: "Número de cuenta",
+          type: "text",
+          required: false,
+        },
+        {
+          name: "holderName",
+          label: "Titular",
+          type: "text",
+          required: false,
+        },
       ]}
       values={formData}
       onChange={(field, value) => setFormData({ ...formData, [field]: value })}

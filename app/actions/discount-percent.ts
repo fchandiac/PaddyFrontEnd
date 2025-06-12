@@ -24,23 +24,52 @@ export async function getDiscountPercentById(id: number): Promise<any> {
 
 // ➕ Crear
 export async function createDiscountPercent(data: CreateDiscountPercentDto): Promise<any> {
-  const res = await fetch(`${backendUrl}/discounts-percent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${backendUrl}/discounts-percent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      return {
+        error: true,
+        message: result.message || "Error al crear rango",
+      };
+    }
+
+    return result;
+  } catch (err) {
+    return { error: true, message: "Error de red o del servidor" };
+  }
 }
 
 // ✏️ Actualizar
 export async function updateDiscountPercent(id: number, data: UpdateDiscountPercentDto): Promise<any> {
-  const res = await fetch(`${backendUrl}/discounts-percent/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${backendUrl}/discounts-percent/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      return {
+        error: true,
+        message: result.message || "Error al actualizar rango",
+      };
+    }
+
+    return result;
+  } catch (err) {
+    return { error: true, message: "Error de red o del servidor" };
+  }
 }
+
 
 // 🗑️ Eliminar
 export async function deleteDiscountPercent(id: number): Promise<void> {

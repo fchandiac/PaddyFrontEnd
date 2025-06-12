@@ -5,7 +5,7 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: true, // ✅ importante en producción
+    // secureCookie: true, // ✅ importante en producción
   });
 
   // console.log("TOKEN DESDE MIDDLEWARE:", token);

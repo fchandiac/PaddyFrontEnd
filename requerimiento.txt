@@ -1,0 +1,1476 @@
+✅ REQUERIMIENTOS FUNCIONALES (ORGANIZADOS Y CLAROS)
+1. Recepción de Paddy
+✅ Búsqueda de productor por RUT:
+Si el productor no existe, ofrecer opción inmediata de agregarlo desde el mismo Autocomplete.
+
+✅ Agrupación en análisis de granos: Crear grupo "Impurezas" que contenga los siguientes ítems:
+
+Granos Verdes
+
+Impurezas
+
+Hualcacho
+
+Vano
+
+Granos Pelados Partidos
+
+El grupo debe tener una línea de totales (% total, tolerancia total, castigo en kg).
+
+✅ Comprobante de recepción:
+Al guardar una recepción, mostrar opción inmediata de imprimir el comprobante (ReceptionToPrint).
+
+✅ Correlativo de tipos de arroz:
+Los tipos de arroz deben tener un correlativo que comienza en 101 (el primer registro debe tener ID 101).
+
+2. Liquidación a productores
+✅ Bonificación económica adicional:
+
+Campo opcional llamado "Bonificación Económica".
+
+Representa un ajuste financiero otorgado por la empresa a modo de satisfacción del cliente.
+
+Se suma al monto a pagar después del neto.
+
+Si su valor es 0, no debe mostrarse en el documento.
+
+Cálculo final:
+
+diff
+Copiar
+Editar
+TOTAL A PAGAR
+- Descuentos
+= NETO
++ Bonificación Económica (si aplica)
+✅ Cierre de liquidación:
+
+Antes de guardar una liquidación, el usuario debe ingresar los datos del documento/transferencia de cierre.
+
+Los últimos dos registros de pago deben mostrar:
+
+Monto neto (saldo final)
+
+Monto IVA total
+
+✅ Secado:
+
+Si existen valores de secado, estos deben reflejarse en el detalle de pago con su respectiva factura.
+
+Si no hay valores de secado, omitir sección.
+
+3. Intereses de anticipos
+✅ El sistema debe calcular interés simple diario automático para cada anticipo, desde su fecha hasta la fecha de liquidación definida por el usuario.
+
+✅ El detalle de anticipos debe incluir:
+
+Banco
+
+Número
+
+Fecha
+
+Monto
+
+Días calculados
+
+Interés generado
+
+Fila final con totales (monto e interés)
+
+✅ Estos totales se usan en la liquidación para emisión de factura.
+
+4. Reportes e informes
+✅ Reportes por rango de fecha:
+
+Recepciones realizadas
+
+Liquidaciones emitidas
+
+Recepciones por liquidar
+
+Costo de compra de paddy (incluye promedio de precio)
+
+✅ Informe de preliquidación global
+
+5. Otros ajustes
+✅ Reemplazar nombre de campo "Castigo en kg" o "penalización" por:
+“Descuento Neto” (solicitado por Pablo).
+
+
+
+Sí. En lugar de concentrar todo el “remanente” de redondeo en el último elemento, podemos aplicar el método de la mayor parte restante (Largest Remainder Method), que reparte los centésimos faltantes entre los parámetros que tienen la mayor fracción no asignada tras el redondeo. Así cada parámetro absorbe una parte de la corrección y no se distorsiona tanto uno solo.
+Con este enfoque:
+
+Cada parámetro recibe parte de la corrección en centésimos (0.01 %) según su fracción residual.
+
+El error máximo en cada uno sigue siendo ±0.005 %, pero ya no se acumula todo en un solo parámetro.
+
+La suma total siempre coincide con el total exacto, y los penalties en kg se ajustan proporcionalmente y luego redondean de a centésimas de kilo.
+
+
+
+
+
+
+
+
+
+      {/* Save‑template dialog */}
+      {/* <Dialog
+        open={openSaveTemplateDialog}
+        onClose={() => setOpenSaveTemplateDialog(false)}
+        fullWidth
+        maxWidth="lg"
+      >
+        <Box sx={{ p: 2 }}>
+          <TemplateComponent closeDialog={() => setOpenSaveTemplateDialog(false)} />
+        </Box>
+      </Dialog> */}
+
+      {/* Select‑template dialog */}
+      {/* <Dialog
+        open={openTemplateDialog}
+        onClose={() => setOpenTemplateDialog(false)}
+        fullWidth
+        maxWidth="xl"
+      >
+        <Box sx={{ p: 2 }}>
+          <SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} />
+        </Box>
+      </Dialog> */}
+
+      {/* Print dialog */}
+      {/* <PrintDialog
+        open={openPrintDialog}
+        setOpen={setOpenPrintDialog}
+        title={`Recepción Nº ${receptionToPrintId}`}
+      >
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setOpenPrintDialog(false);
+            resetData();
+          }}
+          sx={{ mb: 2 }}
+        >
+          Cerrar
+        </Button>
+        <ReceptionToPrint receptionId={receptionToPrintId} />
+      </PrintDialog> */}
+    </>
+  );
+}
+
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import {
+//   Grid,
+//   Box,
+//   Typography,
+//   Button,
+//   CircularProgress,
+//   Dialog,
+//   IconButton,
+//   Divider,
+// } from "@mui/material";
+// import SaveIcon from "@mui/icons-material/Save";
+// import { useAlertContext } from "@/context/AlertContext";
+// import { createReception } from "@/app/actions/reception";
+// import ReceptionGeneralData from "./ui/ReceptionGeneralData";
+// import ReceptionSummary from "./ui/ReceptionSummary";
+// import GrainAnalysis from "./ui/GrainAnalysis";
+// import { useReceptionContext } from "@/context/ReceptionDataContext";
+// import { CreateReceptionPayload } from "@/types/reception";
+// import SelectTemplate from "./ui/template/SelectTemplate";
+// import PrintDialog from "@/components/PrintDialog/PrintDialog";
+// import ReceptionToPrint from "./ui/ReceptionToPrint";
+// import { createRecord } from "@/app/actions/record";
+// import { useUserContext } from "@/context/UserContext";
+// import { getDefaultTemplate } from "@/app/actions/discount-template";
+// import { Template } from "@/types/discount-template";
+// import TemplateComponent from "./ui/template/Template";
+
+// export default function NewReceptionPage() {
+//   const { showAlert } = useAlertContext();
+//   const { data, validateReceptionPayload, resetData, paramTable } = useReceptionContext();
+//   const { user } = useUserContext();
+
+//   const [template, setTemplate] = useState<Template | null>(null);
+//   const [loadingTemplate, setLoadingTemplate] = useState(true);
+
+//   const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+//   const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+//   const [openPrintDialog, setOpenPrintDialog] = useState(false);
+//   const [receptionToPrintId, setReceptionToPrintId] = useState<number>(0);
+//   const [loadingSave, setLoadingSave] = useState(false);
+
+//   // Reset on close of print dialog
+//   useEffect(() => {
+//     if (!openPrintDialog) resetData();
+//   }, [openPrintDialog, resetData]);
+
+//   // Fetch default template
+//   useEffect(() => {
+//     (async () => {
+//       const tpl = await getDefaultTemplate();
+//       setTemplate(tpl as Template);
+//       setLoadingTemplate(false);
+//     })();
+//   }, []);
+
+//   // Keyboard navigation: Enter and NumpadAdd
+//   const handleKeyDown = (e: React.KeyboardEvent) => {
+//     const { key, code } = e;
+//     if (key === "Enter") {
+//       e.preventDefault();
+//       const focusable = Array.from(
+//         document.querySelectorAll<HTMLElement>(
+//           'input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+//         )
+//       ).filter(
+//         el => el.offsetParent !== null && getComputedStyle(el).visibility !== "hidden"
+//       );
+//       const idx = focusable.indexOf(e.target as HTMLElement);
+//       const next = focusable[idx + 1];
+//       if (next) next.focus();
+//       return;
+//     }
+//     if (code === "NumpadAdd") {
+//       e.preventDefault();
+//       const target = e.target as HTMLElement;
+//       if (target.tagName === "BUTTON") {
+//         (target as HTMLButtonElement).click();
+//         return;
+//       }
+//       const form = target.closest("form");
+//       const defaultBtn =
+//         form?.querySelector('button[type="submit"]') ||
+//         document.querySelector("button[data-default-action]");
+//       if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+//     }
+//   };
+
+//   const handleSave = async () => {
+//     const cleanNum = (n: number) => Number.isFinite(n) ? n : 0;
+//     const payload: CreateReceptionPayload = {
+//       producerId: data.producerId,
+//       riceTypeId: data.riceTypeId,
+//       price: parseInt(data.price.toString().replace(/\D/g, ""), 10),
+//       guide: data.guide,
+//       licensePlate: data.licensePlate,
+//       grossWeight: cleanNum(data.grossWeight),
+//       tare: cleanNum(data.tare),
+//       netWeight: cleanNum(data.netWeight),
+
+//       percentHumedad: cleanNum(data.percentHumedad),
+//       toleranceHumedad: cleanNum(data.toleranceHumedad),
+//       percentGranosVerdes: cleanNum(data.percentGranosVerdes),
+//       toleranceGranosVerdes: cleanNum(data.toleranceGranosVerdes),
+//       percentImpurezas: cleanNum(data.percentImpurezas),
+//       toleranceImpurezas: cleanNum(data.toleranceImpurezas),
+//       percentGranosManchados: cleanNum(data.percentGranosManchados),
+//       toleranceGranosManchados: cleanNum(data.toleranceGranosManchados),
+//       percentHualcacho: cleanNum(data.percentHualcacho),
+//       toleranceHualcacho: cleanNum(data.toleranceHualcacho),
+//       percentGranosPelados: cleanNum(data.percentGranosPelados),
+//       toleranceGranosPelados: cleanNum(data.toleranceGranosPelados),
+//       percentGranosYesosos: cleanNum(data.percentGranosYesosos),
+//       toleranceGranosYesosos: cleanNum(data.toleranceGranosYesosos),
+//       percentVano: cleanNum(data.percentVano),
+//       toleranceVano: cleanNum(data.toleranceVano),
+
+//       toleranceBonificacion: cleanNum(data.toleranceBonificacion),
+//       percentSecado: cleanNum(data.percentSecado),
+//       totalToPay: cleanNum(data.totalToPay),
+//       status: "pending",
+//       note: data.note,
+//       discountTemplateId: data.currentTemplateId,
+//     };
+
+//     const error = validateReceptionPayload(payload);
+//     if (error) return showAlert(error, "error");
+
+//     setLoadingSave(true);
+//     try {
+//       const saved = await createReception(payload);
+//       await createRecord({ userId: user?.id ?? null, entity: "Recepción", description: `Recepción Nº ${saved.id} creada.` });
+//       showAlert("Recepción guardada correctamente.", "success");
+//       setReceptionToPrintId(saved.id);
+//       setOpenPrintDialog(true);
+//     } catch (err) {
+//       console.error(err);
+//       showAlert("Error al guardar recepción.", "error");
+//     } finally {
+//       setLoadingSave(false);
+//     }
+//   };
+
+//   return (
+//     <>
+//       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
+//         <Grid container spacing={2}>
+//           <Grid item xs={12} md={4}>
+//             <Typography gutterBottom>Datos de la recepción</Typography>
+//             <ReceptionGeneralData />
+//           </Grid>
+
+//           <Grid item xs={12} md={5.5}>
+//             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+//               <Typography gutterBottom>Análisis de granos</Typography>
+//               {template && <Typography variant="subtitle2">Plantilla: {template.name}</Typography>}
+//             </Box>
+//             <GrainAnalysis
+//               template={template!}
+//               loadingTemplate={loadingTemplate}
+//               // paramTable={paramTable}
+//             />
+//           </Grid>
+
+//           <Grid item xs={12} md={2.5}>
+//             <Typography gutterBottom>Resumen de cálculo</Typography>
+//             <ReceptionSummary />
+//             <Button
+//               fullWidth
+//               variant="contained"
+//               sx={{ mt: 2 }}
+//               onClick={handleSave}
+//               disabled={loadingSave}
+//             >
+//               {loadingSave ? <CircularProgress size={24} /> : "Guardar recepción"}
+//             </Button>
+
+//             <Divider sx={{ my: 2 }} />
+
+//             <Box sx={{ display: "flex", gap: 1, p: 1, border: "1px solid #ccc", borderRadius: 2 }}>
+//               <IconButton onClick={() => setOpenSaveTemplateDialog(true)}>
+//                 <SaveIcon color="primary" />
+//               </IconButton>
+//               <Button variant="outlined" onClick={() => setOpenTemplateDialog(true)}>
+//                 Plantillas
+//               </Button>
+//             </Box>
+//           </Grid>
+//         </Grid>
+//       </Box>
+
+//       <Dialog
+//         open={openSaveTemplateDialog}
+//         onClose={() => setOpenSaveTemplateDialog(false)}
+//         fullWidth
+//         maxWidth="lg"
+//       >
+//         <Box sx={{ p: 2 }}>
+//           <TemplateComponent closeDialog={() => setOpenSaveTemplateDialog(false)} />
+//         </Box>
+//       </Dialog>
+
+//       <Dialog open={openTemplateDialog} onClose={() => setOpenTemplateDialog(false)} fullWidth maxWidth="xl">
+//         <Box sx={{ p: 2 }}>
+//           <SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} />
+//         </Box>
+//       </Dialog>
+
+//       <PrintDialog
+//         open={openPrintDialog}
+//         setOpen={setOpenPrintDialog}
+//         title={`Recepción Nº ${receptionToPrintId}`}
+//       >
+//         <ReceptionToPrint receptionId={receptionToPrintId} />
+//       </PrintDialog>
+//     </>
+//   );
+// }
+
+// // "use client";
+
+// // import React, { useEffect, useState } from "react";
+// // import {
+// //   Grid,
+// //   Box,
+// //   Typography,
+// //   Button,
+// //   CircularProgress,
+// //   Dialog,
+// //   IconButton,
+// //   Divider,
+// // } from "@mui/material";
+// // import SaveIcon from "@mui/icons-material/Save";
+// // import { useAlertContext } from "@/context/AlertContext";
+// // import { createReception } from "@/app/actions/reception";
+// // import ReceptionGeneralData from "./ui/ReceptionGeneralData";
+// // import ReceptionSummary from "./ui/ReceptionSummary";
+// // import GrainAnalysis from "./ui/GrainAnalysis";
+// // import { useReceptionContext } from "@/context/ReceptionDataContext";
+// // import { CreateReceptionPayload } from "@/types/reception";
+// // import SelectTemplate from "./ui/template/SelectTemplate";
+// // import PrintDialog from "@/components/PrintDialog/PrintDialog";
+// // import ReceptionToPrint from "./ui/ReceptionToPrint";
+// // import { createRecord } from "@/app/actions/record";
+// // import { useUserContext } from "@/context/UserContext";
+// // import { getDefaultTemplate } from "@/app/actions/discount-template";
+// // import { Template } from "@/types/discount-template";
+// // import TemplateComponent from "./ui/template/Template";
+
+// // export default function NewReceptionPage() {
+// //   const { showAlert } = useAlertContext();
+// //   const { data, validateReceptionPayload, setResetValueState, resetData } = useReceptionContext();
+// //   const { user } = useUserContext();
+
+// //   const [template, setTemplate] = useState<Template | null>(null);
+// //   const [loadingTemplate, setLoadingTemplate] = useState(true);
+
+// //   const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+// //   const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+// //   const [openPrintDialog, setOpenPrintDialog] = useState(false);
+// //   const [receptionToPrintId, setReceptionToPrintId] = useState<number>(0);
+
+// //   const [loadingSave, setLoadingSave] = useState(false);
+
+// //   // Reset on close of print dialog
+// //   useEffect(() => {
+// //     if (!openPrintDialog) {
+// //       // setResetValueState(prev => !prev);
+// //       resetData();
+// //     }
+// //   }, [openPrintDialog]);
+
+// //   // Fetch default template
+// //   useEffect(() => {
+// //     (async () => {
+// //       const tpl = await getDefaultTemplate();
+// //       setTemplate(tpl as Template);
+// //       setLoadingTemplate(false);
+// //     })();
+// //   }, []);
+
+// //   // Keyboard navigation: Enter and NumpadAdd
+// //   const handleKeyDown = (e: React.KeyboardEvent) => {
+// //     const { key, code } = e;
+// //     if (key === "Enter") {
+// //       e.preventDefault();
+// //       const focusable = Array.from(
+// //         document.querySelectorAll<HTMLElement>(
+// //           'input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+// //         )
+// //       ).filter(el => el.offsetParent !== null && getComputedStyle(el).visibility !== "hidden");
+// //       const idx = focusable.indexOf(e.target as HTMLElement);
+// //       const next = focusable[idx + 1];
+// //       if (next) next.focus();
+// //       return;
+// //     }
+// //     if (code === "NumpadAdd") {
+// //       e.preventDefault();
+// //       const target = e.target as HTMLElement;
+// //       if (target.tagName === "BUTTON") {
+// //         (target as HTMLButtonElement).click();
+// //         return;
+// //       }
+// //       const form = target.closest("form");
+// //       const defaultBtn = form?.querySelector('button[type="submit"]') || document.querySelector("button[data-default-action]");
+// //       if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+// //     }
+// //   };
+
+// //   const handleSave = async () => {
+// //     const cleanNum = (n: number) => Number.isFinite(n) ? n : 0;
+// //     const payload: CreateReceptionPayload = {
+// //       producerId: data.producerId,
+// //       riceTypeId: data.riceTypeId,
+// //       price: parseInt(data.price.toString().replace(/\D/g, ""), 10),
+// //       guide: data.guide,
+// //       licensePlate: data.licensePlate,
+// //       grossWeight: cleanNum(data.grossWeight),
+// //       tare: cleanNum(data.tare),
+// //       netWeight: cleanNum(data.netWeight),
+
+// //       percentHumedad: cleanNum(data.percentHumedad), toleranceHumedad: cleanNum(data.toleranceHumedad),
+// //       percentGranosVerdes: cleanNum(data.percentGranosVerdes), toleranceGranosVerdes: cleanNum(data.toleranceGranosVerdes),
+// //       percentImpurezas: cleanNum(data.percentImpurezas), toleranceImpurezas: cleanNum(data.toleranceImpurezas),
+// //       percentGranosManchados: cleanNum(data.percentGranosManchados), toleranceGranosManchados: cleanNum(data.toleranceGranosManchados),
+// //       percentHualcacho: cleanNum(data.percentHualcacho), toleranceHualcacho: cleanNum(data.toleranceHualcacho),
+// //       percentGranosPelados: cleanNum(data.percentGranosPelados), toleranceGranosPelados: cleanNum(data.toleranceGranosPelados),
+// //       percentGranosYesosos: cleanNum(data.percentGranosYesosos), toleranceGranosYesosos: cleanNum(data.toleranceGranosYesosos),
+// //       percentVano: cleanNum(data.percentVano), toleranceVano: cleanNum(data.toleranceVano),
+
+// //       toleranceBonificacion: cleanNum(data.toleranceBonificacion), percentSecado: cleanNum(data.percentSecado),
+// //       totalToPay: cleanNum(data.totalToPay), status: "pending",
+// //       note: data.note, discountTemplateId: data.currentTemplateId,
+// //     };
+
+// //     const error = validateReceptionPayload(payload);
+// //     if (error) return showAlert(error, "error");
+
+// //     setLoadingSave(true);
+// //     try {
+// //       const saved = await createReception(payload);
+// //       await createRecord({ userId: user?.id ?? null, entity: "Recepción", description: `Recepción Nº ${saved.id} creada.` });
+// //       showAlert("Recepción guardada correctamente.", "success");
+// //       setReceptionToPrintId(saved.id);
+// //       setOpenPrintDialog(true);
+// //     } catch (err) {
+// //       console.error(err);
+// //       showAlert("Error al guardar recepción.", "error");
+// //     } finally {
+// //       setLoadingSave(false);
+// //     }
+// //   };
+
+// //   return (
+// //     <>
+// //       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
+// //         <Grid container spacing={2}>
+// //           <Grid item xs={12} md={4}>
+// //             <Typography gutterBottom>Datos de la recepción</Typography>
+// //             <ReceptionGeneralData />
+// //           </Grid>
+
+// //           <Grid item xs={12} md={5.5}>
+// //             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+// //               <Typography gutterBottom>Análisis de granos</Typography>
+// //               {template && <Typography variant="subtitle2">Plantilla: {template.name}</Typography>}
+// //             </Box>
+// //             {/* <GrainAnalysis template={template!}  loadingTemplate={false}/> */}
+// //           </Grid>
+
+// //           <Grid item xs={12} md={2.5}>
+// //             <Typography gutterBottom>Resumen de cálculo</Typography>
+// //             {/* <ReceptionSummary /> */}
+
+// //             <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleSave} disabled={loadingSave}>
+// //               {loadingSave ? <CircularProgress size={24} /> : "Guardar recepción"}
+// //             </Button>
+
+// //             <Divider sx={{ my: 2 }} />
+
+// //             <Box sx={{ display: "flex", gap: 1, p: 1, border: "1px solid #ccc", borderRadius: 2 }}>
+// //               <IconButton onClick={() => setOpenSaveTemplateDialog(true)}><SaveIcon color="primary"/></IconButton>
+// //               <Button variant="outlined" onClick={() => setOpenTemplateDialog(true)}>Plantillas</Button>
+// //             </Box>
+// //           </Grid>
+// //         </Grid>
+// //       </Box>
+
+// //       <Dialog open={openSaveTemplateDialog} onClose={() => setOpenSaveTemplateDialog(false)} fullWidth maxWidth="lg">
+// //         <Box sx={{ p: 2 }}><TemplateComponent closeDialog={() => setOpenSaveTemplateDialog(false)} /></Box>
+// //       </Dialog>
+
+// //       <Dialog open={openTemplateDialog} onClose={() => setOpenTemplateDialog(false)} fullWidth maxWidth="xl">
+// //         <Box sx={{ p: 2 }}><SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} /></Box>
+// //       </Dialog>
+
+// //       <PrintDialog open={openPrintDialog} setOpen={setOpenPrintDialog} title={`Recepción Nº ${receptionToPrintId}`}>
+// //         <ReceptionToPrint receptionId={receptionToPrintId} />
+// //       </PrintDialog>
+// //     </>
+// //   );
+// // }
+// const handleKeyDown = (e: React.KeyboardEvent) => {
+//   const { key, code } = e;
+//   if (key === "Enter") {
+//     e.preventDefault();
+//     const focusable = Array.from(
+//       document.querySelectorAll<HTMLElement>(
+//         "input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
+//       )
+//     ).filter(
+//       (el) =>
+//         el.offsetParent !== null &&
+//         getComputedStyle(el).visibility !== "hidden"
+//     );
+//     const idx = focusable.indexOf(e.target as HTMLElement);
+//     const next = focusable[idx + 1];
+//     if (next) next.focus();
+//     return;
+//   }
+//   if (code === "NumpadAdd") {
+//     e.preventDefault();
+//     const target = e.target as HTMLElement;
+//     if (target.tagName === "BUTTON") {
+//       (target as HTMLButtonElement).click();
+//       return;
+//     }
+//     const form = target.closest("form");
+//     const defaultBtn =
+//       form?.querySelector('button[type="submit"]') ||
+//       document.querySelector("button[data-default-action]");
+//     if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+//   }
+// };
+
+
+
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import {
+//   Grid,
+//   Box,
+//   Typography,
+//   Button,
+//   CircularProgress,
+//   Dialog,
+//   IconButton,
+//   Divider,
+// } from "@mui/material";
+// import SaveIcon from "@mui/icons-material/Save";
+// import { useAlertContext } from "@/context/AlertContext";
+// import { createReception } from "@/app/actions/reception";
+// import ReceptionGeneralData from "./ui/ReceptionGeneralData";
+// import ReceptionSummary from "./ui/ReceptionSummary";
+// import GrainAnalysis from "./ui/GrainAnalysis";
+// import { useReceptionContext } from "@/context/ReceptionDataContext";
+// import { CreateReceptionPayload } from "@/types/reception";
+// import SelectTemplate from "./ui/template/SelectTemplate";
+// import PrintDialog from "@/components/PrintDialog/PrintDialog";
+// import ReceptionToPrint from "./ui/ReceptionToPrint";
+// import { createRecord } from "@/app/actions/record";
+// import { useUserContext } from "@/context/UserContext";
+// import { getDefaultTemplate } from "@/app/actions/discount-template";
+// import { Template } from "@/types/discount-template";
+// import TemplateComponent from "./ui/template/Template";
+
+// export default function NewReceptionPage() {
+//   const { showAlert } = useAlertContext();
+//   const { data, validateReceptionPayload, resetData, paramTable } = useReceptionContext();
+//   const { user } = useUserContext();
+
+//   const [template, setTemplate] = useState<Template | null>(null);
+//   const [loadingTemplate, setLoadingTemplate] = useState(true);
+
+//   const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+//   const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+//   const [openPrintDialog, setOpenPrintDialog] = useState(false);
+//   const [receptionToPrintId, setReceptionToPrintId] = useState<number>(0);
+//   const [loadingSave, setLoadingSave] = useState(false);
+
+//   // Reset on close of print dialog
+//   useEffect(() => {
+//     if (!openPrintDialog) resetData();
+//   }, [openPrintDialog, resetData]);
+
+//   // Fetch default template
+//   useEffect(() => {
+//     (async () => {
+//       const tpl = await getDefaultTemplate();
+//       setTemplate(tpl as Template);
+//       setLoadingTemplate(false);
+//     })();
+//   }, []);
+
+//   // Keyboard navigation: Enter and NumpadAdd
+//   const handleKeyDown = (e: React.KeyboardEvent) => {
+//     const { key, code } = e;
+//     if (key === "Enter") {
+//       e.preventDefault();
+//       const focusable = Array.from(
+//         document.querySelectorAll<HTMLElement>(
+//           'input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+//         )
+//       ).filter(
+//         el => el.offsetParent !== null && getComputedStyle(el).visibility !== "hidden"
+//       );
+//       const idx = focusable.indexOf(e.target as HTMLElement);
+//       const next = focusable[idx + 1];
+//       if (next) next.focus();
+//       return;
+//     }
+//     if (code === "NumpadAdd") {
+//       e.preventDefault();
+//       const target = e.target as HTMLElement;
+//       if (target.tagName === "BUTTON") {
+//         (target as HTMLButtonElement).click();
+//         return;
+//       }
+//       const form = target.closest("form");
+//       const defaultBtn =
+//         form?.querySelector('button[type="submit"]') ||
+//         document.querySelector("button[data-default-action]");
+//       if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+//     }
+//   };
+
+//   const handleSave = async () => {
+//     const cleanNum = (n: number) => Number.isFinite(n) ? n : 0;
+//     const payload: CreateReceptionPayload = {
+//       producerId: data.producerId,
+//       riceTypeId: data.riceTypeId,
+//       price: parseInt(data.price.toString().replace(/\D/g, ""), 10),
+//       guide: data.guide,
+//       licensePlate: data.licensePlate,
+//       grossWeight: cleanNum(data.grossWeight),
+//       tare: cleanNum(data.tare),
+//       netWeight: cleanNum(data.netWeight),
+
+//       percentHumedad: cleanNum(data.percentHumedad),
+//       toleranceHumedad: cleanNum(data.toleranceHumedad),
+//       percentGranosVerdes: cleanNum(data.percentGranosVerdes),
+//       toleranceGranosVerdes: cleanNum(data.toleranceGranosVerdes),
+//       percentImpurezas: cleanNum(data.percentImpurezas),
+//       toleranceImpurezas: cleanNum(data.toleranceImpurezas),
+//       percentGranosManchados: cleanNum(data.percentGranosManchados),
+//       toleranceGranosManchados: cleanNum(data.toleranceGranosManchados),
+//       percentHualcacho: cleanNum(data.percentHualcacho),
+//       toleranceHualcacho: cleanNum(data.toleranceHualcacho),
+//       percentGranosPelados: cleanNum(data.percentGranosPelados),
+//       toleranceGranosPelados: cleanNum(data.toleranceGranosPelados),
+//       percentGranosYesosos: cleanNum(data.percentGranosYesosos),
+//       toleranceGranosYesosos: cleanNum(data.toleranceGranosYesosos),
+//       percentVano: cleanNum(data.percentVano),
+//       toleranceVano: cleanNum(data.toleranceVano),
+
+//       toleranceBonificacion: cleanNum(data.toleranceBonificacion),
+//       percentSecado: cleanNum(data.percentSecado),
+//       totalToPay: cleanNum(data.totalToPay),
+//       status: "pending",
+//       note: data.note,
+//       discountTemplateId: data.currentTemplateId,
+//     };
+
+//     const error = validateReceptionPayload(payload);
+//     if (error) return showAlert(error, "error");
+
+//     setLoadingSave(true);
+//     try {
+//       const saved = await createReception(payload);
+//       await createRecord({ userId: user?.id ?? null, entity: "Recepción", description: `Recepción Nº ${saved.id} creada.` });
+//       showAlert("Recepción guardada correctamente.", "success");
+//       setReceptionToPrintId(saved.id);
+//       setOpenPrintDialog(true);
+//     } catch (err) {
+//       console.error(err);
+//       showAlert("Error al guardar recepción.", "error");
+//     } finally {
+//       setLoadingSave(false);
+//     }
+//   };
+
+//   return (
+//     <>
+//       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
+//         <Grid container spacing={2}>
+//           <Grid item xs={12} md={4}>
+//             <Typography gutterBottom>Datos de la recepción</Typography>
+//             <ReceptionGeneralData />
+//           </Grid>
+
+//           <Grid item xs={12} md={5.5}>
+//             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+//               <Typography gutterBottom>Análisis de granos</Typography>
+//               {template && <Typography variant="subtitle2">Plantilla: {template.name}</Typography>}
+//             </Box>
+//             <GrainAnalysis
+//               template={template!}
+//               loadingTemplate={loadingTemplate}
+//               // paramTable={paramTable}
+//             />
+//           </Grid>
+
+//           <Grid item xs={12} md={2.5}>
+//             <Typography gutterBottom>Resumen de cálculo</Typography>
+//             <ReceptionSummary />
+//             <Button
+//               fullWidth
+//               variant="contained"
+//               sx={{ mt: 2 }}
+//               onClick={handleSave}
+//               disabled={loadingSave}
+//             >
+//               {loadingSave ? <CircularProgress size={24} /> : "Guardar recepción"}
+//             </Button>
+
+//             <Divider sx={{ my: 2 }} />
+
+//             <Box sx={{ display: "flex", gap: 1, p: 1, border: "1px solid #ccc", borderRadius: 2 }}>
+//               <IconButton onClick={() => setOpenSaveTemplateDialog(true)}>
+//                 <SaveIcon color="primary" />
+//               </IconButton>
+//               <Button variant="outlined" onClick={() => setOpenTemplateDialog(true)}>
+//                 Plantillas
+//               </Button>
+//             </Box>
+//           </Grid>
+//         </Grid>
+//       </Box>
+
+//       <Dialog
+//         open={openSaveTemplateDialog}
+//         onClose={() => setOpenSaveTemplateDialog(false)}
+//         fullWidth
+//         maxWidth="lg"
+//       >
+//         <Box sx={{ p: 2 }}>
+//           <TemplateComponent closeDialog={() => setOpenSaveTemplateDialog(false)} />
+//         </Box>
+//       </Dialog>
+
+//       <Dialog open={openTemplateDialog} onClose={() => setOpenTemplateDialog(false)} fullWidth maxWidth="xl">
+//         <Box sx={{ p: 2 }}>
+//           <SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} />
+//         </Box>
+//       </Dialog>
+
+//       <PrintDialog
+//         open={openPrintDialog}
+//         setOpen={setOpenPrintDialog}
+//         title={`Recepción Nº ${receptionToPrintId}`}
+//       >
+//         <ReceptionToPrint receptionId={receptionToPrintId} />
+//       </PrintDialog>
+//     </>
+//   );
+// }
+
+// // "use client";
+
+// // import React, { useEffect, useState } from "react";
+// // import {
+// //   Grid,
+// //   Box,
+// //   Typography,
+// //   Button,
+// //   CircularProgress,
+// //   Dialog,
+// //   IconButton,
+// //   Divider,
+// // } from "@mui/material";
+// // import SaveIcon from "@mui/icons-material/Save";
+// // import { useAlertContext } from "@/context/AlertContext";
+// // import { createReception } from "@/app/actions/reception";
+// // import ReceptionGeneralData from "./ui/ReceptionGeneralData";
+// // import ReceptionSummary from "./ui/ReceptionSummary";
+// // import GrainAnalysis from "./ui/GrainAnalysis";
+// // import { useReceptionContext } from "@/context/ReceptionDataContext";
+// // import { CreateReceptionPayload } from "@/types/reception";
+// // import SelectTemplate from "./ui/template/SelectTemplate";
+// // import PrintDialog from "@/components/PrintDialog/PrintDialog";
+// // import ReceptionToPrint from "./ui/ReceptionToPrint";
+// // import { createRecord } from "@/app/actions/record";
+// // import { useUserContext } from "@/context/UserContext";
+// // import { getDefaultTemplate } from "@/app/actions/discount-template";
+// // import { Template } from "@/types/discount-template";
+// // import TemplateComponent from "./ui/template/Template";
+
+// // export default function NewReceptionPage() {
+// //   const { showAlert } = useAlertContext();
+// //   const { data, validateReceptionPayload, setResetValueState, resetData } = useReceptionContext();
+// //   const { user } = useUserContext();
+
+// //   const [template, setTemplate] = useState<Template | null>(null);
+// //   const [loadingTemplate, setLoadingTemplate] = useState(true);
+
+// //   const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+// //   const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+// //   const [openPrintDialog, setOpenPrintDialog] = useState(false);
+// //   const [receptionToPrintId, setReceptionToPrintId] = useState<number>(0);
+
+// //   const [loadingSave, setLoadingSave] = useState(false);
+
+// //   // Reset on close of print dialog
+// //   useEffect(() => {
+// //     if (!openPrintDialog) {
+// //       // setResetValueState(prev => !prev);
+// //       resetData();
+// //     }
+// //   }, [openPrintDialog]);
+
+// //   // Fetch default template
+// //   useEffect(() => {
+// //     (async () => {
+// //       const tpl = await getDefaultTemplate();
+// //       setTemplate(tpl as Template);
+// //       setLoadingTemplate(false);
+// //     })();
+// //   }, []);
+
+// //   // Keyboard navigation: Enter and NumpadAdd
+// //   const handleKeyDown = (e: React.KeyboardEvent) => {
+// //     const { key, code } = e;
+// //     if (key === "Enter") {
+// //       e.preventDefault();
+// //       const focusable = Array.from(
+// //         document.querySelectorAll<HTMLElement>(
+// //           'input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+// //         )
+// //       ).filter(el => el.offsetParent !== null && getComputedStyle(el).visibility !== "hidden");
+// //       const idx = focusable.indexOf(e.target as HTMLElement);
+// //       const next = focusable[idx + 1];
+// //       if (next) next.focus();
+// //       return;
+// //     }
+// //     if (code === "NumpadAdd") {
+// //       e.preventDefault();
+// //       const target = e.target as HTMLElement;
+// //       if (target.tagName === "BUTTON") {
+// //         (target as HTMLButtonElement).click();
+// //         return;
+// //       }
+// //       const form = target.closest("form");
+// //       const defaultBtn = form?.querySelector('button[type="submit"]') || document.querySelector("button[data-default-action]");
+// //       if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+// //     }
+// //   };
+
+// //   const handleSave = async () => {
+// //     const cleanNum = (n: number) => Number.isFinite(n) ? n : 0;
+// //     const payload: CreateReceptionPayload = {
+// //       producerId: data.producerId,
+// //       riceTypeId: data.riceTypeId,
+// //       price: parseInt(data.price.toString().replace(/\D/g, ""), 10),
+// //       guide: data.guide,
+// //       licensePlate: data.licensePlate,
+// //       grossWeight: cleanNum(data.grossWeight),
+// //       tare: cleanNum(data.tare),
+// //       netWeight: cleanNum(data.netWeight),
+
+// //       percentHumedad: cleanNum(data.percentHumedad), toleranceHumedad: cleanNum(data.toleranceHumedad),
+// //       percentGranosVerdes: cleanNum(data.percentGranosVerdes), toleranceGranosVerdes: cleanNum(data.toleranceGranosVerdes),
+// //       percentImpurezas: cleanNum(data.percentImpurezas), toleranceImpurezas: cleanNum(data.toleranceImpurezas),
+// //       percentGranosManchados: cleanNum(data.percentGranosManchados), toleranceGranosManchados: cleanNum(data.toleranceGranosManchados),
+// //       percentHualcacho: cleanNum(data.percentHualcacho), toleranceHualcacho: cleanNum(data.toleranceHualcacho),
+// //       percentGranosPelados: cleanNum(data.percentGranosPelados), toleranceGranosPelados: cleanNum(data.toleranceGranosPelados),
+// //       percentGranosYesosos: cleanNum(data.percentGranosYesosos), toleranceGranosYesosos: cleanNum(data.toleranceGranosYesosos),
+// //       percentVano: cleanNum(data.percentVano), toleranceVano: cleanNum(data.toleranceVano),
+
+// //       toleranceBonificacion: cleanNum(data.toleranceBonificacion), percentSecado: cleanNum(data.percentSecado),
+// //       totalToPay: cleanNum(data.totalToPay), status: "pending",
+// //       note: data.note, discountTemplateId: data.currentTemplateId,
+// //     };
+
+// //     const error = validateReceptionPayload(payload);
+// //     if (error) return showAlert(error, "error");
+
+// //     setLoadingSave(true);
+// //     try {
+// //       const saved = await createReception(payload);
+// //       await createRecord({ userId: user?.id ?? null, entity: "Recepción", description: `Recepción Nº ${saved.id} creada.` });
+// //       showAlert("Recepción guardada correctamente.", "success");
+// //       setReceptionToPrintId(saved.id);
+// //       setOpenPrintDialog(true);
+// //     } catch (err) {
+// //       console.error(err);
+// //       showAlert("Error al guardar recepción.", "error");
+// //     } finally {
+// //       setLoadingSave(false);
+// //     }
+// //   };
+
+// //   return (
+// //     <>
+// //       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
+// //         <Grid container spacing={2}>
+// //           <Grid item xs={12} md={4}>
+// //             <Typography gutterBottom>Datos de la recepción</Typography>
+// //             <ReceptionGeneralData />
+// //           </Grid>
+
+// //           <Grid item xs={12} md={5.5}>
+// //             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+// //               <Typography gutterBottom>Análisis de granos</Typography>
+// //               {template && <Typography variant="subtitle2">Plantilla: {template.name}</Typography>}
+// //             </Box>
+// //             {/* <GrainAnalysis template={template!}  loadingTemplate={false}/> */}
+// //           </Grid>
+
+// //           <Grid item xs={12} md={2.5}>
+// //             <Typography gutterBottom>Resumen de cálculo</Typography>
+// //             {/* <ReceptionSummary /> */}
+
+// //             <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleSave} disabled={loadingSave}>
+// //               {loadingSave ? <CircularProgress size={24} /> : "Guardar recepción"}
+// //             </Button>
+
+// //             <Divider sx={{ my: 2 }} />
+
+// //             <Box sx={{ display: "flex", gap: 1, p: 1, border: "1px solid #ccc", borderRadius: 2 }}>
+// //               <IconButton onClick={() => setOpenSaveTemplateDialog(true)}><SaveIcon color="primary"/></IconButton>
+// //               <Button variant="outlined" onClick={() => setOpenTemplateDialog(true)}>Plantillas</Button>
+// //             </Box>
+// //           </Grid>
+// //         </Grid>
+// //       </Box>
+
+// //       <Dialog open={openSaveTemplateDialog} onClose={() => setOpenSaveTemplateDialog(false)} fullWidth maxWidth="lg">
+// //         <Box sx={{ p: 2 }}><TemplateComponent closeDialog={() => setOpenSaveTemplateDialog(false)} /></Box>
+// //       </Dialog>
+
+// //       <Dialog open={openTemplateDialog} onClose={() => setOpenTemplateDialog(false)} fullWidth maxWidth="xl">
+// //         <Box sx={{ p: 2 }}><SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} /></Box>
+// //       </Dialog>
+
+// //       <PrintDialog open={openPrintDialog} setOpen={setOpenPrintDialog} title={`Recepción Nº ${receptionToPrintId}`}>
+// //         <ReceptionToPrint receptionId={receptionToPrintId} />
+// //       </PrintDialog>
+// //     </>
+// //   );
+// // }
+// const handleKeyDown = (e: React.KeyboardEvent) => {
+//   const { key, code } = e;
+//   if (key === "Enter") {
+//     e.preventDefault();
+//     const focusable = Array.from(
+//       document.querySelectorAll<HTMLElement>(
+//         "input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
+//       )
+//     ).filter(
+//       (el) =>
+//         el.offsetParent !== null &&
+//         getComputedStyle(el).visibility !== "hidden"
+//     );
+//     const idx = focusable.indexOf(e.target as HTMLElement);
+//     const next = focusable[idx + 1];
+//     if (next) next.focus();
+//     return;
+//   }
+//   if (code === "NumpadAdd") {
+//     e.preventDefault();
+//     const target = e.target as HTMLElement;
+//     if (target.tagName === "BUTTON") {
+//       (target as HTMLButtonElement).click();
+//       return;
+//     }
+//     const form = target.closest("form");
+//     const defaultBtn =
+//       form?.querySelector('button[type="submit"]') ||
+//       document.querySelector("button[data-default-action]");
+//     if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+//   }
+// };
+
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import {
+//   Grid,
+//   Box,
+//   Typography,
+//   Button,
+//   CircularProgress,
+//   Dialog,
+//   IconButton,
+//   Divider,
+// } from "@mui/material";
+// import SaveIcon from "@mui/icons-material/Save";
+// import { useAlertContext } from "@/context/AlertContext";
+// import { createReception } from "@/app/actions/reception";
+// import ReceptionGeneralData from "./ui/ReceptionGeneralData";
+// import ReceptionSummary from "./ui/ReceptionSummary";
+// import GrainAnalysis from "./ui/GrainAnalysis";
+// import { useReceptionContext } from "@/context/ReceptionDataContext";
+// import { CreateReceptionPayload } from "@/types/reception";
+// import SelectTemplate from "./ui/template/SelectTemplate";
+// import PrintDialog from "@/components/PrintDialog/PrintDialog";
+// import ReceptionToPrint from "./ui/ReceptionToPrint";
+// import { createRecord } from "@/app/actions/record";
+// import { useUserContext } from "@/context/UserContext";
+// import { getDefaultTemplate } from "@/app/actions/discount-template";
+// import { Template } from "@/types/discount-template";
+// import TemplateComponent from "./ui/template/Template";
+
+// export default function NewReceptionPage() {
+//   const { showAlert } = useAlertContext();
+//   const { data, validateReceptionPayload, resetData, paramTable } = useReceptionContext();
+//   const { user } = useUserContext();
+
+//   const [template, setTemplate] = useState<Template | null>(null);
+//   const [loadingTemplate, setLoadingTemplate] = useState(true);
+
+//   const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+//   const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+//   const [openPrintDialog, setOpenPrintDialog] = useState(false);
+//   const [receptionToPrintId, setReceptionToPrintId] = useState<number>(0);
+//   const [loadingSave, setLoadingSave] = useState(false);
+
+//   // Reset on close of print dialog
+//   useEffect(() => {
+//     if (!openPrintDialog) resetData();
+//   }, [openPrintDialog, resetData]);
+
+//   // Fetch default template
+//   useEffect(() => {
+//     (async () => {
+//       const tpl = await getDefaultTemplate();
+//       setTemplate(tpl as Template);
+//       setLoadingTemplate(false);
+//     })();
+//   }, []);
+
+//   // Keyboard navigation: Enter and NumpadAdd
+//   const handleKeyDown = (e: React.KeyboardEvent) => {
+//     const { key, code } = e;
+//     if (key === "Enter") {
+//       e.preventDefault();
+//       const focusable = Array.from(
+//         document.querySelectorAll<HTMLElement>(
+//           'input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+//         )
+//       ).filter(
+//         el => el.offsetParent !== null && getComputedStyle(el).visibility !== "hidden"
+//       );
+//       const idx = focusable.indexOf(e.target as HTMLElement);
+//       const next = focusable[idx + 1];
+//       if (next) next.focus();
+//       return;
+//     }
+//     if (code === "NumpadAdd") {
+//       e.preventDefault();
+//       const target = e.target as HTMLElement;
+//       if (target.tagName === "BUTTON") {
+//         (target as HTMLButtonElement).click();
+//         return;
+//       }
+//       const form = target.closest("form");
+//       const defaultBtn =
+//         form?.querySelector('button[type="submit"]') ||
+//         document.querySelector("button[data-default-action]");
+//       if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+//     }
+//   };
+
+//   const handleSave = async () => {
+//     const cleanNum = (n: number) => Number.isFinite(n) ? n : 0;
+//     const payload: CreateReceptionPayload = {
+//       producerId: data.producerId,
+//       riceTypeId: data.riceTypeId,
+//       price: parseInt(data.price.toString().replace(/\D/g, ""), 10),
+//       guide: data.guide,
+//       licensePlate: data.licensePlate,
+//       grossWeight: cleanNum(data.grossWeight),
+//       tare: cleanNum(data.tare),
+//       netWeight: cleanNum(data.netWeight),
+
+//       percentHumedad: cleanNum(data.percentHumedad),
+//       toleranceHumedad: cleanNum(data.toleranceHumedad),
+//       percentGranosVerdes: cleanNum(data.percentGranosVerdes),
+//       toleranceGranosVerdes: cleanNum(data.toleranceGranosVerdes),
+//       percentImpurezas: cleanNum(data.percentImpurezas),
+//       toleranceImpurezas: cleanNum(data.toleranceImpurezas),
+//       percentGranosManchados: cleanNum(data.percentGranosManchados),
+//       toleranceGranosManchados: cleanNum(data.toleranceGranosManchados),
+//       percentHualcacho: cleanNum(data.percentHualcacho),
+//       toleranceHualcacho: cleanNum(data.toleranceHualcacho),
+//       percentGranosPelados: cleanNum(data.percentGranosPelados),
+//       toleranceGranosPelados: cleanNum(data.toleranceGranosPelados),
+//       percentGranosYesosos: cleanNum(data.percentGranosYesosos),
+//       toleranceGranosYesosos: cleanNum(data.toleranceGranosYesosos),
+//       percentVano: cleanNum(data.percentVano),
+//       toleranceVano: cleanNum(data.toleranceVano),
+
+//       toleranceBonificacion: cleanNum(data.toleranceBonificacion),
+//       percentSecado: cleanNum(data.percentSecado),
+//       totalToPay: cleanNum(data.totalToPay),
+//       status: "pending",
+//       note: data.note,
+//       discountTemplateId: data.currentTemplateId,
+//     };
+
+//     const error = validateReceptionPayload(payload);
+//     if (error) return showAlert(error, "error");
+
+//     setLoadingSave(true);
+//     try {
+//       const saved = await createReception(payload);
+//       await createRecord({ userId: user?.id ?? null, entity: "Recepción", description: `Recepción Nº ${saved.id} creada.` });
+//       showAlert("Recepción guardada correctamente.", "success");
+//       setReceptionToPrintId(saved.id);
+//       setOpenPrintDialog(true);
+//     } catch (err) {
+//       console.error(err);
+//       showAlert("Error al guardar recepción.", "error");
+//     } finally {
+//       setLoadingSave(false);
+//     }
+//   };
+
+//   return (
+//     <>
+//       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
+//         <Grid container spacing={2}>
+//           <Grid item xs={12} md={4}>
+//             <Typography gutterBottom>Datos de la recepción</Typography>
+//             <ReceptionGeneralData />
+//           </Grid>
+
+//           <Grid item xs={12} md={5.5}>
+//             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+//               <Typography gutterBottom>Análisis de granos</Typography>
+//               {template && <Typography variant="subtitle2">Plantilla: {template.name}</Typography>}
+//             </Box>
+//             <GrainAnalysis
+//               template={template!}
+//               loadingTemplate={loadingTemplate}
+//               // paramTable={paramTable}
+//             />
+//           </Grid>
+
+//           <Grid item xs={12} md={2.5}>
+//             <Typography gutterBottom>Resumen de cálculo</Typography>
+//             <ReceptionSummary />
+//             <Button
+//               fullWidth
+//               variant="contained"
+//               sx={{ mt: 2 }}
+//               onClick={handleSave}
+//               disabled={loadingSave}
+//             >
+//               {loadingSave ? <CircularProgress size={24} /> : "Guardar recepción"}
+//             </Button>
+
+//             <Divider sx={{ my: 2 }} />
+
+//             <Box sx={{ display: "flex", gap: 1, p: 1, border: "1px solid #ccc", borderRadius: 2 }}>
+//               <IconButton onClick={() => setOpenSaveTemplateDialog(true)}>
+//                 <SaveIcon color="primary" />
+//               </IconButton>
+//               <Button variant="outlined" onClick={() => setOpenTemplateDialog(true)}>
+//                 Plantillas
+//               </Button>
+//             </Box>
+//           </Grid>
+//         </Grid>
+//       </Box>
+
+//       <Dialog
+//         open={openSaveTemplateDialog}
+//         onClose={() => setOpenSaveTemplateDialog(false)}
+//         fullWidth
+//         maxWidth="lg"
+//       >
+//         <Box sx={{ p: 2 }}>
+//           <TemplateComponent closeDialog={() => setOpenSaveTemplateDialog(false)} />
+//         </Box>
+//       </Dialog>
+
+//       <Dialog open={openTemplateDialog} onClose={() => setOpenTemplateDialog(false)} fullWidth maxWidth="xl">
+//         <Box sx={{ p: 2 }}>
+//           <SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} />
+//         </Box>
+//       </Dialog>
+
+//       <PrintDialog
+//         open={openPrintDialog}
+//         setOpen={setOpenPrintDialog}
+//         title={`Recepción Nº ${receptionToPrintId}`}
+//       >
+//         <ReceptionToPrint receptionId={receptionToPrintId} />
+//       </PrintDialog>
+//     </>
+//   );
+// }
+
+// // "use client";
+
+// // import React, { useEffect, useState } from "react";
+// // import {
+// //   Grid,
+// //   Box,
+// //   Typography,
+// //   Button,
+// //   CircularProgress,
+// //   Dialog,
+// //   IconButton,
+// //   Divider,
+// // } from "@mui/material";
+// // import SaveIcon from "@mui/icons-material/Save";
+// // import { useAlertContext } from "@/context/AlertContext";
+// // import { createReception } from "@/app/actions/reception";
+// // import ReceptionGeneralData from "./ui/ReceptionGeneralData";
+// // import ReceptionSummary from "./ui/ReceptionSummary";
+// // import GrainAnalysis from "./ui/GrainAnalysis";
+// // import { useReceptionContext } from "@/context/ReceptionDataContext";
+// // import { CreateReceptionPayload } from "@/types/reception";
+// // import SelectTemplate from "./ui/template/SelectTemplate";
+// // import PrintDialog from "@/components/PrintDialog/PrintDialog";
+// // import ReceptionToPrint from "./ui/ReceptionToPrint";
+// // import { createRecord } from "@/app/actions/record";
+// // import { useUserContext } from "@/context/UserContext";
+// // import { getDefaultTemplate } from "@/app/actions/discount-template";
+// // import { Template } from "@/types/discount-template";
+// // import TemplateComponent from "./ui/template/Template";
+
+// // export default function NewReceptionPage() {
+// //   const { showAlert } = useAlertContext();
+// //   const { data, validateReceptionPayload, setResetValueState, resetData } = useReceptionContext();
+// //   const { user } = useUserContext();
+
+// //   const [template, setTemplate] = useState<Template | null>(null);
+// //   const [loadingTemplate, setLoadingTemplate] = useState(true);
+
+// //   const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+// //   const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+// //   const [openPrintDialog, setOpenPrintDialog] = useState(false);
+// //   const [receptionToPrintId, setReceptionToPrintId] = useState<number>(0);
+
+// //   const [loadingSave, setLoadingSave] = useState(false);
+
+// //   // Reset on close of print dialog
+// //   useEffect(() => {
+// //     if (!openPrintDialog) {
+// //       // setResetValueState(prev => !prev);
+// //       resetData();
+// //     }
+// //   }, [openPrintDialog]);
+
+// //   // Fetch default template
+// //   useEffect(() => {
+// //     (async () => {
+// //       const tpl = await getDefaultTemplate();
+// //       setTemplate(tpl as Template);
+// //       setLoadingTemplate(false);
+// //     })();
+// //   }, []);
+
+// //   // Keyboard navigation: Enter and NumpadAdd
+// //   const handleKeyDown = (e: React.KeyboardEvent) => {
+// //     const { key, code } = e;
+// //     if (key === "Enter") {
+// //       e.preventDefault();
+// //       const focusable = Array.from(
+// //         document.querySelectorAll<HTMLElement>(
+// //           'input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+// //         )
+// //       ).filter(el => el.offsetParent !== null && getComputedStyle(el).visibility !== "hidden");
+// //       const idx = focusable.indexOf(e.target as HTMLElement);
+// //       const next = focusable[idx + 1];
+// //       if (next) next.focus();
+// //       return;
+// //     }
+// //     if (code === "NumpadAdd") {
+// //       e.preventDefault();
+// //       const target = e.target as HTMLElement;
+// //       if (target.tagName === "BUTTON") {
+// //         (target as HTMLButtonElement).click();
+// //         return;
+// //       }
+// //       const form = target.closest("form");
+// //       const defaultBtn = form?.querySelector('button[type="submit"]') || document.querySelector("button[data-default-action]");
+// //       if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+// //     }
+// //   };
+
+// //   const handleSave = async () => {
+// //     const cleanNum = (n: number) => Number.isFinite(n) ? n : 0;
+// //     const payload: CreateReceptionPayload = {
+// //       producerId: data.producerId,
+// //       riceTypeId: data.riceTypeId,
+// //       price: parseInt(data.price.toString().replace(/\D/g, ""), 10),
+// //       guide: data.guide,
+// //       licensePlate: data.licensePlate,
+// //       grossWeight: cleanNum(data.grossWeight),
+// //       tare: cleanNum(data.tare),
+// //       netWeight: cleanNum(data.netWeight),
+
+// //       percentHumedad: cleanNum(data.percentHumedad), toleranceHumedad: cleanNum(data.toleranceHumedad),
+// //       percentGranosVerdes: cleanNum(data.percentGranosVerdes), toleranceGranosVerdes: cleanNum(data.toleranceGranosVerdes),
+// //       percentImpurezas: cleanNum(data.percentImpurezas), toleranceImpurezas: cleanNum(data.toleranceImpurezas),
+// //       percentGranosManchados: cleanNum(data.percentGranosManchados), toleranceGranosManchados: cleanNum(data.toleranceGranosManchados),
+// //       percentHualcacho: cleanNum(data.percentHualcacho), toleranceHualcacho: cleanNum(data.toleranceHualcacho),
+// //       percentGranosPelados: cleanNum(data.percentGranosPelados), toleranceGranosPelados: cleanNum(data.toleranceGranosPelados),
+// //       percentGranosYesosos: cleanNum(data.percentGranosYesosos), toleranceGranosYesosos: cleanNum(data.toleranceGranosYesosos),
+// //       percentVano: cleanNum(data.percentVano), toleranceVano: cleanNum(data.toleranceVano),
+
+// //       toleranceBonificacion: cleanNum(data.toleranceBonificacion), percentSecado: cleanNum(data.percentSecado),
+// //       totalToPay: cleanNum(data.totalToPay), status: "pending",
+// //       note: data.note, discountTemplateId: data.currentTemplateId,
+// //     };
+
+// //     const error = validateReceptionPayload(payload);
+// //     if (error) return showAlert(error, "error");
+
+// //     setLoadingSave(true);
+// //     try {
+// //       const saved = await createReception(payload);
+// //       await createRecord({ userId: user?.id ?? null, entity: "Recepción", description: `Recepción Nº ${saved.id} creada.` });
+// //       showAlert("Recepción guardada correctamente.", "success");
+// //       setReceptionToPrintId(saved.id);
+// //       setOpenPrintDialog(true);
+// //     } catch (err) {
+// //       console.error(err);
+// //       showAlert("Error al guardar recepción.", "error");
+// //     } finally {
+// //       setLoadingSave(false);
+// //     }
+// //   };
+
+// //   return (
+// //     <>
+// //       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
+// //         <Grid container spacing={2}>
+// //           <Grid item xs={12} md={4}>
+// //             <Typography gutterBottom>Datos de la recepción</Typography>
+// //             <ReceptionGeneralData />
+// //           </Grid>
+
+// //           <Grid item xs={12} md={5.5}>
+// //             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+// //               <Typography gutterBottom>Análisis de granos</Typography>
+// //               {template && <Typography variant="subtitle2">Plantilla: {template.name}</Typography>}
+// //             </Box>
+// //             {/* <GrainAnalysis template={template!}  loadingTemplate={false}/> */}
+// //           </Grid>
+
+// //           <Grid item xs={12} md={2.5}>
+// //             <Typography gutterBottom>Resumen de cálculo</Typography>
+// //             {/* <ReceptionSummary /> */}
+
+// //             <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={handleSave} disabled={loadingSave}>
+// //               {loadingSave ? <CircularProgress size={24} /> : "Guardar recepción"}
+// //             </Button>
+
+// //             <Divider sx={{ my: 2 }} />
+
+// //             <Box sx={{ display: "flex", gap: 1, p: 1, border: "1px solid #ccc", borderRadius: 2 }}>
+// //               <IconButton onClick={() => setOpenSaveTemplateDialog(true)}><SaveIcon color="primary"/></IconButton>
+// //               <Button variant="outlined" onClick={() => setOpenTemplateDialog(true)}>Plantillas</Button>
+// //             </Box>
+// //           </Grid>
+// //         </Grid>
+// //       </Box>
+
+// //       <Dialog open={openSaveTemplateDialog} onClose={() => setOpenSaveTemplateDialog(false)} fullWidth maxWidth="lg">
+// //         <Box sx={{ p: 2 }}><TemplateComponent closeDialog={() => setOpenSaveTemplateDialog(false)} /></Box>
+// //       </Dialog>
+
+// //       <Dialog open={openTemplateDialog} onClose={() => setOpenTemplateDialog(false)} fullWidth maxWidth="xl">
+// //         <Box sx={{ p: 2 }}><SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} /></Box>
+// //       </Dialog>
+
+// //       <PrintDialog open={openPrintDialog} setOpen={setOpenPrintDialog} title={`Recepción Nº ${receptionToPrintId}`}>
+// //         <ReceptionToPrint receptionId={receptionToPrintId} />
+// //       </PrintDialog>
+// //     </>
+// //   );
+// // }
+// const handleKeyDown = (e: React.KeyboardEvent) => {
+//   const { key, code } = e;
+//   if (key === "Enter") {
+//     e.preventDefault();
+//     const focusable = Array.from(
+//       document.querySelectorAll<HTMLElement>(
+//         "input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
+//       )
+//     ).filter(
+//       (el) =>
+//         el.offsetParent !== null &&
+//         getComputedStyle(el).visibility !== "hidden"
+//     );
+//     const idx = focusable.indexOf(e.target as HTMLElement);
+//     const next = focusable[idx + 1];
+//     if (next) next.focus();
+//     return;
+//   }
+//   if (code === "NumpadAdd") {
+//     e.preventDefault();
+//     const target = e.target as HTMLElement;
+//     if (target.tagName === "BUTTON") {
+//       (target as HTMLButtonElement).click();
+//       return;
+//     }
+//     const form = target.closest("form");
+//     const defaultBtn =
+//       form?.querySelector('button[type="submit"]') ||
+//       document.querySelector("button[data-default-action]");
+//     if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
+//   }
+// };

@@ -6,7 +6,7 @@ import { User } from "@/types/user";
 import AppDataGrid from "@/components/appDataGrid";
 import { Box, Dialog, DialogContent } from "@mui/material";
 import { UserForm } from "./ui/CreateUserForm";
-import moment from "moment";
+import moment from "moment-timezone";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Delete, Edit } from "@mui/icons-material";
 import { useAlertContext } from "@/context/AlertContext";
@@ -53,8 +53,7 @@ export default function UserPage() {
               headerName: "Fecha de creación",
               flex: 1,
                valueFormatter: (params: any) => {
-                            return moment(params)
-                            .subtract(4, "hours") // Resta 4 horas manualmente
+                            return moment(params).tz("America/Santiago")
                             .format("DD-MM-YYYY HH:mm");
                           },
             },

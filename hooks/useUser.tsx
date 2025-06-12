@@ -1,38 +1,57 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { User } from '@/types/user';
+import { getUserByEmail } from '@/app/actions/user';
 
 export const useUser = () => {
+  const { data: session, status } = useSession(); // status: "loading" | "authenticated" | "unauthenticated"
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const mockUser: User = {
-    id: 1,
-    name: 'Admin',
-    email: 'a@e.com',
-    //@ts-ignore
-    pass: '1234',
-    role: 'administrador',
-  };
-
-  const fetchUser = useCallback(async () => {
-    setLoading(true);
-    // Simula carga (opcional)
-    await new Promise((res) => setTimeout(res, 300));
-    setUser(mockUser);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+    const loadUser = async () => {
+      if (status === 'loading') return;
+
+      if (session?.user?.email) {
+        // Primero intentamos usar la sesión directamente
+        const basicUser: User = {
+          email: session.user.email,
+          name: session.user.name ?? '',
+          id: 0,
+          role: 'administrador'
+        };
+
+        setUser(basicUser);
+
+        try {
+          // Si necesitas más datos (rol, config, etc), los traes
+          const dbUser = await getUserByEmail(session.user.email);
+          setUser(dbUser);
+        } catch (error) {
+          console.error('Error cargando usuario desde DB:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, [session, status]);
 
   return {
     user,
     setUser,
     loading,
     setLoading,
-    refreshUser: fetchUser,
+    refreshUser: async () => {
+      if (session?.user?.email) {
+        const refreshed = await getUserByEmail(session.user.email);
+        setUser(refreshed);
+      }
+    },
   };
 };

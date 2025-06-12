@@ -119,7 +119,7 @@ const CustomFooter: React.FC<CustomFooterProps> = ({
     // Obtener columnas visibles y excluir __check__ y otras técnicas
     const visibleColumns = apiRef.current
       .getVisibleColumns()
-      .filter((col) => col.field !== "__check__");
+      .filter((col) => col.field !== "__check__" && col.field !== "actions");
 
     // Construir encabezado personalizado con headerName como título
     const headers = visibleColumns.map((col) => col.headerName || col.field);
@@ -134,7 +134,7 @@ const CustomFooter: React.FC<CustomFooterProps> = ({
     // Crear hoja de cálculo
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Bitácora");
+    XLSX.utils.book_append_sheet(workbook, worksheet, title);
 
     // filename
     const formatTitle = title || "excel";
@@ -161,7 +161,6 @@ const CustomFooter: React.FC<CustomFooterProps> = ({
         pb: 1,
         width: "100%",
         gap: 2,
- 
       }}
     >
       <IconButton
@@ -260,9 +259,9 @@ export default function AppDataGrid({
         initialState={{
           scroll: { top: 0, left: 0 },
           columns: {
-            columnVisibilityModel: {
-              id: false,
-            },
+            // columnVisibilityModel: {
+            //   id: false,
+            // },
           },
         }}
         rows={rows}
@@ -278,7 +277,7 @@ export default function AppDataGrid({
               FormComponent={FormComponent}
             />
           ),
-          footer: () => <CustomFooter setGridApiRef={setGridApiRef} />,
+          footer: () => <CustomFooter setGridApiRef={setGridApiRef}  title={title}/>,
         }}
       />
 

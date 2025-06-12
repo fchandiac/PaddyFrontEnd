@@ -32,7 +32,7 @@ export const CreateDiscountPercentForm: React.FC<Props> = ({ defaultCode, afterS
       const result = await createDiscountPercent(formData);
 
       if (result?.error) {
-        setErrors(Array.isArray(result.message) ? result.message : [result.error]);
+        setErrors(Array.isArray(result.message) ? result.message : [result.message]);
         return;
       }
 

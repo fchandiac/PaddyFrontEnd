@@ -60,10 +60,37 @@ export const UpdateProducerForm: React.FC<UpdateProducerFormProps> = ({
       }}
       fields={[
         { name: "name", label: "Nombre", type: "text", required: true },
-        { name: "businessName", label: "Razón Social", type: "text", required: true },
-        { name: "rut", label: "RUT", type: "text", required: true },
-        { name: "address", label: "Dirección", type: "text", required: true },
-        { name: "phone", label: "Teléfono", type: "text", required: true },
+        {
+          name: "businessName",
+          label: "Razón Social",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "rut",
+          label: "RUT",
+          type: "text",
+          required: true,
+          formatFn: (input: string) => {
+            const cleaned = input
+              .toUpperCase()
+              .replace(/[^0-9K]/g, "")
+              .slice(0, 9);
+            if (cleaned.length <= 1) return cleaned;
+            const body = cleaned.slice(0, -1);
+            const dv = cleaned.slice(-1);
+            return `${body}-${dv}`;
+          },
+        },
+        { name: "address", label: "Dirección", type: "text", required: false },
+        {
+          name: "phone",
+          label: "Teléfono",
+          type: "text",
+          required: false,
+          startAdornment: "+56",
+          formatFn: (input: string) => input.replace(/\D/g, "").slice(0, 9),
+        },
       ]}
       onSubmit={handleUpdate}
       isSubmitting={isSubmitting}

@@ -1,0 +1,36 @@
+{
+  "reportDate": "2025-05-13",
+  "simulatedDataRange": {
+    "startDate": "2025-04-01",
+    "endDate": "2025-04-30"
+  },
+  "receptionsByRiceType": [
+    {
+      "riceTypeName": "Largo Ancho",
+      "totalKilograms": 125500,
+      "numberOfReceptions": 15
+    },
+    {
+      "riceTypeName": "Largo Angosto",
+      "totalKilograms": 210200,
+      "numberOfReceptions": 22
+    },
+    {
+      "riceTypeName": "Corto",
+      "totalKilograms": 85750,
+      "numberOfReceptions": 10
+    },
+    {
+      "riceTypeName": "Japónica",
+      "totalKilograms": 50300,
+      "numberOfReceptions": 7
+    },
+    {
+      "riceTypeName": "Aromático (Basmati)",
+      "totalKilograms": 30100,
+      "numberOfReceptions": 5
+    }
+  ],
+  "overallTotalKilograms": 501850,
+  "overallTotalReceptions": 59
+}

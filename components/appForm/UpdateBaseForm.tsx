@@ -1,5 +1,6 @@
 "use client";
 
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Grid,
   TextField,
@@ -11,6 +12,8 @@ import {
   Stack,
   Switch,
   FormControlLabel,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -31,6 +34,9 @@ interface BaseUpdateFormField {
   rows?: number;
   disabled?: boolean;
   formatFn?: (input: string) => string; // ✅ nueva propiedad para formateo en tiempo real
+  startAdornment?: React.ReactNode; // ✅ nuevo
+  endAdornment?: React.ReactNode; // ✅ nuevo
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 interface BaseUpdateFormProps {
@@ -40,7 +46,6 @@ interface BaseUpdateFormProps {
   isSubmitting?: boolean;
   errors?: string[];
   title?: string;
-  
 }
 
 export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
@@ -52,6 +57,7 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
   title = "Elemento",
 }) => {
   const [values, setValues] = useState(initialState);
+    const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setValues(initialState);
@@ -89,7 +95,9 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
 
         {fields.map((field) => (
           <Grid item key={field.name}>
-            {["text", "textarea", "number", "email", "password"].includes(field.type) ? (
+            {["text", "textarea", "number", "email", "password"].includes(
+              field.type
+            ) ? (
               <TextField
                 label={field.label}
                 variant="outlined"
@@ -98,6 +106,7 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
                 multiline={field.multiline}
                 autoComplete="off"
                 rows={field.rows}
+                inputRef={field.inputRef}
                 fullWidth
                 type={
                   field.type === "number"
@@ -111,24 +120,51 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
                 onChange={(e) =>
                   handleChange(
                     field.name,
-                    field.formatFn ? field.formatFn(e.target.value) : e.target.value
+                    field.formatFn
+                      ? field.formatFn(e.target.value)
+                      : e.target.value
                   )
                 }
                 inputProps={
                   field.type === "email"
                     ? {
                         pattern: "[^@\\s]+@[^@\\s]+\\.[^@\\s]{2,}$",
-                        title: "Ingresa un correo válido (ej: persona@dominio.com)",
+                        title:
+                          "Ingresa un correo válido (ej: persona@dominio.com)",
                       }
                     : undefined
                 }
+                InputProps={{
+                  startAdornment: field.startAdornment ? (
+                    <InputAdornment position="start">
+                      {field.startAdornment}
+                    </InputAdornment>
+                  ) : undefined,
+                  endAdornment:
+                    field.type === "password" ? (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ) : field.endAdornment ? (
+                      <InputAdornment position="end">
+                        {field.endAdornment}
+                      </InputAdornment>
+                    ) : undefined,
+                }}
               />
             ) : field.type === "autocomplete" ? (
               <Autocomplete
                 options={field.options || []}
                 getOptionLabel={(option) => option.name}
+                noOptionsText="No se encontraron resultados"
                 value={
-                  field.options?.find((opt) => opt.id === values[field.name]) || null
+                  field.options?.find((opt) => opt.id === values[field.name]) ||
+                  null
                 }
                 onChange={(_, newValue) =>
                   handleChange(field.name, newValue?.id || "")
@@ -149,9 +185,7 @@ export const BaseUpdateForm: React.FC<BaseUpdateFormProps> = ({
                 control={
                   <Switch
                     checked={Boolean(values[field.name])}
-                    onChange={(e) =>
-                      handleChange(field.name, e.target.checked)
-                    }
+                    onChange={(e) => handleChange(field.name, e.target.checked)}
                     color="primary"
                   />
                 }

@@ -29,10 +29,14 @@ interface BaseFormField {
     | "password"
     | "switch";
   required?: boolean;
-  options?: { id: string; name: string }[]; // para autocomplete
+  autoFocus?: boolean;
+  options?: { id: string; name: string }[];
   multiline?: boolean;
   rows?: number;
-  formatFn?: (input: string) => string; // ✅ función de formateo opcional
+  inputRef?: React.RefObject<HTMLInputElement>;
+  formatFn?: (input: string) => string;
+  startAdornment?: React.ReactNode; // ✅ nuevo
+  endAdornment?: React.ReactNode;   // ✅ nuevo
 }
 
 interface BaseFormProps {
@@ -86,18 +90,18 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 
         {fields.map((field) => (
           <Grid item key={field.name}>
-            {["text", "textarea", "number", "email", "password"].includes(
-              field.type
-            ) ? (
+            {["text", "textarea", "number", "email", "password"].includes(field.type) ? (
               <TextField
                 label={field.label}
                 variant="outlined"
                 size="small"
+                autoFocus={field.autoFocus}
                 required={field.required}
                 multiline={field.multiline}
                 rows={field.rows}
                 autoComplete="off"
                 fullWidth
+                inputRef={field.inputRef}
                 type={
                   field.type === "password"
                     ? showPassword
@@ -125,6 +129,11 @@ export const BaseForm: React.FC<BaseFormProps> = ({
                     : undefined
                 }
                 InputProps={{
+                  startAdornment: field.startAdornment ? (
+                    <InputAdornment position="start">
+                      {field.startAdornment}
+                    </InputAdornment>
+                  ) : undefined,
                   endAdornment:
                     field.type === "password" ? (
                       <InputAdornment position="end">
@@ -135,6 +144,10 @@ export const BaseForm: React.FC<BaseFormProps> = ({
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
+                    ) : field.endAdornment ? (
+                      <InputAdornment position="end">
+                        {field.endAdornment}
+                      </InputAdornment>
                     ) : undefined,
                 }}
               />
@@ -142,9 +155,9 @@ export const BaseForm: React.FC<BaseFormProps> = ({
               <Autocomplete
                 options={field.options || []}
                 getOptionLabel={(option) => option.name}
+                noOptionsText="No se encontraron resultados"
                 value={
-                  field.options?.find((opt) => opt.id === values[field.name]) ||
-                  null
+                  field.options?.find((opt) => opt.id === values[field.name]) || null
                 }
                 onChange={(_, newValue) =>
                   onChange(field.name, newValue?.id || "")

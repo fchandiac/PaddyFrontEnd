@@ -26,10 +26,13 @@ const defectOptions = [
   { id: 5, name: "Hualcacho" },
   { id: 6, name: "Granos pelados y partidos" },
   { id: 7, name: "Granos yesosos y yesados" },
+  { id: 9, name: "Vano "},
+
 ];
 
 export default function DefectsPage() {
-  const [selectedDefect, setSelectedDefect] = useState<typeof defectOptions[0] | null>(null);
+  //const [selectedDefect, setSelectedDefect] = useState<typeof defectOptions[0] | null>(null);
+  const [selectedDefect, setSelectedDefect] = useState(defectOptions[0])
   const [rows, setRows] = useState<DiscountPercent[]>([]);
   const [rowData, setRowData] = useState<DiscountPercent | null>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -56,7 +59,7 @@ export default function DefectsPage() {
             options={defectOptions}
             getOptionLabel={(option) => option.name}
             value={selectedDefect}
-            onChange={(_, newValue) => setSelectedDefect(newValue)}
+            onChange={(_, newVal) => newVal && setSelectedDefect(newVal)}
             renderInput={(params) => (
               <TextField {...params} label="Tipo de defecto" size="small" />
             )}

@@ -1,107 +1,55 @@
+// ui/ReceptionSummary.tsx
 'use client';
 
-import React from 'react';
-import { Box } from '@mui/material';
 import { useReceptionContext } from '@/context/ReceptionDataContext';
+import React from 'react';
+import { DataReceptionContextType, ParamTableEntry } from '@/types/reception';
+import { TemplateType } from '@/types/discount-template'; 
+import { Box } from '@mui/material';
 
-export default function ReceptionSummary() {
-  const { data } = useReceptionContext();
 
-  const totalConDescuentos = data.postTotal;
-  const totalAPagar = data.totalToPay;
+export interface ReceptionSummaryProps {
+  template: TemplateType;
+  loadingTemplate?: boolean;
+}
+
+export default function ReceptionSummary({  }: ReceptionSummaryProps) {
+  const { liveClusters } = useReceptionContext();
 
   return (
-    <Box
-      sx={{
-        bgcolor: '#f7f7f7',
-        p: 2,
-        borderRadius: 2,
-        border: '1px solid #ccc',
-      }}
-    >
-      <table
-        style={{
-          width: '100%',
-          fontSize: 12,
-          borderCollapse: 'collapse',
-        }}
-      >
-        <tbody>
-          <tr>
-            <td>Kg Bruto:</td>
-            <td style={{ textAlign: 'right' }}>
-              {data.grossWeight.toLocaleString('es-CL', {
-                minimumFractionDigits: 2,
-              }) + ' kg'}
-            </td>
-          </tr>
-          <tr>
-            <td>Tara:</td>
-            <td style={{ textAlign: 'right' }}>
-              {data.tare.toLocaleString('es-CL', {
-                minimumFractionDigits: 2,
-              }) + ' kg'}
-            </td>
-          </tr>
-          <tr>
-            <td>Peso neto:</td>
-            <td style={{ textAlign: 'right' }}>
-              {data.netWeight.toLocaleString('es-CL', {
-                minimumFractionDigits: 2,
-              }) + ' kg'}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ color: 'red' }}>Total descuento:</td>
-            <td style={{ textAlign: 'right', color: 'red' }}>
-              {data.totalDiscounts.toLocaleString('es-CL', {
-                minimumFractionDigits: 2,
-              }) + ' kg'}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ color: '#1976d2' }}>Bonificación:</td>
-            <td style={{ textAlign: 'right', color: '#1976d2' }}>
-              {data.weightBonificacion.toLocaleString('es-CL', {
-                minimumFractionDigits: 2,
-              }) + ' kg'}
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>Total con descuentos:</strong>
-            </td>
-            <td style={{ textAlign: 'right' }}>
-              <strong>
-                {totalConDescuentos.toLocaleString('es-CL', {
-                  minimumFractionDigits: 2,
-                }) + ' kg'}
-              </strong>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong style={{ color: 'green' }}>Total a pagar:</strong>
-            </td>
-            <td style={{ textAlign: 'right', color: 'green' }}>
-              <strong>
-                {totalAPagar.toLocaleString('es-CL', {
-                  style: 'currency',
-                  currency: 'CLP',
-                })}
-              </strong>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <em>Secado:</em>
-            </td>
-            <td style={{ textAlign: 'right' }}>
-              {data.percentSecado.toFixed(2)}%
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <Box sx={{
+      border: '1px solid #1976d2',
+      borderRadius: 2,
+      p: 2,
+      mb: 2,
+      background: '#f7fafd',
+    }}>
+      <Box component="dl" sx={{ m: 0 }}>
+        <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+          <Box component="dt">Peso Bruto</Box>
+          <Box component="dd">{isNaN(liveClusters.grossWeight.node.value) ? 0 : liveClusters.grossWeight.node.value}</Box>
+        </Box>
+        <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+          <Box component="dt">Tara</Box>
+          <Box component="dd">{isNaN(liveClusters.tare.node.value) ? 0 : liveClusters.tare.node.value}</Box>
+        </Box>
+        <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+          <Box component="dt">Peso Neto</Box>
+          <Box component="dd">{isNaN(liveClusters.netWeight.node.value) ? 0 : liveClusters.netWeight.node.value}</Box>
+        </Box>
+        <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+          <Box component="dt">Total Descuentos</Box>
+          <Box component="dd">{isNaN(liveClusters.DiscountTotal.node.value) ? 0 : liveClusters.DiscountTotal.node.value}</Box>
+        </Box>
+        <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+          <Box component="dt">Bonificación</Box>
+          <Box component="dd">{liveClusters.Bonus.tolerance && !isNaN(liveClusters.Bonus.tolerance.value) ? liveClusters.Bonus.tolerance.value : 0}</Box>
+        </Box>
+        <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+          <Box component="dt">Paddy Neto</Box>
+          <Box component="dd">{isNaN(liveClusters.totalPaddy.node.value) ? 0 : liveClusters.totalPaddy.node.value}</Box>
+        </Box>
+      </Box>
     </Box>
   );
 }

@@ -38,6 +38,7 @@ export default function ReceptionsLayout({
         variant="scrollable"
         scrollButtons="auto"
         allowScrollButtonsMobile
+        
         sx={{
           paddingX: 2,
           top: 60,
