@@ -63,7 +63,9 @@ const VisibilityButton: React.FC<{
     sx={{
       ml: 0,
       mr: 0,
-      p: 0.5
+      p: 0.3, // Reducido de 0.5 a 0.3
+      height: "28px", // Altura fija más pequeña
+      width: "28px"
     }}
   >
     {isVisible ? (
@@ -85,7 +87,18 @@ const EmptyCell = () => (
       type={"number"}
       value={0}
       inputProps={{ "data-skip-focus": true }}
-      sx={{ minWidth: 110 }}
+      sx={{ 
+        minWidth: 110,
+        height: "32px", // Altura fija reducida
+        "& .MuiInputBase-root": {
+          height: "32px"
+        },
+        "& .MuiInputBase-input": {
+          padding: "6px 8px",
+          fontSize: "0.875rem",
+          lineHeight: "1.2"
+        }
+      }}
     />
   </Box>
 );
@@ -121,7 +134,16 @@ const NodeComponent: React.FC<NodeProps> = (node: NodeProps) => {
         }}
         sx={{
           minWidth: 110,
-          visibility: node.show ? 'visible' : 'hidden'
+          visibility: node.show ? 'visible' : 'hidden',
+          height: "32px", // Altura fija reducida
+          "& .MuiInputBase-root": {
+            height: "32px" // Asegurar que el input tenga la altura reducida
+          },
+          "& .MuiInputBase-input": {
+            padding: "6px 8px", // Padding vertical reducido
+            fontSize: "0.875rem",
+            lineHeight: "1.2"
+          }
         }}
       />
     </Box>
@@ -155,8 +177,9 @@ const GrainRow: React.FC<{
       sx={{ 
         display: 'flex', 
         flexDirection: 'row', 
-        mt: 1, 
-        alignItems: 'center'
+        mt: 0.6, // Reducido de 1 a 0.6 (20% menos) 
+        alignItems: 'center',
+        minHeight: '32px' // Altura mínima reducida para controlar la altura total
       }}
     >
       {/* Columna 1: Nombre del parámetro */}
@@ -174,8 +197,13 @@ const GrainRow: React.FC<{
                 "& fieldset": { border: "none" },
                 "&:hover fieldset": { border: "none" },
                 "&.Mui-focused fieldset": { border: "none" },
-                "& .MuiInputBase-input": { padding: "0px" },
+                "& .MuiInputBase-input": { 
+                  padding: "6px 0px", // Reducido de padding original
+                  fontSize: "0.875rem",
+                  lineHeight: "1.2"
+                },
               },
+              height: "32px" // Altura fija reducida para el TextField
             }}
           />
         ) : (
@@ -194,8 +222,10 @@ const GrainRow: React.FC<{
                 minWidth: 110,
                 visibility: range.show ? 'visible' : 'hidden',
                 textAlign: "left",
-                padding: "8px 0px",
-                fontWeight: 500
+                padding: "6px 0px", // Reducido de 8px a 6px
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                lineHeight: "1.2" // Altura de línea más compacta
               }}
             >
               {range.label}
