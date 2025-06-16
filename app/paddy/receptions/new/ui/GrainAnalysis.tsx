@@ -177,7 +177,7 @@ const GrainRow: React.FC<{
       sx={{ 
         display: 'flex', 
         flexDirection: 'row', 
-        mt: 0.6, // Reducido de 1 a 0.6 (20% menos) 
+        mt: 1, // MarginTop de 1 para todos los GrainRow
         alignItems: 'center',
         minHeight: '32px' // Altura mínima reducida para controlar la altura total
       }}
