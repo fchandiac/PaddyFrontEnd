@@ -187,19 +187,35 @@ const GrainRow: React.FC<{
       {/* Columna 2: Rango o nombre secundario */}
       <Box sx={{ ...boxStyle, width: 130, mr: 1 }}>
         {range ? (
-          <NodeComponent
-            key={range.key}
-            value={typeof range.value === 'string' ? range.value : (range.label && range.readonly) ? range.label : range.value}
-            onChange={range.onChange}
-            adorn={range.adorn}
-            readonly={range.readonly}
-            backgroundColor={range.backgroundColor}
-            show={range.show}
-            setShow={range.setShow}
-            label={range.label && !range.readonly ? range.label : undefined}
-            error={range.error}
-            showVisilibilityButton={false}
-          />
+          // Si es un nodo de texto (readonly con label), renderizar como texto simple
+          range.readonly && range.label && range.value === 0 ? (
+            <Typography
+              variant="body2"
+              sx={{
+                minWidth: 110,
+                visibility: range.show ? 'visible' : 'hidden',
+                textAlign: "left",
+                padding: "8px 0px",
+                fontWeight: 500
+              }}
+            >
+              {range.label}
+            </Typography>
+          ) : (
+            <NodeComponent
+              key={range.key}
+              value={typeof range.value === 'string' ? range.value : (range.label && range.readonly) ? range.label : range.value}
+              onChange={range.onChange}
+              adorn={range.adorn}
+              readonly={range.readonly}
+              backgroundColor={range.backgroundColor}
+              show={range.show}
+              setShow={range.setShow}
+              label={range.label && !range.readonly ? range.label : undefined}
+              error={range.error}
+              showVisilibilityButton={false}
+            />
+          )
         ) : (
           <EmptyCell />
         )}
