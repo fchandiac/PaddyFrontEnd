@@ -40,11 +40,11 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 if [ "$1" = "auth" ]; then
   # Ejecutar solo test de autenticación
   echo "Ejecutando test de autenticación..."
-  npx wdio run wdio.conf.js --spec ./test/specs/authTest.e2e.ts
+  npx wdio run wdio.conf.js --spec ./test/specs/auth/authTest.e2e.ts
 elif [ "$1" = "reception" ]; then
   # Ejecutar tests para la página de recepción nueva
   echo "Ejecutando tests para la página de recepción nueva..."
-  npx wdio run wdio.conf.js --spec ./test/specs/newReceptionPage.e2e.ts
+  npx wdio run wdio.conf.js --spec ./test/specs/newReception/newReceptionPage.e2e.ts
 else
   # Ejecutar todos los tests
   echo "Ejecutando todos los tests..."

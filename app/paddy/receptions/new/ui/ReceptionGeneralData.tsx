@@ -141,11 +141,26 @@ export default function ReceptionGeneralData() {
             autoComplete="off"
             fullWidth
             size="small"
-            // inputRef={priceInputRef}
-            value={liveClusters.price.node.value}
+            value={
+              liveClusters.price.node.value 
+                ? liveClusters.price.node.value.toLocaleString('es-CL', { 
+                    minimumFractionDigits: 0 
+                  }) 
+                : ''
+            }
             onChange={(e) => {
-              const v = e.target.value;
-            
+              const rawValue = e.target.value;
+              // Eliminar caracteres no numéricos
+              const numericValue = rawValue.replace(/[^\d]/g, '');
+              if (numericValue) {
+                const parsedValue = parseInt(numericValue, 10);
+                liveClusters.price.node.onChange(parsedValue);
+              } else {
+                liveClusters.price.node.onChange(0);
+              }
+            }}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">$</InputAdornment>,
             }}
             onFocus={(e) => (e.target as HTMLInputElement).select()}
           />

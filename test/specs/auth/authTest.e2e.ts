@@ -1,5 +1,5 @@
-import { authenticateForTests } from '../helpers/auth';
-import { TEST_CREDENTIALS } from '../data/credentials';
+import { authenticateForTests } from '../../helpers/auth';
+import { TEST_CREDENTIALS } from '../../data/credentials';
 
 describe('Prueba de autenticación', () => {
   it('debe autenticarse correctamente', async () => {

@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
 
 const AppName = "Paddy AyG";
 const AppVersion = "v1.0.0";
@@ -33,18 +34,26 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
   return (
     <Drawer anchor="left" open={open} onClose={() => toggleDrawer(false)}>
       <Box sx={{ width: 250, padding: 2 }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          {AppName}
-        </Typography>
-
-        <Typography
-          variant="body2"
-          align="center"
-          color="textSecondary"
-          paragraph
-        >
-          {AppVersion}
-        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+          <Image 
+            src="/logo.svg" 
+            alt="Paddy AyG Logo" 
+            width={100} 
+            height={100} 
+            priority 
+          />
+          <Typography variant="h5" align="center" gutterBottom>
+            {AppName}
+          </Typography>
+          <Typography
+            variant="body2"
+            align="center"
+            color="textSecondary"
+            paragraph
+          >
+            {AppVersion}
+          </Typography>
+        </Box>
 
         <List>
           <MenuItem
@@ -117,6 +126,15 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
             }}
           >
             Registros
+          </MenuItem>
+
+          <MenuItem
+            onClick={() => {
+              router.push("/paddy/settlements");
+              toggleDrawer(false);
+            }}
+          >
+            Liquidaciones
           </MenuItem>
 
           <Divider sx={{ my: 1 }} />

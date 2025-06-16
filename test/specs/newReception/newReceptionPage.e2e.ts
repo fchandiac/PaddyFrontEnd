@@ -1,4 +1,4 @@
-import { authenticateForTests } from '../helpers/auth';
+import { authenticateForTests } from '../../helpers/auth';
 
 describe('Página de nueva recepción /paddy/receptions/new', () => {
     beforeEach(async () => {

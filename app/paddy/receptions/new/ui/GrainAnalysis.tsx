@@ -64,7 +64,7 @@ const NodeComponent: React.FC<NodeProps> = (node: NodeProps) => {
         }}
         sx={{
           minWidth: 110,
-          display: node.show ? 'block': 'none'
+          visibility: node.show ? 'visible' : 'hidden'
         }}
       />
       {node.showVisilibilityButton && (
@@ -219,6 +219,7 @@ export default function GrainAnalysis() {
         borderRadius: "4px",
         px: 2,
         py: 1,
+        minWidth: 700,
       }}
     >
       {/* Renderizar primero los parámetros que NO pertenecen al grupo de tolerancia */}
@@ -409,7 +410,7 @@ export default function GrainAnalysis() {
                 backgroundColor={node.backgroundColor}
                 show={node.show}
                 setShow={node.setShow}
-                showVisilibilityButton={node.showVisilibilityButton}
+                showVisilibilityButton={false}
                 error={node.error}
               />
             ))}
@@ -491,7 +492,7 @@ export default function GrainAnalysis() {
               backgroundColor={node.backgroundColor}
               show={node.show}
               setShow={node.setShow}
-              showVisilibilityButton={node.showVisilibilityButton}
+              showVisilibilityButton={false}
               error={node.error}
             />
           ))}
@@ -513,7 +514,6 @@ export default function GrainAnalysis() {
                 sx={{
                   padding: 0,
                   minWidth: 110,
-                  backgroundColor: "#f7f7f7",
                   '& .MuiOutlinedInput-root': {
                     '& fieldset': { border: 'none' },
                     '&:hover fieldset': { border: 'none' },
@@ -546,42 +546,45 @@ export default function GrainAnalysis() {
             </Box>
             {/* Caja vacía para el porcentaje */}
             <Box sx={{ minWidth: 110 }} />
-            {/* tolerance */}
-            {liveClusters.Bonus.tolerance ? (
-              <NodeComponent
-                key={liveClusters.Bonus.tolerance.key}
-                label={liveClusters.Bonus.tolerance.label}
-                value={liveClusters.Bonus.tolerance.value}
-                onChange={liveClusters.Bonus.tolerance.onChange}
-                adorn={liveClusters.Bonus.tolerance.adorn}
-                readonly={liveClusters.Bonus.tolerance.readonly}
-                backgroundColor={liveClusters.Bonus.tolerance.backgroundColor}
-                show={liveClusters.Bonus.tolerance.show}
-                setShow={liveClusters.Bonus.tolerance.setShow}
-                showVisilibilityButton={liveClusters.Bonus.tolerance.showVisilibilityButton}
-                error={liveClusters.Bonus.tolerance.error}
-              />
-            ) : (
-              <Box sx={{ minWidth: 110 }} />
-            )}
-            {/* penalty */}
-            {liveClusters.Bonus.penalty ? (
-              <NodeComponent
-                key={liveClusters.Bonus.penalty.key}
-                label={liveClusters.Bonus.penalty.label}
-                value={liveClusters.Bonus.penalty.value}
-                onChange={liveClusters.Bonus.penalty.onChange}
-                adorn={liveClusters.Bonus.penalty.adorn}
-                readonly={liveClusters.Bonus.penalty.readonly}
-                backgroundColor={liveClusters.Bonus.penalty.backgroundColor}
-                show={liveClusters.Bonus.penalty.show}
-                setShow={liveClusters.Bonus.penalty.setShow}
-                showVisilibilityButton={liveClusters.Bonus.penalty.showVisilibilityButton}
-                error={liveClusters.Bonus.penalty.error}
-              />
-            ) : (
-              <Box sx={{ minWidth: 110 }} />
-            )}
+            {/* Contenedor para tolerance y penalty - usando Stack con spacing para alinear y dar ancho consistente */}
+            <Stack spacing={2} direction="row">
+              {/* tolerance - minWidth asegura que ocupa el mismo espacio que otros campos */}
+              {liveClusters.Bonus.tolerance ? (
+                <NodeComponent
+                  key={liveClusters.Bonus.tolerance.key}
+                  label={liveClusters.Bonus.tolerance.label}
+                  value={liveClusters.Bonus.tolerance.value}
+                  onChange={liveClusters.Bonus.tolerance.onChange}
+                  adorn={liveClusters.Bonus.tolerance.adorn}
+                  readonly={liveClusters.Bonus.tolerance.readonly}
+                  backgroundColor={liveClusters.Bonus.tolerance.backgroundColor}
+                  show={liveClusters.Bonus.tolerance.show}
+                  setShow={liveClusters.Bonus.tolerance.setShow}
+                  showVisilibilityButton={false}
+                  error={liveClusters.Bonus.tolerance.error}
+                />
+              ) : (
+                <Box sx={{ minWidth: 110 }} />
+              )}
+              {/* penalty */}
+              {liveClusters.Bonus.penalty ? (
+                <NodeComponent
+                  key={liveClusters.Bonus.penalty.key}
+                  label={liveClusters.Bonus.penalty.label}
+                  value={liveClusters.Bonus.penalty.value}
+                  onChange={liveClusters.Bonus.penalty.onChange}
+                  adorn={liveClusters.Bonus.penalty.adorn}
+                  readonly={liveClusters.Bonus.penalty.readonly}
+                  backgroundColor={liveClusters.Bonus.penalty.backgroundColor}
+                  show={liveClusters.Bonus.penalty.show}
+                  setShow={liveClusters.Bonus.penalty.setShow}
+                  showVisilibilityButton={false}
+                  error={liveClusters.Bonus.penalty.error}
+                />
+              ) : (
+                <Box sx={{ minWidth: 110 }} />
+              )}
+            </Stack>
           </Stack>
         </Box>
       )}
@@ -601,7 +604,6 @@ export default function GrainAnalysis() {
                 sx={{
                   padding: 0,
                   minWidth: 110,
-                  backgroundColor: "#f7f7f7",
                   '& .MuiOutlinedInput-root': {
                     '& fieldset': { border: 'none' },
                     '&:hover fieldset': { border: 'none' },
@@ -623,7 +625,6 @@ export default function GrainAnalysis() {
                   padding: 0,
                   textAlign: "left",
                   minWidth: 110,
-                  backgroundColor: "#f7f7f7",
                   '& .MuiOutlinedInput-root': {
                     '& fieldset': { border: 'none' },
                     '&:hover fieldset': { border: 'none' },
@@ -633,7 +634,7 @@ export default function GrainAnalysis() {
                 }}
               />
             </Box>
-            {/* Tercer box: input de porcentaje */}
+            {/* Tercer box: input de porcentaje - uso directo de NodeComponent para mantener consistencia con otros campos */}
             {liveClusters.Dry.percent ? (
               <NodeComponent
                 key={liveClusters.Dry.percent.key}
@@ -645,7 +646,7 @@ export default function GrainAnalysis() {
                 backgroundColor={liveClusters.Dry.percent.backgroundColor}
                 show={liveClusters.Dry.percent.show}
                 setShow={liveClusters.Dry.percent.setShow}
-                showVisilibilityButton={liveClusters.Dry.percent.showVisilibilityButton}
+                showVisilibilityButton={false}
                 error={liveClusters.Dry.percent.error}
               />
             ) : (

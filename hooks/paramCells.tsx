@@ -824,6 +824,68 @@ granosYesosos.tolerance.addConsumer(granosYesosos.penalty);
 granosYesosos.tolerance.addConsumer(summary.tolerance);
 granosYesosos.penalty.addConsumer(summary.penalty);
 
+// Añadir conexiones para el cálculo de la tolerancia del grupo
+humedad.tolerance.addConsumer(groupSummary.tolerance);
+granosVerdes.tolerance.addConsumer(groupSummary.tolerance);
+impurezas.tolerance.addConsumer(groupSummary.tolerance);
+vano.tolerance.addConsumer(groupSummary.tolerance);
+hualcacho.tolerance.addConsumer(groupSummary.tolerance);
+granosManchados.tolerance.addConsumer(groupSummary.tolerance);
+granosPelados.tolerance.addConsumer(groupSummary.tolerance);
+granosYesosos.tolerance.addConsumer(groupSummary.tolerance);
+
+// Conectar GroupSummary percent y tolerance con penalty
+groupSummary.percent.addConsumer(groupSummary.penalty);
+groupSummary.tolerance.addConsumer(groupSummary.penalty);
+
+// Conectar netWeight con penalty de GroupSummary
+netWeight.node.addConsumer(groupSummary.penalty);
+
+// Conexiones para el cálculo directo (forward)
+humedad.percent.addConsumer(groupSummary.percent);
+granosVerdes.percent.addConsumer(groupSummary.percent);
+impurezas.percent.addConsumer(groupSummary.percent);
+vano.percent.addConsumer(groupSummary.percent);
+hualcacho.percent.addConsumer(groupSummary.percent);
+granosManchados.percent.addConsumer(groupSummary.percent);
+granosPelados.percent.addConsumer(groupSummary.percent);
+granosYesosos.percent.addConsumer(groupSummary.percent);
+
+// Conexiones para el cálculo directo de tolerancias (forward)
+humedad.tolerance.addConsumer(groupSummary.tolerance);
+granosVerdes.tolerance.addConsumer(groupSummary.tolerance);
+impurezas.tolerance.addConsumer(groupSummary.tolerance);
+vano.tolerance.addConsumer(groupSummary.tolerance);
+hualcacho.tolerance.addConsumer(groupSummary.tolerance);
+granosManchados.tolerance.addConsumer(groupSummary.tolerance);
+granosPelados.tolerance.addConsumer(groupSummary.tolerance);
+granosYesosos.tolerance.addConsumer(groupSummary.tolerance);
+
+// Conexiones para el cálculo directo de penalties (forward)
+humedad.penalty.addConsumer(groupSummary.penalty);
+granosVerdes.penalty.addConsumer(groupSummary.penalty);
+impurezas.penalty.addConsumer(groupSummary.penalty);
+vano.penalty.addConsumer(groupSummary.penalty);
+hualcacho.penalty.addConsumer(groupSummary.penalty);
+granosManchados.penalty.addConsumer(groupSummary.penalty);
+granosPelados.penalty.addConsumer(groupSummary.penalty);
+granosYesosos.penalty.addConsumer(groupSummary.penalty);
+
+// Conexiones entre nodos del GroupSummary
+groupSummary.percent.addConsumer(groupSummary.penalty);
+groupSummary.tolerance.addConsumer(groupSummary.penalty);
+
+// Conexiones de los nodos de pesos para afectar a los penalties
+netWeight.node.addConsumer(humedad.penalty);
+netWeight.node.addConsumer(granosVerdes.penalty);
+netWeight.node.addConsumer(impurezas.penalty);
+netWeight.node.addConsumer(vano.penalty);
+netWeight.node.addConsumer(hualcacho.penalty);
+netWeight.node.addConsumer(granosManchados.penalty);
+netWeight.node.addConsumer(granosPelados.penalty);
+netWeight.node.addConsumer(granosYesosos.penalty);
+netWeight.node.addConsumer(groupSummary.penalty);
+
 
 
 
@@ -1154,15 +1216,18 @@ granosYesosos.penalty.effect = () => {
 };
 
 groupSummary.percent.effect = () => {
+  // Solo sumar los porcentajes de los parámetros que pertenecen al grupo de tolerancia
+  // Comprobar si el parámetro está en el grupo de tolerancia y está disponible
   const total =
-    (isNaN(humedad.percent.value ) && humedad.percent.parentCluster.toleranceGroup ? 0 : humedad.percent.value) +
-    (isNaN(granosVerdes.percent.value) ? 0 : granosVerdes.percent.value) +
-    (isNaN(impurezas.percent.value) ? 0 : impurezas.percent.value) +
-    (isNaN(vano.percent.value) ? 0 : vano.percent.value) +
-    (isNaN(hualcacho.percent.value) ? 0 : hualcacho.percent.value) +
-    (isNaN(granosManchados.percent.value) ? 0 : granosManchados.percent.value) +
-    (isNaN(granosPelados.percent.value) ? 0 : granosPelados.percent.value) +
-    (isNaN(granosYesosos.percent.value) ? 0 : granosYesosos.percent.value);
+    (humedad.toleranceGroup && humedad.available ? (isNaN(humedad.percent.value) ? 0 : humedad.percent.value) : 0) +
+    (granosVerdes.toleranceGroup && granosVerdes.available ? (isNaN(granosVerdes.percent.value) ? 0 : granosVerdes.percent.value) : 0) +
+    (impurezas.toleranceGroup && impurezas.available ? (isNaN(impurezas.percent.value) ? 0 : impurezas.percent.value) : 0) +
+    (vano.toleranceGroup && vano.available ? (isNaN(vano.percent.value) ? 0 : vano.percent.value) : 0) +
+    (hualcacho.toleranceGroup && hualcacho.available ? (isNaN(hualcacho.percent.value) ? 0 : hualcacho.percent.value) : 0) +
+    (granosManchados.toleranceGroup && granosManchados.available ? (isNaN(granosManchados.percent.value) ? 0 : granosManchados.percent.value) : 0) +
+    (granosPelados.toleranceGroup && granosPelados.available ? (isNaN(granosPelados.percent.value) ? 0 : granosPelados.percent.value) : 0) +
+    (granosYesosos.toleranceGroup && granosYesosos.available ? (isNaN(granosYesosos.percent.value) ? 0 : granosYesosos.percent.value) : 0);
+  
   if (total > 100) {
     groupSummary.percent.setError(true);
   } else {
@@ -1230,6 +1295,87 @@ summary.penalty.effect = () => {
   summary.penalty.setValue(total);
 };
 
+// Agregar efecto para calcular la tolerancia del grupo
+groupSummary.tolerance.effect = () => {
+  // Solo sumar las tolerancias de los parámetros que pertenecen al grupo de tolerancia
+  const total =
+    (humedad.toleranceGroup && humedad.available ? (isNaN(humedad.tolerance.value) ? 0 : humedad.tolerance.value) : 0) +
+    (granosVerdes.toleranceGroup && granosVerdes.available ? (isNaN(granosVerdes.tolerance.value) ? 0 : granosVerdes.tolerance.value) : 0) +
+    (impurezas.toleranceGroup && impurezas.available ? (isNaN(impurezas.tolerance.value) ? 0 : impurezas.tolerance.value) : 0) +
+    (vano.toleranceGroup && vano.available ? (isNaN(vano.tolerance.value) ? 0 : vano.tolerance.value) : 0) +
+    (hualcacho.toleranceGroup && hualcacho.available ? (isNaN(hualcacho.tolerance.value) ? 0 : hualcacho.tolerance.value) : 0) +
+    (granosManchados.toleranceGroup && granosManchados.available ? (isNaN(granosManchados.tolerance.value) ? 0 : granosManchados.tolerance.value) : 0) +
+    (granosPelados.toleranceGroup && granosPelados.available ? (isNaN(granosPelados.tolerance.value) ? 0 : granosPelados.tolerance.value) : 0) +
+    (granosYesosos.toleranceGroup && granosYesosos.available ? (isNaN(granosYesosos.tolerance.value) ? 0 : granosYesosos.tolerance.value) : 0);
+  
+  groupSummary.tolerance.setValue(total);
+}
+
+// Agregar efecto para calcular la penalización del grupo
+groupSummary.penalty.effect = () => {
+  const percentValue = isNaN(groupSummary.percent.value) ? 0 : groupSummary.percent.value;
+  const toleranceValue = isNaN(groupSummary.tolerance.value) ? 0 : groupSummary.tolerance.value;
+  
+  if (percentValue > toleranceValue) {
+    const diff = percentValue - toleranceValue;
+    const penaltyValue = netWeight.node.value * (diff / 100);
+    groupSummary.penalty.setValue(penaltyValue);
+  } else {
+    groupSummary.penalty.setValue(0);
+  }
+}
+
+// Agregar efecto para distribuir la tolerancia del grupo a los parámetros individuales
+// cuando el usuario actualiza manualmente la tolerancia del grupo
+groupSummary.tolerance.onChange = (value: number) => {
+  // Primero actualizamos el valor del nodo
+  groupSummary.tolerance.setValue(value);
+  
+  // Obtenemos los parámetros que pertenecen al grupo de tolerancia
+  const toleranceGroupParams = [
+    { cluster: humedad, percent: humedad.percent.value },
+    { cluster: granosVerdes, percent: granosVerdes.percent.value },
+    { cluster: impurezas, percent: impurezas.percent.value },
+    { cluster: vano, percent: vano.percent.value },
+    { cluster: hualcacho, percent: hualcacho.percent.value },
+    { cluster: granosManchados, percent: granosManchados.percent.value },
+    { cluster: granosPelados, percent: granosPelados.percent.value },
+    { cluster: granosYesosos, percent: granosYesosos.percent.value }
+  ].filter(param => param.cluster.toleranceGroup && param.cluster.available);
+  
+  // Calculamos la suma total de porcentajes de los parámetros del grupo
+  const totalPercent = toleranceGroupParams.reduce((sum, param) => 
+    sum + (isNaN(param.percent) ? 0 : param.percent), 0);
+  
+  // Si no hay porcentajes, no podemos distribuir
+  if (totalPercent <= 0) {
+    return;
+  }
+  
+  // Distribuimos la tolerancia proporcionalmente a cada parámetro según su porcentaje
+  toleranceGroupParams.forEach(param => {
+    const paramPercent = isNaN(param.percent) ? 0 : param.percent;
+    // Calculamos el peso relativo del parámetro (su proporción del total)
+    const weight = paramPercent / totalPercent;
+    // Distribuimos la tolerancia según el peso
+    const distributedTolerance = value * weight;
+    
+    // Actualizamos la tolerancia del parámetro sin activar los efectos en cascada
+    // para evitar un ciclo de actualizaciones
+    param.cluster.tolerance.value = distributedTolerance;
+    
+    // Ahora recalculamos la penalización para este parámetro
+    if (param.cluster.penalty.effect) {
+      param.cluster.penalty.effect();
+    }
+  });
+  
+  // Finalmente actualizamos la penalización del grupo
+  if (groupSummary.penalty.effect) {
+    groupSummary.penalty.effect();
+  }
+};
+
 export const clusters = {
   price: price,
   grossWeight: grossWeight,
@@ -1251,3 +1397,12 @@ export const clusters = {
   totalPaddy: totalPaddy,
   totalToPay: totalToPay,
 };
+
+// Agregar conexiones para que los cambios en los porcentajes actualicen el groupSummary.percent
+granosVerdes.percent.addConsumer(groupSummary.percent);
+impurezas.percent.addConsumer(groupSummary.percent);
+vano.percent.addConsumer(groupSummary.percent);
+hualcacho.percent.addConsumer(groupSummary.percent);
+granosManchados.percent.addConsumer(groupSummary.percent);
+granosPelados.percent.addConsumer(groupSummary.percent);
+granosYesosos.percent.addConsumer(groupSummary.percent);

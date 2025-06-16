@@ -39,14 +39,11 @@ export default function NewReceptionPage() {
 
   useEffect(() => {
     const fetchTemplate = async () => {
-      console.log('🔥 Fetching default template on page load');
       setLoadingTemplate(true);
       const template = await getDefaultTemplate();
       if (template) {
-        console.log('🔥 Default template found:', template);
         setTemplate(template);
       } else {
-        console.log('🔥 No default template found');
         showAlert("No se encontró la plantilla por defecto", "error");
       }
       setLoadingTemplate(false);

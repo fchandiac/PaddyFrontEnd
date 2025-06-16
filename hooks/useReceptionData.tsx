@@ -161,6 +161,10 @@ export function useReceptionData(
       cluster.tolerance.show = !!available;
       cluster.penalty.show = !!available;
       
+      // Actualizar flag de toleranceGroup en el clúster
+      cluster.toleranceGroup = !!(data.template.useToleranceGroup && groupTolerance);
+      cluster.available = !!available;
+      
       // Establecer color de fondo para elementos que pertenecen al grupo de tolerancia
       if (data.template.useToleranceGroup && groupTolerance && available) {
         console.log(`🔥 Setting ${name} group tolerance background color`);
@@ -205,6 +209,30 @@ export function useReceptionData(
     // DryCluster
     console.log('🔥 Setting Dry visibility to:', data.template.availableDry);
     liveClusters.Dry.percent.show = !!data.template.availableDry;
+    
+    // Después de actualizar todos los parámetros, forzar recálculo del porcentaje en groupSummary
+    console.log('🔥 Forcing recalculation of groupSummary values');
+    if (liveClusters.groupSummary.percent.effect) {
+      liveClusters.groupSummary.percent.effect();
+    }
+    
+    // Forzar recálculo de la tolerancia del grupo
+    if (liveClusters.groupSummary.tolerance.effect) {
+      liveClusters.groupSummary.tolerance.effect();
+    }
+    
+    // Forzar recálculo de la penalización del grupo
+    if (liveClusters.groupSummary.penalty.effect) {
+      liveClusters.groupSummary.penalty.effect();
+    }
+    
+    // Restablecer el comportamiento del onChange de la tolerancia del grupo
+    // para asegurar que se distribuya correctamente a los parámetros individuales
+    const originalToleranceOnChange = liveClusters.groupSummary.tolerance.onChange;
+    liveClusters.groupSummary.tolerance.onChange = (value: number) => {
+      setVersion((v) => v + 1); // Actualizar versión para forzar re-render
+      originalToleranceOnChange(value);
+    };
     
     console.log('🔥 Template visibility sync completed');
   }, [data?.template, liveClusters]);
@@ -253,11 +281,92 @@ export function useReceptionData(
     console.log('🔥 Template set in data state');
   }, []);
 
+  const updateToleranceGroupMode = useCallback(
+    (useToleranceGroup: boolean) => {
+      console.log('🔥 Updating tolerance group mode to:', useToleranceGroup);
+      
+      setData((prev) => ({
+        ...prev,
+        template: {
+          ...prev.template,
+          useToleranceGroup
+        },
+      }));
+      
+      // Actualizar el estado de los clusters según el nuevo modo
+      const paramClusters = [
+        liveClusters.Humedad,
+        liveClusters.GranosVerdes,
+        liveClusters.Impurezas,
+        liveClusters.Vano,
+        liveClusters.Hualcacho,
+        liveClusters.GranosManchados,
+        liveClusters.GranosPelados,
+        liveClusters.GranosYesosos
+      ];
+      
+      // Actualizar la propiedad toleranceGroup en cada cluster
+      paramClusters.forEach(cluster => {
+        if (cluster.available) {
+          // Solo actualizamos si el cluster está disponible
+          const groupToleranceField = `groupTolerance${cluster.key}` as keyof TemplateType;
+          const groupTolerance = data.template[groupToleranceField];
+          
+          cluster.toleranceGroup = !!(useToleranceGroup && groupTolerance);
+          
+          // Actualizar colores de fondo según corresponda
+          if (useToleranceGroup && groupTolerance) {
+            cluster.tolerance.backgroundColor = "#ede7f6";
+            cluster.percent.backgroundColor = "#ede7f6";
+            cluster.penalty.backgroundColor = "#ede7f6";
+          } else {
+            // Restaurar colores predeterminados si no hay error
+            if (!cluster.tolerance.error) {
+              cluster.tolerance.backgroundColor = "inherit";
+            }
+            if (!cluster.percent.error) {
+              cluster.percent.backgroundColor = "inherit";
+            }
+            if (!cluster.penalty.error) {
+              cluster.penalty.backgroundColor = "inherit";
+            }
+          }
+        }
+      });
+      
+      // Actualizar el color de fondo del groupSummary
+      if (useToleranceGroup && paramClusters.some(c => c.available && c.toleranceGroup)) {
+        liveClusters.groupSummary.percent.backgroundColor = "#ede7f6";
+        liveClusters.groupSummary.tolerance.backgroundColor = "#ede7f6";
+        liveClusters.groupSummary.penalty.backgroundColor = "#ede7f6";
+      } else {
+        liveClusters.groupSummary.percent.backgroundColor = "inherit";
+        liveClusters.groupSummary.tolerance.backgroundColor = "inherit";
+        liveClusters.groupSummary.penalty.backgroundColor = "inherit";
+      }
+      
+      // Forzar recálculo de todos los valores relacionados con el grupo de tolerancia
+      if (liveClusters.groupSummary.percent.effect) {
+        liveClusters.groupSummary.percent.effect();
+      }
+      
+      if (liveClusters.groupSummary.tolerance.effect) {
+        liveClusters.groupSummary.tolerance.effect();
+      }
+      
+      if (liveClusters.groupSummary.penalty.effect) {
+        liveClusters.groupSummary.penalty.effect();
+      }
+    },
+    [liveClusters, data.template]
+  );
+
   return {
     data,
     setField,
     setTemplateField,
     setTemplate,
     liveClusters,
+    updateToleranceGroupMode,
   };
 }
