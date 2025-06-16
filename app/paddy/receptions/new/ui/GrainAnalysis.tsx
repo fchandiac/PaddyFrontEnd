@@ -61,8 +61,9 @@ const VisibilityButton: React.FC<{
     onClick={onToggle}
     aria-hidden="true"
     sx={{
-      ml: 1,
+      ml: 0,
       mr: 0,
+      p: 0.5
     }}
   >
     {isVisible ? (
@@ -247,7 +248,13 @@ const GrainRow: React.FC<{
       </Box>
 
       {/* Columna 5: Botón de visibilidad */}
-      <Box sx={{ width: 40, display: 'flex', justifyContent: 'center', mr: 0 }}>
+      <Box sx={{ 
+        width: 40, 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        mr: 0 
+      }}>
         {showVisibilityButton && onToggleVisibility ? (
           <VisibilityButton isVisible={isVisible} onToggle={onToggleVisibility} />
         ) : (
