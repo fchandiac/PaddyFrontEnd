@@ -71,6 +71,12 @@ export function useReceptionData(
       liveClusters.Summary.tolerance,
       liveClusters.Summary.penalty,
 
+      liveClusters.Bonus.tolerance,
+      liveClusters.Bonus.penalty,
+
+      liveClusters.Dry.percent,
+  
+
     ];
 
     nodes.forEach((node) => {

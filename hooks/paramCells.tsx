@@ -931,6 +931,8 @@ netWeight.node.addConsumer(granosManchados.penalty);
 netWeight.node.addConsumer(granosPelados.penalty);
 netWeight.node.addConsumer(granosYesosos.penalty);
 netWeight.node.addConsumer(groupSummary.penalty);
+netWeight.node.addConsumer(bonus.penalty);
+
 
 
 
@@ -954,6 +956,50 @@ netWeight.node.effect = () => {
   const netWeightValue = Math.max(0, grossWeightV - tareV);
   netWeight.node.setValue(netWeightValue);
 };
+
+bonus.tolerance.effect = () => {
+  const toleranceValue = bonus.tolerance.value;
+
+  const toleranceV =
+    typeof toleranceValue === "number" && !isNaN(toleranceValue)
+      ? toleranceValue
+      : 0;
+
+  if (toleranceV > 0) {
+    bonus.tolerance.setError(false);
+  } else {
+    bonus.tolerance.setError(true);
+  }
+
+  const netWeightValue = netWeight.node.value;
+  const netWeightV =
+    typeof netWeightValue === "number" && !isNaN(netWeightValue)
+      ? netWeightValue
+      : 0;
+
+  const netBonus = (netWeightV * toleranceV) / 100;
+  bonus.penalty.setValue(netBonus);
+}
+
+bonus.penalty.effect = () => {
+  const toleranceValue = bonus.tolerance.value;
+
+  const toleranceV =
+    typeof toleranceValue === "number" && !isNaN(toleranceValue)
+      ? toleranceValue
+      : 0;
+
+  if (toleranceV > 0) {
+    bonus.tolerance.setError(false);
+  } else {
+    bonus.tolerance.setError(true);
+  }
+
+  const netPenalty = (netWeight.node.value * toleranceV) / 100;
+  bonus.penalty.setValue(netPenalty);
+}
+
+
 const findPercent = (value: number, ranges: Range[]): number => {
   // Find the range that includes the value
   const range = ranges.find((r) => {
@@ -972,6 +1018,8 @@ const findPercent = (value: number, ranges: Range[]): number => {
 
   return 0; // Return 0 if no matching range is found
 };
+
+
 humedad.percent.effect = () => {
   const rangeValue = humedad.range.value;
   const rangeV =
@@ -982,6 +1030,8 @@ humedad.percent.effect = () => {
 
   humedad.percent.setValue(percentV);
 };
+
+
 humedad.penalty.effect = () => {
   const percentValue = humedad.percent.value;
   const toleranceValue = humedad.tolerance.value;
