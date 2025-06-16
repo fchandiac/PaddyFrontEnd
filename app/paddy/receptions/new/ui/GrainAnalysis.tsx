@@ -443,8 +443,8 @@ export default function GrainAnalysis() {
           percent={cluster.percent}
           tolerance={cluster.tolerance}
           showVisibilityButton={true}
-          onToggleVisibility={cluster.range.setShow}
-          isVisible={cluster.range.show}
+          onToggleVisibility={cluster.tolerance.setShow}
+          isVisible={cluster.tolerance.show}
           penalty={cluster.penalty}
         />
       ))}
@@ -458,8 +458,8 @@ export default function GrainAnalysis() {
           percent={cluster.percent}
           tolerance={cluster.tolerance}
           showVisibilityButton={true}
-          onToggleVisibility={cluster.range.setShow}
-          isVisible={cluster.range.show}
+          onToggleVisibility={cluster.tolerance.setShow}
+          isVisible={cluster.tolerance.show}
           penalty={cluster.penalty}
         />
       ))}
