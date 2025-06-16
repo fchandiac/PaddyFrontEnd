@@ -35,6 +35,21 @@ a {
   text-decoration: none;
 }
 
+/* Asegurar que los contenedores Grid de MUI nunca se desborden */
+body, #root, .MuiGrid-container {
+  min-width: 0 !important;
+}
+
+/* Clase para debuggear layout (añadir .debug-layout a cualquier elemento) */
+.debug-layout {
+  outline: 1px solid red !important;
+}
+.debug-layout > * {
+  outline: 1px solid blue !important;
+}
+.debug-layout > * > * {
+  outline: 1px solid green !important;
+}
 
 @media print {
   /* Ocultar elementos marcados como no-print */

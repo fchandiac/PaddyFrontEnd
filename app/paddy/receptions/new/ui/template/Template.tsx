@@ -23,7 +23,7 @@ interface TemplateProps {
 }
 
 export default function TemplateComponent({ closeDialog }: TemplateProps) {
-  const { data, setField, setTemplate, setTemplateField } = useReceptionContext();
+  const { data, liveClusters, setField, setTemplate, setTemplateField } = useReceptionContext();
 
   const { showAlert } = useAlertContext();
 
@@ -63,59 +63,60 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
       useToleranceGroup: data.template.useToleranceGroup,
       groupToleranceValue: data.template.groupToleranceValue,
 
-      availableHumedad: data.template.availableHumedad,
-      percentHumedad: data.template.percentHumedad,
-      toleranceHumedad: data.template.toleranceHumedad,
-      showToleranceHumedad: data.template.showToleranceHumedad,
-      groupToleranceHumedad: data.template.groupToleranceHumedad,
+      // Usamos los valores actuales de los clusters
+      availableHumedad: liveClusters.Humedad.available,
+      percentHumedad: liveClusters.Humedad.percent.value,
+      toleranceHumedad: liveClusters.Humedad.tolerance.value,
+      showToleranceHumedad: liveClusters.Humedad.tolerance.show,
+      groupToleranceHumedad: liveClusters.Humedad.toleranceGroup,
 
-      availableGranosVerdes: data.template.availableGranosVerdes,
-      percentGranosVerdes: data.template.percentGranosVerdes,
-      toleranceGranosVerdes: data.template.toleranceGranosVerdes,
-      showToleranceGranosVerdes: data.template.showToleranceGranosVerdes,
-      groupToleranceGranosVerdes: data.template.groupToleranceGranosVerdes,
+      availableGranosVerdes: liveClusters.GranosVerdes.available,
+      percentGranosVerdes: liveClusters.GranosVerdes.percent.value,
+      toleranceGranosVerdes: liveClusters.GranosVerdes.tolerance.value,
+      showToleranceGranosVerdes: liveClusters.GranosVerdes.tolerance.show,
+      groupToleranceGranosVerdes: liveClusters.GranosVerdes.toleranceGroup,
 
-      availableImpurezas: data.template.availableImpurezas,
-      percentImpurezas: data.template.percentImpurezas,
-      toleranceImpurezas: data.template.toleranceImpurezas,
-      showToleranceImpurezas: data.template.showToleranceImpurezas,
-      groupToleranceImpurezas: data.template.groupToleranceImpurezas,
+      availableImpurezas: liveClusters.Impurezas.available,
+      percentImpurezas: liveClusters.Impurezas.percent.value,
+      toleranceImpurezas: liveClusters.Impurezas.tolerance.value,
+      showToleranceImpurezas: liveClusters.Impurezas.tolerance.show,
+      groupToleranceImpurezas: liveClusters.Impurezas.toleranceGroup,
 
-      availableVano: data.template.availableVano,
-      percentVano: data.template.percentVano,
-      toleranceVano: data.template.toleranceVano,
-      showToleranceVano: data.template.showToleranceVano,
-      groupToleranceVano: data.template.groupToleranceVano,
+      availableVano: liveClusters.Vano.available,
+      percentVano: liveClusters.Vano.percent.value,
+      toleranceVano: liveClusters.Vano.tolerance.value,
+      showToleranceVano: liveClusters.Vano.tolerance.show,
+      groupToleranceVano: liveClusters.Vano.toleranceGroup,
 
-      availableHualcacho: data.template.availableHualcacho,
-      percentHualcacho: data.template.percentHualcacho,
-      toleranceHualcacho: data.template.toleranceHualcacho,
-      showToleranceHualcacho: data.template.showToleranceHualcacho,
-      groupToleranceHualcacho: data.template.groupToleranceHualcacho,
+      availableHualcacho: liveClusters.Hualcacho.available,
+      percentHualcacho: liveClusters.Hualcacho.percent.value,
+      toleranceHualcacho: liveClusters.Hualcacho.tolerance.value,
+      showToleranceHualcacho: liveClusters.Hualcacho.tolerance.show,
+      groupToleranceHualcacho: liveClusters.Hualcacho.toleranceGroup,
 
-      availableGranosManchados: data.template.availableGranosManchados,
-      percentGranosManchados: data.template.percentGranosManchados,
-      toleranceGranosManchados: data.template.toleranceGranosManchados,
-      showToleranceGranosManchados: data.template.showToleranceGranosManchados,
-      groupToleranceGranosManchados:
-        data.template.groupToleranceGranosManchados,
+      availableGranosManchados: liveClusters.GranosManchados.available,
+      percentGranosManchados: liveClusters.GranosManchados.percent.value,
+      toleranceGranosManchados: liveClusters.GranosManchados.tolerance.value,
+      showToleranceGranosManchados: liveClusters.GranosManchados.tolerance.show,
+      groupToleranceGranosManchados: liveClusters.GranosManchados.toleranceGroup,
 
-      availableGranosPelados: data.template.availableGranosPelados,
-      percentGranosPelados: data.template.percentGranosPelados,
-      toleranceGranosPelados: data.template.toleranceGranosPelados,
-      showToleranceGranosPelados: data.template.showToleranceGranosPelados,
-      groupToleranceGranosPelados: data.template.groupToleranceGranosPelados,
+      availableGranosPelados: liveClusters.GranosPelados.available,
+      percentGranosPelados: liveClusters.GranosPelados.percent.value,
+      toleranceGranosPelados: liveClusters.GranosPelados.tolerance.value,
+      showToleranceGranosPelados: liveClusters.GranosPelados.tolerance.show,
+      groupToleranceGranosPelados: liveClusters.GranosPelados.toleranceGroup,
 
-      availableGranosYesosos: data.template.availableGranosYesosos,
-      percentGranosYesosos: data.template.percentGranosYesosos,
-      toleranceGranosYesosos: data.template.toleranceGranosYesosos,
-      showToleranceGranosYesosos: data.template.showToleranceGranosYesosos,
+      availableGranosYesosos: liveClusters.GranosYesosos.available,
+      percentGranosYesosos: liveClusters.GranosYesosos.percent.value,
+      toleranceGranosYesosos: liveClusters.GranosYesosos.tolerance.value,
+      showToleranceGranosYesosos: liveClusters.GranosYesosos.tolerance.show,
+      groupToleranceGranosYesosos: liveClusters.GranosYesosos.toleranceGroup,
 
-      availableBonificacion: data.template.availableBonus,
-      toleranceBonificacion: data.template.toleranceBonus,
+      availableBonificacion: liveClusters.Bonus.tolerance.show,
+      toleranceBonificacion: liveClusters.Bonus.tolerance.value,
 
-      availableSecado: data.template.availableDry,
-      percentSecado: data.template.percentDry,
+      availableSecado: liveClusters.Dry.percent.show,
+      percentSecado: liveClusters.Dry.percent.value,
     };
 
     try {

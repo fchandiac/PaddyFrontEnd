@@ -27,14 +27,14 @@ interface ParamLoadType {
 }
 
 const TemplateTable: React.FC = () => {
-  const { data, setTemplateField } = useReceptionContext();
+  const { data, liveClusters, setTemplateField } = useReceptionContext();
 
   const grainParamsData: ParamLoadType[] = [
     {
       name: "Humedad",
       available: data.template.availableHumedad,
-      percent: data.percentHumedad,
-      tolerance: data.toleranceHumedad,
+      percent: liveClusters.Humedad.percent.value,
+      tolerance: liveClusters.Humedad.tolerance.value,
       showTolerance: data.template.showToleranceHumedad,
       groupTolerance: data.template.groupToleranceHumedad,
       setAvailable: (v) => setTemplateField("availableHumedad", v),
@@ -46,8 +46,8 @@ const TemplateTable: React.FC = () => {
     {
       name: "Granos verdes",
       available: data.template.availableGranosVerdes,
-      percent: data.percentGranosVerdes,
-      tolerance: data.toleranceGranosVerdes,
+      percent: liveClusters.GranosVerdes.percent.value,
+      tolerance: liveClusters.GranosVerdes.tolerance.value,
       showTolerance: data.template.showToleranceGranosVerdes,
       groupTolerance: data.template.groupToleranceGranosVerdes,
       setAvailable: (v) => setTemplateField("availableGranosVerdes", v),
@@ -59,8 +59,8 @@ const TemplateTable: React.FC = () => {
     {
       name: "Impurezas",
       available: data.template.availableImpurezas,
-      percent: data.percentImpurezas,
-      tolerance: data.toleranceImpurezas,
+      percent: liveClusters.Impurezas.percent.value,
+      tolerance: liveClusters.Impurezas.tolerance.value,
       showTolerance: data.template.showToleranceImpurezas,
       groupTolerance: data.template.groupToleranceImpurezas,
       setAvailable: (v) => setTemplateField("availableImpurezas", v),
@@ -72,8 +72,8 @@ const TemplateTable: React.FC = () => {
     {
       name: "Vano",
       available: data.template.availableVano,
-      percent: data.percentVano,
-      tolerance: data.toleranceVano,
+      percent: liveClusters.Vano.percent.value,
+      tolerance: liveClusters.Vano.tolerance.value,
       showTolerance: data.template.showToleranceVano,
       groupTolerance: data.template.groupToleranceVano,
       setAvailable: (v) => setTemplateField("availableVano", v),
@@ -85,8 +85,8 @@ const TemplateTable: React.FC = () => {
     {
       name: "Hualcacho",
       available: data.template.availableHualcacho,
-      percent: data.percentHualcacho,
-      tolerance: data.toleranceHualcacho,
+      percent: liveClusters.Hualcacho.percent.value,
+      tolerance: liveClusters.Hualcacho.tolerance.value,
       showTolerance: data.template.showToleranceHualcacho,
       groupTolerance: data.template.groupToleranceHualcacho,
       setAvailable: (v) => setTemplateField("availableHualcacho", v),
@@ -98,8 +98,8 @@ const TemplateTable: React.FC = () => {
     {
       name: "Granos manchados",
       available: data.template.availableGranosManchados,
-      percent: data.percentGranosManchados,
-      tolerance: data.toleranceGranosManchados,
+      percent: liveClusters.GranosManchados.percent.value,
+      tolerance: liveClusters.GranosManchados.tolerance.value,
       showTolerance: data.template.showToleranceGranosManchados,
       groupTolerance: data.template.groupToleranceGranosManchados,
       setAvailable: (v) => setTemplateField("availableGranosManchados", v),
@@ -111,8 +111,8 @@ const TemplateTable: React.FC = () => {
     {
       name: "Granos pelados",
       available: data.template.availableGranosPelados,
-      percent: data.percentGranosPelados,
-      tolerance: data.toleranceGranosPelados,
+      percent: liveClusters.GranosPelados.percent.value,
+      tolerance: liveClusters.GranosPelados.tolerance.value,
       showTolerance: data.template.showToleranceGranosPelados,
       groupTolerance: data.template.groupToleranceGranosPelados,
       setAvailable: (v) => setTemplateField("availableGranosPelados", v),
@@ -124,8 +124,8 @@ const TemplateTable: React.FC = () => {
     {
       name: "Granos yesosos",
       available: data.template.availableGranosYesosos,
-      percent: data.percentGranosYesosos,
-      tolerance: data.toleranceGranosYesosos,
+      percent: liveClusters.GranosYesosos.percent.value,
+      tolerance: liveClusters.GranosYesosos.tolerance.value,
       showTolerance: data.template.showToleranceGranosYesosos,
       groupTolerance: data.template.groupToleranceGranosYesosos,
       setAvailable: (v) => setTemplateField("availableGranosYesosos", v),
@@ -138,7 +138,7 @@ const TemplateTable: React.FC = () => {
       name: "Bonificación",
       available: data.template.availableBonus,
       percent:  0,
-      tolerance: data.toleranceBonus,
+      tolerance: liveClusters.Bonus.tolerance.value,
       showTolerance: true,
       groupTolerance: false,
       setAvailable: (v) => setTemplateField("availableBonus", v),
@@ -150,7 +150,7 @@ const TemplateTable: React.FC = () => {
     {
       name: "Secado",
       available: data.template.availableDry,
-      percent: data.percentDry,
+      percent: liveClusters.Dry.percent.value,
       tolerance: 0,
       showTolerance: false,
       groupTolerance: false,

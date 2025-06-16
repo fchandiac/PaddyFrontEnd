@@ -96,7 +96,7 @@ export default function NewReceptionPage() {
   return (
     <>
       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
-        <Grid container spacing={2} >
+        <Grid container spacing={2} sx={{ minWidth: 0 }}>
           {/* General Data */}
           <Grid item xs={12} md={3}>
             <Typography gutterBottom>Datos de la recepción</Typography>
@@ -133,6 +133,8 @@ export default function NewReceptionPage() {
               p: 2,
               mb: 2,
               background: '#f7fafd',
+              overflow: 'auto',
+              minWidth: 0,
             }}>
               <Box component="dl" sx={{ m: 0 }}>
                 <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
