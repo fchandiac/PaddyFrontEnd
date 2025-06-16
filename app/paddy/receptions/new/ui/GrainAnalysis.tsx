@@ -2,6 +2,7 @@ import { useReceptionContext } from "@/context/ReceptionDataContext";
 import {
   Box,
   Divider,
+  Grid,
   IconButton,
   InputAdornment,
   Stack,
@@ -33,21 +34,76 @@ interface NodeProps {
   error: boolean;
 }
 
+// Helper function to create a text display node that accepts string values
+const createTextDisplayNode = (key: string, textValue: string): Node => {
+  const node = createBlankNode(key, "");
+  // Convert the string to a number (0) for internal use, but display the string in the UI
+  node.value = 0;
+  // We'll use label to store the actual string value and handle it in the NodeComponent
+  node.label = textValue;
+  node.readonly = true;
+  return node;
+};
+
 const boxStyle = {
   display: "flex",
   alignItems: "center",
+  minWidth: 110, // Ancho fijo para mantener consistencia
 };
 
+// Componente de botón de visibilidad separado
+const VisibilityButton: React.FC<{
+  isVisible: boolean;
+  onToggle: () => void;
+}> = ({ isVisible, onToggle }) => (
+  <IconButton
+    size="small"
+    onClick={onToggle}
+    aria-hidden="true"
+    sx={{
+      ml: 1,
+      mr: 0,
+    }}
+  >
+    {isVisible ? (
+      <VisibilityOff fontSize="small" />
+    ) : (
+      <Visibility fontSize="small" />
+    )}
+  </IconButton>
+);
+
+// Componente para células vacías que mantienen el espacio
+const EmptyCell = () => (
+  <Box sx={{ 
+    ...boxStyle,
+    visibility: 'hidden',
+  }}>
+    <TextField
+      size="small"
+      type={"number"}
+      value={0}
+      inputProps={{ "data-skip-focus": true }}
+      sx={{ minWidth: 110 }}
+    />
+  </Box>
+);
+
 const NodeComponent: React.FC<NodeProps> = (node: NodeProps) => {
+  // Determine if we're displaying a numeric value or text-based value (from label)
+  const displayValue = typeof node.value === 'number' ? node.value : node.value;
+  
   return (
     <Box sx={boxStyle}>
       <TextField
         size="small"
         label={node.label}
-        type={"number"}
-        value={node.value}
+        type={typeof node.value === 'number' ? "number" : "text"}
+        value={displayValue}
         onChange={(e) => {
-          node.onChange(parseFloat(e.target.value));
+          if (typeof node.value === 'number') {
+            node.onChange(parseFloat(e.target.value));
+          }
         }}
         onFocus={(e) => (e.target as HTMLInputElement).select()}
         InputProps={{
@@ -67,27 +123,161 @@ const NodeComponent: React.FC<NodeProps> = (node: NodeProps) => {
           visibility: node.show ? 'visible' : 'hidden'
         }}
       />
-      {node.showVisilibilityButton && (
-        <IconButton
-          size="small"
-          onClick={() => node.setShow()}
-           aria-hidden="true"
-          sx={{
-            ml: 1,
-            mr: 0,
-          }}
-        >
-          {node.show ? (
-            <VisibilityOff fontSize="small" />
-          ) : (
-            <Visibility fontSize="small" />
-          )}
-        </IconButton>
-      )}
     </Box>
   );
 };
 
+// Componente de fila con 6 columnas para el análisis de granos
+const GrainRow: React.FC<{
+  paramName: string;
+  range?: RangeNode | Node;
+  percent?: Node;
+  tolerance?: Node;
+  showVisibilityButton?: boolean;
+  onToggleVisibility?: () => void;
+  isVisible?: boolean;
+  penalty?: Node;
+  backgroundColor?: string;
+}> = ({
+  paramName,
+  range,
+  percent,
+  tolerance,
+  showVisibilityButton = false,
+  onToggleVisibility,
+  isVisible = true,
+  penalty,
+  backgroundColor,
+}) => {
+  return (
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'row', 
+        mb: 0.5, 
+        alignItems: 'center',
+        ...(backgroundColor && { backgroundColor })
+      }}
+    >
+      {/* Columna 1: Nombre del parámetro */}
+      <Box sx={{ ...boxStyle, width: 130 }}>
+        {paramName ? (
+          <TextField
+            size="small"
+            type="text"
+            value={paramName}
+            inputProps={{ "data-skip-focus": true }}
+            sx={{
+              textAlign: "left",
+              minWidth: 110,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { border: "none" },
+                "&:hover fieldset": { border: "none" },
+                "&.Mui-focused fieldset": { border: "none" },
+                "& .MuiInputBase-input": { padding: "0px" },
+              },
+            }}
+          />
+        ) : (
+          <Box sx={{ minWidth: 110 }} />
+        )}
+      </Box>
+
+      {/* Columna 2: Rango o nombre secundario */}
+      <Box sx={{ ...boxStyle, width: 130 }}>
+        {range ? (
+          <NodeComponent
+            key={range.key}
+            value={typeof range.value === 'string' ? range.value : (range.label && range.readonly) ? range.label : range.value}
+            onChange={range.onChange}
+            adorn={range.adorn}
+            readonly={range.readonly}
+            backgroundColor={range.backgroundColor}
+            show={range.show}
+            setShow={range.setShow}
+            label={range.label && !range.readonly ? range.label : undefined}
+            error={range.error}
+            showVisilibilityButton={false}
+          />
+        ) : (
+          <EmptyCell />
+        )}
+      </Box>
+
+      {/* Columna 3: Porcentaje */}
+      <Box sx={{ ...boxStyle, width: 130 }}>
+        {percent ? (
+          <NodeComponent
+            key={percent.key}
+            value={percent.value}
+            onChange={percent.onChange}
+            adorn={percent.adorn}
+            readonly={percent.readonly}
+            backgroundColor={percent.backgroundColor}
+            show={percent.show}
+            setShow={percent.setShow}
+            label={percent.label}
+            error={percent.error}
+            showVisilibilityButton={false}
+          />
+        ) : (
+          <EmptyCell />
+        )}
+      </Box>
+
+      {/* Columna 4: Tolerancia */}
+      <Box sx={{ ...boxStyle, width: 130 }}>
+        {tolerance ? (
+          <NodeComponent
+            key={tolerance.key}
+            value={tolerance.value}
+            onChange={tolerance.onChange}
+            adorn={tolerance.adorn}
+            readonly={tolerance.readonly}
+            backgroundColor={tolerance.backgroundColor}
+            show={tolerance.show}
+            setShow={tolerance.setShow}
+            label={tolerance.label}
+            error={tolerance.error}
+            showVisilibilityButton={false}
+          />
+        ) : (
+          <EmptyCell />
+        )}
+      </Box>
+
+      {/* Columna 5: Botón de visibilidad */}
+      <Box sx={{ width: 40, display: 'flex', justifyContent: 'center' }}>
+        {showVisibilityButton && onToggleVisibility ? (
+          <VisibilityButton isVisible={isVisible} onToggle={onToggleVisibility} />
+        ) : (
+          <Box sx={{ width: 40 }} /> // Espacio vacío para mantener alineación
+        )}
+      </Box>
+
+      {/* Columna 6: Penalización */}
+      <Box sx={{ ...boxStyle, width: 130 }}>
+        {penalty ? (
+          <NodeComponent
+            key={penalty.key}
+            value={penalty.value}
+            onChange={penalty.onChange}
+            adorn={penalty.adorn}
+            readonly={penalty.readonly}
+            backgroundColor={penalty.backgroundColor}
+            show={penalty.show}
+            setShow={penalty.setShow}
+            label={penalty.label}
+            error={penalty.error}
+            showVisilibilityButton={false}
+          />
+        ) : (
+          <EmptyCell />
+        )}
+      </Box>
+    </Box>
+  );
+};
 
 export default function GrainAnalysis() {
   const { liveClusters, data } = useReceptionContext();
@@ -224,441 +414,92 @@ export default function GrainAnalysis() {
     >
       {/* Renderizar primero los parámetros que NO pertenecen al grupo de tolerancia */}
       {nonGroupToleranceParams.map((cluster) => (
-        <Box key={cluster.key} mb={0.2} mt={1}>
-          <Stack spacing={2} direction="row">
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={cluster.name}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  textAlign: "left",
-                  minWidth: 110,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      border: "none",
-                    },
-                    "&:hover fieldset": {
-                      border: "none",
-                    },
-                    "&.Mui-focused fieldset": {
-                      border: "none",
-                    },
-                    "& .MuiInputBase-input": {
-                      fontSize: "12px",
-                      padding: "0px",
-                    },
-                  },
-                }}
-              />
-            </Box>
-            {[
-              cluster.range,
-              cluster.percent,
-              cluster.tolerance,
-              cluster.penalty,
-            ].map((node) => (
-              <NodeComponent
-                key={node.key}
-                value={node.value}
-                onChange={node.onChange}
-                adorn={node.adorn}
-                readonly={node.readonly}
-                backgroundColor={node.backgroundColor}
-                show={node.show}
-                setShow={node.setShow}
-                label={node.label}
-                error={node.error}
-                showVisilibilityButton={node.showVisilibilityButton}
-              />
-            ))}
-          </Stack>
-        </Box>
+        <GrainRow
+          key={cluster.key}
+          paramName={cluster.name}
+          range={cluster.range}
+          percent={cluster.percent}
+          tolerance={cluster.tolerance}
+          showVisibilityButton={true}
+          onToggleVisibility={cluster.range.setShow}
+          isVisible={cluster.range.show}
+          penalty={cluster.penalty}
+        />
       ))}
       
       {/* Renderizar después los parámetros del grupo de tolerancia */}
       {groupToleranceParams.map((cluster) => (
-        <Box key={cluster.key} mb={0.2} mt={1}>
-          <Stack spacing={2} direction="row">
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={cluster.name}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  textAlign: "left",
-                  minWidth: 110,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      border: "none",
-                    },
-                    "&:hover fieldset": {
-                      border: "none",
-                    },
-                    "&.Mui-focused fieldset": {
-                      border: "none",
-                    },
-                    "& .MuiInputBase-input": {
-                      fontSize: "12px",
-                      padding: "0px",
-                    },
-                  },
-                }}
-              />
-            </Box>
-            {[
-              cluster.range,
-              cluster.percent,
-              cluster.tolerance,
-              cluster.penalty,
-            ].map((node) => (
-              <NodeComponent
-                key={node.key}
-                value={node.value}
-                onChange={node.onChange}
-                adorn={node.adorn}
-                readonly={node.readonly}
-                backgroundColor={node.backgroundColor}
-                show={node.show}
-                setShow={node.setShow}
-                label={node.label}
-                error={node.error}
-                showVisilibilityButton={node.showVisilibilityButton}
-              />
-            ))}
-          </Stack>
-        </Box>
+        <GrainRow
+          key={cluster.key}
+          paramName={cluster.name}
+          range={cluster.range}
+          percent={cluster.percent}
+          tolerance={cluster.tolerance}
+          showVisibilityButton={true}
+          onToggleVisibility={cluster.range.setShow}
+          isVisible={cluster.range.show}
+          penalty={cluster.penalty}
+          backgroundColor="#ede7f6"
+        />
       ))}
       
       {/* GroupSummary: Se muestra después de los parámetros del grupo de tolerancia */}
       {hasGroupToleranceParams && (
-        <Box mb={0.2} mt={1}>
-          <Stack spacing={2} direction="row">
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={""}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  padding: 0,
-                  textAlign: "left",
-                  minWidth: 110,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      border: "none",
-                    },
-                    "&:hover fieldset": {
-                      border: "none",
-                    },
-                    "&.Mui-focused fieldset": {
-                      border: "none",
-                    },
-                    "& .MuiInputBase-input": {
-                      padding: "0px",
-                    },
-                  },
-                }}
-              />
-            </Box>
-            
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={liveClusters.groupSummary.name}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  padding: 0,
-                  textAlign: "left",
-                  minWidth: 110,
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      border: "none",
-                    },
-                    "&:hover fieldset": {
-                      border: "none",
-                    },
-                    "&.Mui-focused fieldset": {
-                      border: "none",
-                    },
-                    "& .MuiInputBase-input": {
-                      padding: "0px",
-                    },
-                  },
-                }}
-              />
-            </Box>
-            {[
-              liveClusters.groupSummary.percent,
-              liveClusters.groupSummary.tolerance,
-              liveClusters.groupSummary.penalty,
-            ].map((node) => (
-              <NodeComponent
-                key={node.key}
-                label={node.label}
-                value={node.value}
-                onChange={node.onChange}
-                adorn={node.adorn}
-                readonly={node.readonly}
-                backgroundColor={node.backgroundColor}
-                show={node.show}
-                setShow={node.setShow}
-                showVisilibilityButton={false}
-                error={node.error}
-              />
-            ))}
-          </Stack>
-        </Box>
+        <GrainRow
+          paramName=""
+          range={createTextDisplayNode("groupSummary-name", liveClusters.groupSummary.name)}
+          percent={liveClusters.groupSummary.percent}
+          tolerance={liveClusters.groupSummary.tolerance}
+          penalty={liveClusters.groupSummary.penalty}
+        />
       )}
 
-      <Box mb={0.2} mt={1}>
-        <Stack spacing={2} direction="row">
-          <Box sx={boxStyle}>
-            <TextField
-              size="small"
-              label={""}
-              type={"text"}
-              value={""}
-              inputProps={{ "data-skip-focus": true }}
-              sx={{
-                padding: 0,
-                textAlign: "left",
-                minWidth: 110,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    border: "none",
-                  },
-                  "&:hover fieldset": {
-                    border: "none",
-                  },
-                  "&.Mui-focused fieldset": {
-                    border: "none",
-                  },
-                  "& .MuiInputBase-input": {
-                    padding: "0px",
-                  },
-                },
-              }}
-            />
-          </Box>
-          
-          <Box sx={boxStyle}>
-            <TextField
-              size="small"
-              label={""}
-              type={"text"}
-              value={liveClusters.Summary.name}
-              inputProps={{ "data-skip-focus": true }}
-              sx={{
-                padding: 0,
-                textAlign: "left",
-                minWidth: 110,
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    border: "none",
-                  },
-                  "&:hover fieldset": {
-                    border: "none",
-                  },
-                  "&.Mui-focused fieldset": {
-                    border: "none",
-                  },
-                  "& .MuiInputBase-input": {
-                    padding: "0px",
-                  },
-                },
-              }}
-            />
-          </Box>
-          {[
-            liveClusters.Summary.percent,
-            liveClusters.Summary.tolerance,
-            liveClusters.Summary.penalty,
-          ].map((node) => (
-            <NodeComponent
-              key={node.key}
-              label={node.label}
-              value={node.value}
-              onChange={node.onChange}
-              adorn={node.adorn}
-              readonly={node.readonly}
-              backgroundColor={node.backgroundColor}
-              show={node.show}
-              setShow={node.setShow}
-              showVisilibilityButton={false}
-              error={node.error}
-            />
-          ))}
-        </Stack>
-      </Box>
+      {/* Summary: Total del análisis */}
+      <GrainRow
+        paramName=""
+        range={createTextDisplayNode("summary-name", liveClusters.Summary.name)}
+        percent={liveClusters.Summary.percent}
+        tolerance={liveClusters.Summary.tolerance}
+        penalty={liveClusters.Summary.penalty}
+      />
       
-      {/* BONIFICACIÓN debajo de summary, siguiendo el patrón exacto de las filas superiores, con caja vacía para porcentaje */}
+      {/* Bonificación */}
       {(!data?.template || data.template.availableBonus) && (
-        <Box mb={0.2} mt={1}>
-          <Stack spacing={2} direction="row">
-            {/* Primer box vacío para alinear con las filas superiores */}
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={""}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  padding: 0,
-                  minWidth: 110,
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { border: 'none' },
-                    '&:hover fieldset': { border: 'none' },
-                    '&.Mui-focused fieldset': { border: 'none' },
-                    '& .MuiInputBase-input': { padding: '0px' },
-                  },
-                }}
-              />
-            </Box>
-            {/* Segundo box con el nombre */}
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={liveClusters.Bonus.name}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  padding: 0,
-                  textAlign: "left",
-                  minWidth: 110,
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { border: 'none' },
-                    '&:hover fieldset': { border: 'none' },
-                    '&.Mui-focused fieldset': { border: 'none' },
-                    '& .MuiInputBase-input': { padding: '0px' },
-                  },
-                }}
-              />
-            </Box>
-            {/* Caja vacía para el porcentaje */}
-            <Box sx={{ minWidth: 110 }} />
-            {/* Contenedor para tolerance y penalty - usando Stack con spacing para alinear y dar ancho consistente */}
-            <Stack spacing={2} direction="row">
-              {/* tolerance - minWidth asegura que ocupa el mismo espacio que otros campos */}
-              {liveClusters.Bonus.tolerance ? (
-                <NodeComponent
-                  key={liveClusters.Bonus.tolerance.key}
-                  label={liveClusters.Bonus.tolerance.label}
-                  value={liveClusters.Bonus.tolerance.value}
-                  onChange={liveClusters.Bonus.tolerance.onChange}
-                  adorn={liveClusters.Bonus.tolerance.adorn}
-                  readonly={liveClusters.Bonus.tolerance.readonly}
-                  backgroundColor={liveClusters.Bonus.tolerance.backgroundColor}
-                  show={liveClusters.Bonus.tolerance.show}
-                  setShow={liveClusters.Bonus.tolerance.setShow}
-                  showVisilibilityButton={false}
-                  error={liveClusters.Bonus.tolerance.error}
-                />
-              ) : (
-                <Box sx={{ minWidth: 110 }} />
-              )}
-              {/* penalty */}
-              {liveClusters.Bonus.penalty ? (
-                <NodeComponent
-                  key={liveClusters.Bonus.penalty.key}
-                  label={liveClusters.Bonus.penalty.label}
-                  value={liveClusters.Bonus.penalty.value}
-                  onChange={liveClusters.Bonus.penalty.onChange}
-                  adorn={liveClusters.Bonus.penalty.adorn}
-                  readonly={liveClusters.Bonus.penalty.readonly}
-                  backgroundColor={liveClusters.Bonus.penalty.backgroundColor}
-                  show={liveClusters.Bonus.penalty.show}
-                  setShow={liveClusters.Bonus.penalty.setShow}
-                  showVisilibilityButton={false}
-                  error={liveClusters.Bonus.penalty.error}
-                />
-              ) : (
-                <Box sx={{ minWidth: 110 }} />
-              )}
-            </Stack>
-          </Stack>
+        <GrainRow
+          paramName=""
+          range={createTextDisplayNode("bonus-name", liveClusters.Bonus.name)}
+          tolerance={liveClusters.Bonus.tolerance}
+          penalty={liveClusters.Bonus.penalty}
+        />
+      )}
+      
+      {/* Secado */}
+      {(!data?.template || data.template.availableDry) && (
+        <GrainRow
+          paramName=""
+          range={createTextDisplayNode("dry-name", liveClusters.Dry.name)}
+          percent={liveClusters.Dry.percent}
+        />
+      )}
+
+      {/* Leyenda de colores para grupo de tolerancia */}
+      {hasGroupToleranceParams && (
+        <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box 
+            sx={{ 
+              width: 16, 
+              height: 16, 
+              backgroundColor: '#ede7f6', 
+              borderRadius: '4px',
+              border: '1px solid #d1c4e9'
+            }} 
+          />
+          <Typography variant="caption" color="text.secondary">
+            Parámetros que pertenecen al grupo de tolerancia
+          </Typography>
         </Box>
       )}
       
-      {/* SECADO debajo de Bonificación, solo percent, los demás espacios vacíos */}
-      {(!data?.template || data.template.availableDry) && (
-        <Box mb={0.2} mt={1}>
-          <Stack spacing={2} direction="row">
-            {/* Primer box vacío para alinear con las filas superiores */}
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={""}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  padding: 0,
-                  minWidth: 110,
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { border: 'none' },
-                    '&:hover fieldset': { border: 'none' },
-                    '&.Mui-focused fieldset': { border: 'none' },
-                    '& .MuiInputBase-input': { padding: '0px' },
-                  },
-                }}
-              />
-            </Box>
-            {/* Segundo box con la palabra Secado */}
-            <Box sx={boxStyle}>
-              <TextField
-                size="small"
-                label={""}
-                type={"text"}
-                value={liveClusters.Dry.name}
-                inputProps={{ "data-skip-focus": true }}
-                sx={{
-                  padding: 0,
-                  textAlign: "left",
-                  minWidth: 110,
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { border: 'none' },
-                    '&:hover fieldset': { border: 'none' },
-                    '&.Mui-focused fieldset': { border: 'none' },
-                    '& .MuiInputBase-input': { padding: '0px' },
-                  },
-                }}
-              />
-            </Box>
-            {/* Tercer box: input de porcentaje - uso directo de NodeComponent para mantener consistencia con otros campos */}
-            {liveClusters.Dry.percent ? (
-              <NodeComponent
-                key={liveClusters.Dry.percent.key}
-                label={liveClusters.Dry.percent.label}
-                value={liveClusters.Dry.percent.value}
-                onChange={liveClusters.Dry.percent.onChange}
-                adorn={liveClusters.Dry.percent.adorn}
-                readonly={liveClusters.Dry.percent.readonly}
-                backgroundColor={liveClusters.Dry.percent.backgroundColor}
-                show={liveClusters.Dry.percent.show}
-                setShow={liveClusters.Dry.percent.setShow}
-                showVisilibilityButton={false}
-                error={liveClusters.Dry.percent.error}
-              />
-            ) : (
-              <Box sx={{ minWidth: 110 }} />
-            )}
-            {/* Cuarto y quinto box vacíos para mantener alineación */}
-            <Box sx={{ minWidth: 110 }} />
-            <Box sx={{ minWidth: 110 }} />
-          </Stack>
-        </Box>
-      )}
-
       {/* Leyenda de colores para grupo de tolerancia */}
       {hasGroupToleranceParams && (
         <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
