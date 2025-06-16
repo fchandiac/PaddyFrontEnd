@@ -1,3 +1,6 @@
+/// <reference types="@wdio/globals/types" />
+/// <reference types="@wdio/mocha-framework" />
+
 import { authenticateForTests } from '../../helpers/auth';
 import { TEST_CREDENTIALS } from '../../data/credentials';
 

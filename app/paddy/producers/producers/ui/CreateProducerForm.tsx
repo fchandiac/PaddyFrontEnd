@@ -39,7 +39,6 @@ export const CreateProducerForm = ({
   const [errors, setErrors] = useState<string[]>([]);
   const { user } = useUserContext();
   const { showAlert } = useAlertContext();
-  const { setProducerId } = useReceptionContext();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -93,10 +92,6 @@ export const CreateProducerForm = ({
       });
 
       showAlert("Productor creado correctamente", "success");
-
-      if (pathname === "/paddy/receptions/new") {
-        setProducerId(result.id);
-      }
 
      
 

@@ -1,9 +1,8 @@
 /// <reference types="@wdio/globals/types" />
 
-import type { Options } from '@wdio/types';
 import path from 'path';
 
-export const config: WebdriverIO.Config = {
+export const config = {
   runner: 'local',
 
   specs: ['./test/specs/**/*.ts'],
@@ -12,12 +11,10 @@ export const config: WebdriverIO.Config = {
 
   maxInstances: 10,
 
-  capabilities: [
-    {
-      maxInstances: 1,
-      browserName: 'chrome',
-      'goog:chromeOptions': {
-        args: [
+  capabilities: [{
+    browserName: 'chrome',
+    'goog:chromeOptions': {
+      args: [
           '--headless=new',
           '--disable-gpu',
           '--window-size=1280,720',
@@ -65,7 +62,7 @@ export const config: WebdriverIO.Config = {
   /**
    * Gets executed once before all workers get launched.
    */
-  onPrepare: function (config, capabilities) {
+  onPrepare: function (config: any, capabilities: any) {
     // Asegúrate de que la aplicación esté en ejecución
     console.log('Asegúrate de que tu aplicación Next.js esté corriendo en localhost:3000');
   },
@@ -74,7 +71,7 @@ export const config: WebdriverIO.Config = {
    * Gets executed before a worker process is spawned and can be used to initialize specific service
    * for that worker as well as modify runtime environments in an async fashion.
    */
-  onWorkerStart: function (cid, caps, specs, args, execArgv) {
+  onWorkerStart: function (cid: any, caps: any, specs: any, args: any, execArgv: any) {
     // Inicialización específica para cada worker
   },
 };

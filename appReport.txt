@@ -240,3 +240,74 @@ Cada parámetro tiene una función `effect` que se ejecuta cuando cambian sus de
 - **Consistencia**: Comportamiento uniforme en todos los campos y parámetros
 
 Este sistema de validación integral asegura que los datos ingresados en el análisis de granos sean siempre coherentes y válidos, mejorando la confiabilidad de los cálculos de descuentos y penalizaciones.
+
+# Mecanismo de Bonus (Bonificación) en el Análisis de Granos
+
+El sistema de Bonus o Bonificación es un componente especial dentro del análisis de granos que permite otorgar un beneficio al productor, añadiendo kilos en lugar de restarlos como ocurre con las penalizaciones.
+
+## Concepto y Cálculo
+
+1. **Definición**: El Bonus es un porcentaje configurable que se aplica al peso neto del arroz como un valor positivo.
+2. **Cálculo**: Se determina mediante la fórmula: `(toleranceBonus * netWeight) / 100`
+3. **Efecto**: Aumenta directamente la cantidad de kilos que se pagarán al productor.
+4. **Flujo de cálculo final**:
+   ```
+   Paddy neto = Peso neto - Total descuentos + Bonificación
+   ```
+
+## Representación en la Interfaz
+
+- Se muestra como una fila independiente llamada "Bonificación" después del "Total Análisis"
+- Visualmente se destaca como un beneficio, no como una penalización
+- En los informes impresos aparece como una línea adicional en el resumen final
+- Solo se muestra si tiene un valor positivo mayor que cero
+
+## Reglas y Restricciones de Aplicación
+
+1. **Configuración**:
+   - Se activa/desactiva mediante la propiedad `availableBonus` en las plantillas
+   - Su valor se define manualmente a través del campo `toleranceBonus`
+   - No posee rangos automáticos ni valores predeterminados como otros parámetros
+
+2. **Comportamiento**:
+   - No tiene campo de porcentaje medido, solo tolerancia
+   - No forma parte del grupo de tolerancia
+   - Siempre actúa como un valor positivo (nunca penaliza)
+   - No se muestra en los reportes si su valor es cero
+
+3. **Limitaciones**:
+   - No permite configurar rangos o escalas progresivas
+   - No tiene validaciones especiales como otros parámetros
+   - No se conecta a otros parámetros del análisis
+
+## Implementación Técnica
+
+1. **Estructura de datos**:
+   - Se implementa como un cluster especial de tipo `BonusCluster` en `paramCells.tsx`
+   - Tiene una estructura más simple que otros parámetros:
+     ```typescript
+     const cluster: BonusCluster = {
+       key: key,
+       available: available,
+       showTolerance,
+       toleranceGroup,
+       type: "bonus",
+       name: "Bonificación",
+       tolerance: undefined as any,
+       penalty: undefined as any,
+     };
+     ```
+   - Solo contiene nodos de tolerancia y penalización (a diferencia de otros parámetros que tienen nodo de porcentaje)
+   - El valor de penalización es siempre positivo, representando una adición
+
+2. **Flujo de datos**:
+   - Los valores se configuran desde las plantillas mediante las propiedades `availableBonus` y `toleranceBonus`
+   - El sistema propaga los cambios a través del sistema reactivo de nodos
+   - La penalización (valor en kilos) se calcula automáticamente basado en el peso neto
+
+3. **Integración en el sistema**:
+   - En el frontend se renderiza condicionalmente basado en su disponibilidad
+   - En los cálculos finales se suma después de restar todos los descuentos
+   - Se utiliza directamente en los informes impresos y resúmenes
+
+Esta implementación flexible permite que el Bonus funcione como un mecanismo de compensación adicional que puede activarse o desactivarse según necesidad, otorgando mayor control sobre el precio final pagado al productor.
