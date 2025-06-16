@@ -27,27 +27,27 @@ export default function ReceptionSummary({  }: ReceptionSummaryProps) {
       <Box component="dl" sx={{ m: 0 }}>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Peso Bruto</Box>
-          <Box component="dd">{isNaN(liveClusters.grossWeight.node.value) ? 0 : liveClusters.grossWeight.node.value}</Box>
+          <Box component="dd">{isNaN(liveClusters.grossWeight.node.value) ? '0 kg' : `${liveClusters.grossWeight.node.value} kg`}</Box>
         </Box>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Tara</Box>
-          <Box component="dd">{isNaN(liveClusters.tare.node.value) ? 0 : liveClusters.tare.node.value}</Box>
+          <Box component="dd">{isNaN(liveClusters.tare.node.value) ? '0 kg' : `${liveClusters.tare.node.value} kg`}</Box>
         </Box>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Peso Neto</Box>
-          <Box component="dd">{isNaN(liveClusters.netWeight.node.value) ? 0 : liveClusters.netWeight.node.value}</Box>
+          <Box component="dd">{isNaN(liveClusters.netWeight.node.value) ? '0 kg' : `${liveClusters.netWeight.node.value} kg`}</Box>
         </Box>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Total Descuentos</Box>
-          <Box component="dd">{isNaN(liveClusters.DiscountTotal.node.value) ? 0 : liveClusters.DiscountTotal.node.value}</Box>
+          <Box component="dd">{isNaN(liveClusters.DiscountTotal.node.value) ? '0 kg' : `${liveClusters.DiscountTotal.node.value} kg`}</Box>
         </Box>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Bonificación</Box>
-          <Box component="dd">{liveClusters.Bonus.tolerance && !isNaN(liveClusters.Bonus.tolerance.value) ? liveClusters.Bonus.tolerance.value : 0}</Box>
+          <Box component="dd">{liveClusters.Bonus.tolerance && !isNaN(liveClusters.Bonus.penalty.value) ? `${liveClusters.Bonus.tolerance.value} kg` : '0 kg'}</Box>
         </Box>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Paddy Neto</Box>
-          <Box component="dd">{isNaN(liveClusters.totalPaddy.node.value) ? 0 : liveClusters.totalPaddy.node.value}</Box>
+          <Box component="dd">{isNaN(liveClusters.totalPaddy.node.value) ? '0 kg' : `${liveClusters.totalPaddy.node.value} kg`}</Box>
         </Box>
       </Box>
     </Box>

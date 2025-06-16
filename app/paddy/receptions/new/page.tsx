@@ -123,7 +123,7 @@ export default function NewReceptionPage() {
           </Grid>
 
           {/* Summary & Actions */}
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={2.5}>
             <Typography gutterBottom>Totales</Typography>
 
             {/* Box resumen con borde redondeado y valores */}
@@ -137,27 +137,27 @@ export default function NewReceptionPage() {
               <Box component="dl" sx={{ m: 0 }}>
                 <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Box component="dt">Peso Bruto</Box>
-                  <Box component="dd">{liveClusters.grossWeight.node.value}</Box>
+                  <Box component="dd">{liveClusters.grossWeight.node.value} kg</Box>
                 </Box>
                 <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Box component="dt">Tara</Box>
-                  <Box component="dd">{liveClusters.tare.node.value}</Box>
+                  <Box component="dd">{liveClusters.tare.node.value} kg</Box>
                 </Box>
                 <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Box component="dt">Peso Neto</Box>
-                  <Box component="dd">{liveClusters.netWeight.node.value}</Box>
+                  <Box component="dd">{liveClusters.netWeight.node.value} kg</Box>
                 </Box>
                 <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Box component="dt">Total Descuentos</Box>
-                  <Box component="dd">{liveClusters.DiscountTotal.node.value}</Box>
+                  <Box component="dd">{liveClusters.DiscountTotal.node.value} kg</Box>
                 </Box>
                 <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Box component="dt">Bonificación</Box>
-                  <Box component="dd">{liveClusters.Bonus.tolerance ? liveClusters.Bonus.tolerance.value : '-'}</Box>
+                  <Box component="dd">{liveClusters.Bonus.tolerance ? `${liveClusters.Bonus.tolerance.value} kg` : '-'}</Box>
                 </Box>
                 <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Box component="dt">Paddy Neto</Box>
-                  <Box component="dd">{liveClusters.totalPaddy.node.value}</Box>
+                  <Box component="dd">{liveClusters.totalPaddy.node.value} kg</Box>
                 </Box>
               </Box>
             </Box>
