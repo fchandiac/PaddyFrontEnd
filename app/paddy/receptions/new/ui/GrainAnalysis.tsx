@@ -156,8 +156,7 @@ const GrainRow: React.FC<{
         display: 'flex', 
         flexDirection: 'row', 
         mt: 1, 
-        alignItems: 'center',
-        ...(backgroundColor && { backgroundColor })
+        alignItems: 'center'
       }}
     >
       {/* Columna 1: Nombre del parámetro */}
@@ -462,7 +461,6 @@ export default function GrainAnalysis() {
           onToggleVisibility={cluster.range.setShow}
           isVisible={cluster.range.show}
           penalty={cluster.penalty}
-          backgroundColor="#ede7f6"
         />
       ))}
       
