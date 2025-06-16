@@ -584,7 +584,12 @@ function createGroupSummaryCluster(
     if (error) {
       cluster.tolerance.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.tolerance.backgroundColor = "inherit"; // Sin color cuando no hay error
+      // Si pertenece al grupo de tolerancia, mantener el color del grupo
+      if (cluster.toleranceGroup) {
+        cluster.tolerance.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+      } else {
+        cluster.tolerance.backgroundColor = "inherit"; // Sin color cuando no hay error
+      }
     }
   }
 
@@ -596,7 +601,12 @@ function createGroupSummaryCluster(
     if (error) {
       cluster.penalty.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.penalty.backgroundColor = "inherit"; // Sin color cuando no hay error
+      // Si pertenece al grupo de tolerancia, mantener el color del grupo
+      if (cluster.toleranceGroup) {
+        cluster.penalty.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+      } else {
+        cluster.penalty.backgroundColor = "inherit"; // Sin color cuando no hay error
+      }
     }
   }
 
