@@ -161,7 +161,7 @@ const GrainRow: React.FC<{
       }}
     >
       {/* Columna 1: Nombre del parámetro */}
-      <Box sx={{ ...boxStyle, width: 130, mr: 1 }}>
+      <Box sx={{ ...boxStyle, width: 156, mr: 1 }}>
         {paramName ? (
           <TextField
             size="small"
@@ -170,7 +170,7 @@ const GrainRow: React.FC<{
             inputProps={{ "data-skip-focus": true }}
             sx={{
               textAlign: "left",
-              minWidth: 110,
+              minWidth: 132,
               "& .MuiOutlinedInput-root": {
                 "& fieldset": { border: "none" },
                 "&:hover fieldset": { border: "none" },
@@ -180,7 +180,7 @@ const GrainRow: React.FC<{
             }}
           />
         ) : (
-          <Box sx={{ minWidth: 110 }} />
+          <Box sx={{ minWidth: 132 }} />
         )}
       </Box>
 
