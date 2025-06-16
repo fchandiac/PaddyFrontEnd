@@ -113,7 +113,7 @@ export default function NewReceptionPage() {
               }}
             >
               <Typography gutterBottom>Análisis de granos</Typography>
-              <Typography gutterBottom>{data.template.name}</Typography>
+              <Typography gutterBottom>Plantilla: {data.template.name}</Typography>
             </Box>
 
             <GrainAnalysis
@@ -177,6 +177,7 @@ export default function NewReceptionPage() {
             </Button>
 
             <Divider sx={{ my: 2 }} />
+            <Typography gutterBottom>Plantillas</Typography>
 
             <Stack direction="row" spacing={1} alignItems="center">
               <IconButton
@@ -191,7 +192,7 @@ export default function NewReceptionPage() {
                 onClick={() => setOpenTemplateDialog(true)}
                 startIcon={<ArticleIcon />}
               >
-                Plantillas
+                Selección
               </Button>
             </Stack>
           </Grid>
