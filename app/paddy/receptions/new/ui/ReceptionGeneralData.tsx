@@ -22,6 +22,7 @@ export default function ReceptionGeneralData() {
 
   const [producers, setProducers] = useState<any[]>([]);
   const [riceTypes, setRiceTypes] = useState<any[]>([]);
+  const [price, setPrice] = useState<number>(0);
   const [loadingProducers, setLoadingProducers] = useState(true);
   const [loadingRiceTypes, setLoadingRiceTypes] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -144,8 +145,8 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={
-              liveClusters.price.node.value 
-                ? liveClusters.price.node.value.toLocaleString('es-CL', { 
+              price 
+                ? price.toLocaleString('es-CL', { 
                     minimumFractionDigits: 0 
                   }) 
                 : ''
@@ -156,9 +157,10 @@ export default function ReceptionGeneralData() {
               const numericValue = rawValue.replace(/[^\d]/g, '');
               if (numericValue) {
                 const parsedValue = parseInt(numericValue, 10);
-                liveClusters.price.node.onChange(parsedValue);
+                setPrice(parsedValue);
+                // El precio se guardará cuando se envíe el formulario
               } else {
-                liveClusters.price.node.onChange(0);
+                setPrice(0);
               }
             }}
             InputProps={{

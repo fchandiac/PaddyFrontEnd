@@ -3,7 +3,6 @@ import { TemplateType } from "@/types/discount-template";
 import { getDiscountPercentsByCode } from "@/app/actions/discount-percent";
 
 export type KeyCluster =
-  | "price"
   | "grossWeight"
   | "tare"
   | "netWeight"
@@ -20,11 +19,9 @@ export type KeyCluster =
   | "Bonus"
   | "Dry"
   | "DiscountTotal"
-  | "totalPaddy"
-  | "totalToPay";
+  | "totalPaddy";
 
 export const clusterNameMap: Record<KeyCluster, string> = {
-  price: "Precio",
   grossWeight: "Peso Bruto",
   tare: "Tara",
   netWeight: "Peso Neto",
@@ -42,7 +39,6 @@ export const clusterNameMap: Record<KeyCluster, string> = {
   Dry: "Secado",
   DiscountTotal: "Descuentos Totales",
   totalPaddy: "Total de Arroz",
-  totalToPay: "Total a Pagar",
 };
 
 export type TypeCluster =
@@ -62,7 +58,6 @@ export interface Range {
 }
 
 export const nodeCodeMap: Record<KeyCluster, number> = {
-  price: 0,
   grossWeight: 0,
   tare: 0,
   netWeight: 0,
@@ -80,7 +75,6 @@ export const nodeCodeMap: Record<KeyCluster, number> = {
   Dry: 8,
   DiscountTotal: 0,
   totalPaddy: 0,
-  totalToPay: 0,
 };
 
 const keyNode = (c: KeyCluster, n: TypeNode): string => `${c}-${n}`;
@@ -740,7 +734,6 @@ function createDryCluster(
   return cluster;
 }
 
-const price = createGenericCluster("price", true, false, false);
 const grossWeight = createGenericCluster("grossWeight", true, false, false);
 const tare = createGenericCluster("tare", true, false, false);
 const netWeight = createGenericCluster("netWeight", true, false, false);
@@ -765,10 +758,12 @@ const groupSummary = createGroupSummaryCluster(
 );
 const summary = createSummaryCluster("summary", true, false, false);
 const bonus = createBonusCluster("Bonus", true, false, false);
+// Modificar los labels para Bonus
+bonus.tolerance.label = "Bono";
+bonus.penalty.label = "Bonificación";
 const dry = createDryCluster("Dry", true, false, false);
 const discountTotal = createGenericCluster("DiscountTotal", true, false, false);
 const totalPaddy = createGenericCluster("totalPaddy", true, false, false);
-const totalToPay = createGenericCluster("totalToPay", true, false, false);
 
 humedad.percent.parentCluster = humedad;
 humedad.tolerance.parentCluster = humedad;
@@ -1388,8 +1383,8 @@ summary.penalty.effect = () => {
 
 // Calcular el total de descuentos (DiscountTotal)
 discountTotal.node.effect = () => {
-  // Suma de todos los descuentos: summary.penalty + dry.percent
-  const totalDiscounts = summary.penalty.value + dry.percent.value;
+  // Suma de todos los descuentos: summary.penalty (ya no incluye dry.percent)
+  const totalDiscounts = summary.penalty.value;
   discountTotal.node.setValue(totalDiscounts);
 };
 
@@ -1402,7 +1397,7 @@ totalPaddy.node.effect = () => {
 
 // Conectar los nodos para que se actualicen automáticamente
 summary.penalty.addConsumer(discountTotal.node);
-dry.percent.addConsumer(discountTotal.node);
+// Eliminada la relación: dry.percent.addConsumer(discountTotal.node);
 discountTotal.node.addConsumer(totalPaddy.node);
 bonus.penalty.addConsumer(totalPaddy.node);
 
@@ -1540,7 +1535,6 @@ groupSummary.tolerance.onChange = (value: number) => {
 };
 
 export const clusters = {
-  price: price,
   grossWeight: grossWeight,
   tare: tare,
   netWeight: netWeight,
@@ -1558,7 +1552,6 @@ export const clusters = {
   Dry: dry,
   DiscountTotal: discountTotal,
   totalPaddy: totalPaddy,
-  totalToPay: totalToPay,
 };
 
 // Agregar conexiones para que los cambios en los porcentajes actualicen el groupSummary.percent

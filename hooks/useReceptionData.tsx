@@ -22,7 +22,6 @@ export function useReceptionData(
     const unsubscribeFns: (() => void)[] = [];
 
     const nodes: Node[] = [
-      liveClusters.price.node,
       liveClusters.grossWeight.node,
       liveClusters.tare.node,
       liveClusters.netWeight.node,

@@ -10,9 +10,9 @@ export const metadata = {
   title: "Paddy AyG",
   description: "Arrocera Aparicio y García Ltda.",
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "/logo.ico",
+    shortcut: "/logo.ico",
+    apple: "/logo.ico",
   },
 };
 
