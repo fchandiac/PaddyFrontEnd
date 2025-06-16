@@ -169,11 +169,15 @@ export function useReceptionData(
       if (data.template.useToleranceGroup && groupTolerance && available) {
         console.log(`🔥 Setting ${name} group tolerance background color`);
         // Color morado pastel claro para elementos del grupo de tolerancia
+        cluster.range.backgroundColor = "#ede7f6"; // Morado pastel claro para range también
         cluster.tolerance.backgroundColor = "#ede7f6"; // Morado pastel claro
         cluster.percent.backgroundColor = "#ede7f6"; // Morado pastel claro
         cluster.penalty.backgroundColor = "#ede7f6"; // Morado pastel claro para penalty también
       } else {
         // Restaurar color predeterminado solo si no hay error
+        if (!cluster.range.error) {
+          cluster.range.backgroundColor = "inherit";
+        }
         if (!cluster.tolerance.error) {
           cluster.tolerance.backgroundColor = "inherit";
         }
@@ -197,10 +201,12 @@ export function useReceptionData(
     
     if (data.template.useToleranceGroup && hasGroupToleranceParams) {
       console.log('🔥 Setting GroupSummary background color for tolerance group');
+      liveClusters.groupSummary.toleranceGroup = true; // Marcar como parte del grupo de tolerancia
       liveClusters.groupSummary.percent.backgroundColor = "#ede7f6";
       liveClusters.groupSummary.tolerance.backgroundColor = "#ede7f6";
       liveClusters.groupSummary.penalty.backgroundColor = "#ede7f6";
     } else {
+      liveClusters.groupSummary.toleranceGroup = false; // No pertenece al grupo de tolerancia
       liveClusters.groupSummary.percent.backgroundColor = "inherit";
       liveClusters.groupSummary.tolerance.backgroundColor = "inherit";
       liveClusters.groupSummary.penalty.backgroundColor = "inherit";
@@ -316,11 +322,15 @@ export function useReceptionData(
           
           // Actualizar colores de fondo según corresponda
           if (useToleranceGroup && groupTolerance) {
+            cluster.range.backgroundColor = "#ede7f6";
             cluster.tolerance.backgroundColor = "#ede7f6";
             cluster.percent.backgroundColor = "#ede7f6";
             cluster.penalty.backgroundColor = "#ede7f6";
           } else {
             // Restaurar colores predeterminados si no hay error
+            if (!cluster.range.error) {
+              cluster.range.backgroundColor = "inherit";
+            }
             if (!cluster.tolerance.error) {
               cluster.tolerance.backgroundColor = "inherit";
             }

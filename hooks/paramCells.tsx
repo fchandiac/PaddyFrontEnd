@@ -250,9 +250,15 @@ function createRangeNode(key: string, parentCluster: Cluster): RangeNode {
     setError: (error: boolean) => {
       node.error = error;
       if (error) {
+        // Si hay error, siempre usar color de error
         node.backgroundColor = "#ffcdd2";
       } else {
-        node.backgroundColor = "inherit";
+        // Si pertenece al grupo de tolerancia, mantener el color del grupo
+        if (node.parentCluster.toleranceGroup) {
+          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        } else {
+          node.backgroundColor = "inherit";
+        }
       }
     },
   };
@@ -294,9 +300,15 @@ function createPercentNode(key: string, parentCluster: Cluster): Node {
     setError: (error: boolean) => {
       node.error = error;
       if (error) {
+        // Si hay error, siempre usar color de error
         node.backgroundColor = "#ffcdd2";
       } else {
-        node.backgroundColor = "inherit";
+        // Si pertenece al grupo de tolerancia, mantener el color del grupo
+        if (node.parentCluster.toleranceGroup) {
+          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        } else {
+          node.backgroundColor = "inherit";
+        }
       }
     },
   };
@@ -338,9 +350,15 @@ function createToleranceNode(key: string, parentCluster: Cluster): Node {
     setError: (error: boolean) => {
       node.error = error;
       if (error) {
+        // Si hay error, siempre usar color de error
         node.backgroundColor = "#ffcdd2";
       } else {
-        node.backgroundColor = "inherit";
+        // Si pertenece al grupo de tolerancia, mantener el color del grupo
+        if (node.parentCluster.toleranceGroup) {
+          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        } else {
+          node.backgroundColor = "inherit";
+        }
       }
     },
   };
@@ -382,9 +400,15 @@ function createPenaltyNode(key: string, parentCluster: Cluster): Node {
     setError: (error: boolean) => {
       node.error = error;
       if (error) {
+        // Si hay error, siempre usar color de error
         node.backgroundColor = "#ffcdd2";
       } else {
-        node.backgroundColor = "inherit";
+        // Si pertenece al grupo de tolerancia, mantener el color del grupo
+        if (node.parentCluster.toleranceGroup) {
+          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        } else {
+          node.backgroundColor = "inherit";
+        }
       }
     },
   };
@@ -490,9 +514,15 @@ function createParamCluster(
   cluster.percent.setError = (error: boolean) => {  
     cluster.percent.error = error;
     if (error) {
+      // Si hay error, siempre usar color de error
       cluster.percent.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.percent.backgroundColor = "inherit"; // Sin color especial cuando no hay error
+      // Si pertenece al grupo de tolerancia, mantener el color del grupo
+      if (cluster.toleranceGroup) {
+        cluster.percent.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+      } else {
+        cluster.percent.backgroundColor = "inherit"; // Sin color especial cuando no hay error
+      }
     }
   }
 
@@ -533,9 +563,15 @@ function createGroupSummaryCluster(
   cluster.percent.setError = (error: boolean) => {
     cluster.percent.error = error;
     if (error) {
+      // Si hay error, siempre usar color de error
       cluster.percent.backgroundColor = "#ffcdd2"; // Rojo claro para errores
     } else {
-      cluster.percent.backgroundColor = "inherit"; // Sin color cuando no hay error
+      // Si pertenece al grupo de tolerancia, mantener el color del grupo
+      if (cluster.toleranceGroup) {
+        cluster.percent.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+      } else {
+        cluster.percent.backgroundColor = "inherit"; // Sin color cuando no hay error
+      }
     }
   }
 
