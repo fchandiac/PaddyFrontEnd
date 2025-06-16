@@ -117,3 +117,126 @@ Las plantillas se conectan con el sistema `paramCells` a través del hook `useRe
 6. Los cálculos se realizan automáticamente según la configuración de la plantilla
 
 Las plantillas esencialmente funcionan como "presets" que configuran todo el sistema de cálculo de `paramCells`, ahorrando tiempo al usuario y asegurando consistencia en las recepciones para un mismo productor o tipo de arroz.
+
+# Sistema de Validación y Errores en GrainAnalysis
+
+El componente GrainAnalysis implementa un sistema integral de validación que garantiza la integridad de los datos ingresados y proporciona retroalimentación visual inmediata al usuario.
+
+## Tipos de Errores de Validación
+
+### 1. Errores de Parámetros Individuales
+
+#### Error de Porcentaje Mayor a 100%
+- **Cuándo ocurre**: Cuando el porcentaje de cualquier parámetro individual (Humedad, Granos Verdes, Impurezas, etc.) supera el 100%
+- **Campo afectado**: Campo de porcentaje del parámetro específico
+- **Mensaje visual**: Fondo rojo claro (`#ffcdd2`) en el campo de porcentaje
+
+#### Error de Tolerancia Mayor que Porcentaje
+- **Cuándo ocurre**: Cuando el valor de tolerancia es mayor que el porcentaje medido del mismo parámetro
+- **Campo afectado**: Campo de tolerancia del parámetro específico
+- **Mensaje visual**: Fondo rojo claro (`#ffcdd2`) en el campo de tolerancia
+
+### 2. Errores de Resumen Total
+
+#### Error de Porcentaje Total Mayor a 100%
+- **Cuándo ocurre**: Cuando la suma de todos los porcentajes individuales de parámetros supera el 100%
+- **Campo afectado**: Campo de porcentaje en la fila "Resumen Total"
+- **Mensaje visual**: Fondo rojo claro en el campo de porcentaje del resumen
+
+#### Error de Tolerancia Total Mayor a 100%
+- **Cuándo ocurre**: Cuando la suma de todas las tolerancias individuales supera el 100%
+- **Campo afectado**: Campo de tolerancia en la fila "Resumen Total"
+- **Mensaje visual**: Fondo rojo claro en el campo de tolerancia del resumen
+
+### 3. Errores de Grupo de Tolerancia
+
+#### Error de Porcentaje de Grupo Mayor a 100%
+- **Cuándo ocurre**: Cuando la suma de los porcentajes de los parámetros que pertenecen al grupo de tolerancia supera el 100%
+- **Campo afectado**: Campo de porcentaje en la fila "Resumen de Grupo"
+- **Mensaje visual**: Fondo rojo claro en el campo de porcentaje del resumen de grupo
+
+#### Error de Tolerancia de Grupo Mayor que Porcentaje de Grupo
+- **Cuándo ocurre**: Cuando la tolerancia total del grupo de tolerancia supera al porcentaje total del grupo de tolerancia
+- **Campo afectado**: Campo de tolerancia en la fila "Resumen de Grupo"
+- **Mensaje visual**: Fondo rojo claro en el campo de tolerancia del resumen de grupo
+
+### 4. Errores de Validación de Datos
+
+#### Error de Valor No Numérico
+- **Cuándo ocurre**: Cuando se ingresa un valor que no es un número válido
+- **Campo afectado**: Cualquier campo numérico (porcentaje, tolerancia, rango)
+- **Comportamiento**: El sistema convierte automáticamente valores inválidos a 0
+
+#### Error de Valor Negativo
+- **Cuándo ocurre**: Cuando se ingresa un valor negativo en campos que solo aceptan valores positivos
+- **Campo afectado**: Campos de porcentaje, tolerancia y rango
+- **Comportamiento**: El sistema automáticamente convierte valores negativos a 0
+
+### 5. Errores de Consistencia Lógica
+
+#### Error de Suma Inconsistente
+- **Cuándo ocurre**: Cuando los cálculos agregados no coinciden con la suma de los componentes individuales
+- **Campo afectado**: Campos de resumen y totales
+- **Comportamiento**: El sistema recalcula automáticamente los valores
+
+#### Error de Penalización Excesiva
+- **Cuándo ocurre**: Cuando las penalizaciones calculadas superan el peso neto disponible
+- **Campo afectado**: Campos de penalización (castigo en kg)
+- **Comportamiento**: Advertencia visual en los campos afectados
+
+## Sistema de Colores para Grupos de Tolerancia
+
+El sistema implementa una lógica especial de colores para los campos que pertenecen al grupo de tolerancia:
+
+### Estados de Color
+- **Estado Normal (sin grupo de tolerancia)**: Fondo por defecto (`inherit`)
+- **Estado Normal (con grupo de tolerancia)**: Fondo púrpura claro (`#ede7f6`)
+- **Estado de Error**: Fondo rojo claro (`#ffcdd2`) independientemente del grupo
+
+### Lógica de Color
+```
+si (hay_error) {
+    color = rojo_claro (#ffcdd2)
+} sino si (pertenece_a_grupo_tolerancia) {
+    color = púrpura_claro (#ede7f6)
+} sino {
+    color = por_defecto (inherit)
+}
+```
+
+## Arquitectura de Validación
+
+### Sistema Reactivo
+- **Validación en Tiempo Real**: Los errores aparecen y desaparecen inmediatamente al cambiar los valores
+- **Propagación Automática**: Los cambios en un campo activan validaciones en campos relacionados
+- **Recuperación Automática**: Los errores se corrigen automáticamente cuando se ingresan valores válidos
+
+### Funciones de Efecto
+Cada parámetro tiene una función `effect` que se ejecuta cuando cambian sus dependencias:
+- Valida los valores actuales
+- Establece el estado de error correspondiente
+- Actualiza los colores de fondo según el estado y grupo de tolerancia
+- Propaga los cambios a nodos dependientes
+
+### Jerarquía de Validación
+1. **Nivel de Campo**: Validación individual de porcentaje y tolerancia
+2. **Nivel de Parámetro**: Validación cruzada entre porcentaje y tolerancia
+3. **Nivel de Grupo**: Validación agregada del grupo de tolerancia
+4. **Nivel de Sistema**: Validación del resumen total
+
+## Prioridad de Errores
+
+1. **Más Crítico**: Errores de lógica (tolerancia > porcentaje)
+2. **Crítico**: Errores de límites (porcentajes > 100%)
+3. **Moderado**: Errores de agregación (sumas > 100%)
+4. **Menor**: Errores de formato (valores no numéricos)
+
+## Beneficios del Sistema
+
+- **Integridad de Datos**: Previene la entrada de datos inválidos o inconsistentes
+- **Experiencia de Usuario**: Retroalimentación visual inmediata y clara
+- **Automatización**: No requiere intervención manual para limpiar errores
+- **Escalabilidad**: Fácil agregar nuevas validaciones siguiendo el patrón existente
+- **Consistencia**: Comportamiento uniforme en todos los campos y parámetros
+
+Este sistema de validación integral asegura que los datos ingresados en el análisis de granos sean siempre coherentes y válidos, mejorando la confiabilidad de los cálculos de descuentos y penalizaciones.

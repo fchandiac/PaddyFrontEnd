@@ -1344,6 +1344,15 @@ groupSummary.tolerance.effect = () => {
     (granosPelados.toleranceGroup && granosPelados.available ? (isNaN(granosPelados.tolerance.value) ? 0 : granosPelados.tolerance.value) : 0) +
     (granosYesosos.toleranceGroup && granosYesosos.available ? (isNaN(granosYesosos.tolerance.value) ? 0 : granosYesosos.tolerance.value) : 0);
   
+  // Validación: verificar si la tolerancia supera al porcentaje del grupo
+  const percentValue = isNaN(groupSummary.percent.value) ? 0 : groupSummary.percent.value;
+  
+  if (total > percentValue) {
+    groupSummary.tolerance.setError(true);
+  } else {
+    groupSummary.tolerance.setError(false);
+  }
+  
   groupSummary.tolerance.setValue(total);
 }
 
@@ -1351,6 +1360,13 @@ groupSummary.tolerance.effect = () => {
 groupSummary.penalty.effect = () => {
   const percentValue = isNaN(groupSummary.percent.value) ? 0 : groupSummary.percent.value;
   const toleranceValue = isNaN(groupSummary.tolerance.value) ? 0 : groupSummary.tolerance.value;
+  
+  // Validación: verificar si la tolerancia supera al porcentaje
+  if (toleranceValue > percentValue) {
+    groupSummary.tolerance.setError(true);
+  } else {
+    groupSummary.tolerance.setError(false);
+  }
   
   if (percentValue > toleranceValue) {
     const diff = percentValue - toleranceValue;
