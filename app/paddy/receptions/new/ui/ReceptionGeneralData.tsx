@@ -51,7 +51,9 @@ export default function ReceptionGeneralData() {
 
   return (
     <>
-      <Grid container spacing={2}>
+      <Grid container spacing={1.3} sx = {{
+   
+      }}>
         {/* Productor */}
         <Grid item xs={12}>
           <Autocomplete

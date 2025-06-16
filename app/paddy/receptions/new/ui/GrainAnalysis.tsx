@@ -154,7 +154,7 @@ const GrainRow: React.FC<{
       sx={{ 
         display: 'flex', 
         flexDirection: 'row', 
-        mb: 0.5, 
+        mt: 1, 
         alignItems: 'center',
         ...(backgroundColor && { backgroundColor })
       }}
@@ -482,23 +482,7 @@ export default function GrainAnalysis() {
         />
       )}
 
-      {/* Leyenda de colores para grupo de tolerancia */}
-      {hasGroupToleranceParams && (
-        <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box 
-            sx={{ 
-              width: 16, 
-              height: 16, 
-              backgroundColor: '#ede7f6', 
-              borderRadius: '4px',
-              border: '1px solid #d1c4e9'
-            }} 
-          />
-          <Typography variant="caption" color="text.secondary">
-            Parámetros que pertenecen al grupo de tolerancia
-          </Typography>
-        </Box>
-      )}
+
       
       {/* Leyenda de colores para grupo de tolerancia */}
       {hasGroupToleranceParams && (

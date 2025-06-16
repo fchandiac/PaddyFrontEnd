@@ -96,15 +96,15 @@ export default function NewReceptionPage() {
   return (
     <>
       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} >
           {/* General Data */}
-          <Grid item xs={12} md={3.5}>
+          <Grid item xs={12} md={2.5}>
             <Typography gutterBottom>Datos de la recepción</Typography>
             <ReceptionGeneralData />
           </Grid>
 
           {/* Grain Analysis */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6.5}>
             <Box
               sx={{
                 display: "flex",
@@ -123,7 +123,7 @@ export default function NewReceptionPage() {
           </Grid>
 
           {/* Summary & Actions */}
-          <Grid item xs={12} md={2.5}>
+          <Grid item xs={12} md={3}>
             <Typography gutterBottom>Totales</Typography>
 
             {/* Box resumen con borde redondeado y valores */}
