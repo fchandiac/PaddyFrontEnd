@@ -160,7 +160,7 @@ const GrainRow: React.FC<{
       }}
     >
       {/* Columna 1: Nombre del parámetro */}
-      <Box sx={{ ...boxStyle, width: 130 }}>
+      <Box sx={{ ...boxStyle, width: 130, mr: 1 }}>
         {paramName ? (
           <TextField
             size="small"
@@ -184,7 +184,7 @@ const GrainRow: React.FC<{
       </Box>
 
       {/* Columna 2: Rango o nombre secundario */}
-      <Box sx={{ ...boxStyle, width: 130 }}>
+      <Box sx={{ ...boxStyle, width: 130, mr: 1 }}>
         {range ? (
           <NodeComponent
             key={range.key}
@@ -205,7 +205,7 @@ const GrainRow: React.FC<{
       </Box>
 
       {/* Columna 3: Porcentaje */}
-      <Box sx={{ ...boxStyle, width: 130 }}>
+      <Box sx={{ ...boxStyle, width: 130, mr: 1 }}>
         {percent ? (
           <NodeComponent
             key={percent.key}
@@ -226,7 +226,7 @@ const GrainRow: React.FC<{
       </Box>
 
       {/* Columna 4: Tolerancia */}
-      <Box sx={{ ...boxStyle, width: 130 }}>
+      <Box sx={{ ...boxStyle, width: 130, mr: 0 }}>
         {tolerance ? (
           <NodeComponent
             key={tolerance.key}
@@ -247,7 +247,7 @@ const GrainRow: React.FC<{
       </Box>
 
       {/* Columna 5: Botón de visibilidad */}
-      <Box sx={{ width: 40, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ width: 40, display: 'flex', justifyContent: 'center', mr: 0 }}>
         {showVisibilityButton && onToggleVisibility ? (
           <VisibilityButton isVisible={isVisible} onToggle={onToggleVisibility} />
         ) : (
@@ -256,7 +256,7 @@ const GrainRow: React.FC<{
       </Box>
 
       {/* Columna 6: Penalización */}
-      <Box sx={{ ...boxStyle, width: 130 }}>
+      <Box sx={{ ...boxStyle, width: 130, mr: 0 }}>
         {penalty ? (
           <NodeComponent
             key={penalty.key}
