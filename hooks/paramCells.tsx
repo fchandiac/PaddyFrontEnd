@@ -812,6 +812,8 @@ netWeight.node.addConsumer(hualcacho.penalty);
 netWeight.node.addConsumer(granosManchados.penalty);
 netWeight.node.addConsumer(granosPelados.penalty);
 netWeight.node.addConsumer(granosYesosos.penalty);
+netWeight.node.addConsumer(bonus.penalty);
+netWeight.node.addConsumer(groupSummary.penalty);
 
 humedad.range.addConsumer(humedad.percent);
 humedad.percent.addConsumer(humedad.penalty);
@@ -884,9 +886,6 @@ granosYesosos.tolerance.addConsumer(groupSummary.tolerance);
 groupSummary.percent.addConsumer(groupSummary.penalty);
 groupSummary.tolerance.addConsumer(groupSummary.penalty);
 
-// Conectar netWeight con penalty de GroupSummary
-netWeight.node.addConsumer(groupSummary.penalty);
-
 // Conexiones para el cálculo directo (forward)
 humedad.percent.addConsumer(groupSummary.percent);
 granosVerdes.percent.addConsumer(groupSummary.percent);
@@ -921,17 +920,13 @@ granosYesosos.penalty.addConsumer(groupSummary.penalty);
 groupSummary.percent.addConsumer(groupSummary.penalty);
 groupSummary.tolerance.addConsumer(groupSummary.penalty);
 
-// Conexiones de los nodos de pesos para afectar a los penalties
-netWeight.node.addConsumer(humedad.penalty);
-netWeight.node.addConsumer(granosVerdes.penalty);
-netWeight.node.addConsumer(impurezas.penalty);
-netWeight.node.addConsumer(vano.penalty);
-netWeight.node.addConsumer(hualcacho.penalty);
-netWeight.node.addConsumer(granosManchados.penalty);
-netWeight.node.addConsumer(granosPelados.penalty);
-netWeight.node.addConsumer(granosYesosos.penalty);
-netWeight.node.addConsumer(groupSummary.penalty);
-netWeight.node.addConsumer(bonus.penalty);
+// Las conexiones de netWeight a los penalties ya están definidas en la sección anterior
+// No es necesario repetirlas aquí
+
+
+
+
+
 
 
 
@@ -1391,6 +1386,26 @@ summary.penalty.effect = () => {
   summary.penalty.setValue(total);
 };
 
+// Calcular el total de descuentos (DiscountTotal)
+discountTotal.node.effect = () => {
+  // Suma de todos los descuentos: summary.penalty + dry.percent
+  const totalDiscounts = summary.penalty.value + dry.percent.value;
+  discountTotal.node.setValue(totalDiscounts);
+};
+
+// Calcular el total de Paddy (totalPaddy) = totalDiscount + Bonus.penalty
+totalPaddy.node.effect = () => {
+  // Paddy net es igual a totalDiscount + Bonus.penalty
+  const paddyNet = discountTotal.node.value + bonus.penalty.value;
+  totalPaddy.node.setValue(paddyNet);
+};
+
+// Conectar los nodos para que se actualicen automáticamente
+summary.penalty.addConsumer(discountTotal.node);
+dry.percent.addConsumer(discountTotal.node);
+discountTotal.node.addConsumer(totalPaddy.node);
+bonus.penalty.addConsumer(totalPaddy.node);
+
 // Agregar efecto para calcular la tolerancia del grupo
 groupSummary.tolerance.effect = () => {
   // Solo sumar las tolerancias de los parámetros que pertenecen al grupo de tolerancia
@@ -1438,6 +1453,27 @@ groupSummary.penalty.effect = () => {
 }
 
 // Agregar efecto para distribuir la tolerancia del grupo a los parámetros individuales
+// Configuración de onChange para Bonus.tolerance - cuando el usuario actualiza manualmente la tolerancia
+bonus.tolerance.onChange = (value: number) => {
+  // Actualizamos el valor del nodo
+  bonus.tolerance.setValue(value);
+  
+  // Validamos el valor
+  if (value > 0) {
+    bonus.tolerance.setError(false);
+  } else {
+    bonus.tolerance.setError(true);
+  }
+  
+  // Calculamos el nuevo penalty basado en netWeight y el valor de tolerancia actualizado
+  const netWeightValue = netWeight.node.value;
+  const netWeightV = typeof netWeightValue === "number" && !isNaN(netWeightValue) ? netWeightValue : 0;
+  
+  // Calculamos el bonus como porcentaje del peso neto
+  const netBonus = (netWeightV * value) / 100;
+  bonus.penalty.setValue(netBonus);
+};
+
 // cuando el usuario actualiza manualmente la tolerancia del grupo
 groupSummary.tolerance.onChange = (value: number) => {
   // Primero actualizamos el valor del nodo
@@ -1486,6 +1522,21 @@ groupSummary.tolerance.onChange = (value: number) => {
   if (groupSummary.penalty.effect) {
     groupSummary.penalty.effect();
   }
+  
+  // Recalculamos completamente el valor de Summary.Tolerance
+  // Esto asegura que el Summary.Tolerance refleje la suma actualizada de todas las tolerancias
+  const newSummaryToleranceValue =
+    (isNaN(humedad.tolerance.value) ? 0 : humedad.tolerance.value) +
+    (isNaN(granosVerdes.tolerance.value) ? 0 : granosVerdes.tolerance.value) +
+    (isNaN(impurezas.tolerance.value) ? 0 : impurezas.tolerance.value) +
+    (isNaN(vano.tolerance.value) ? 0 : vano.tolerance.value) +
+    (isNaN(hualcacho.tolerance.value) ? 0 : hualcacho.tolerance.value) +
+    (isNaN(granosManchados.tolerance.value) ? 0 : granosManchados.tolerance.value) +
+    (isNaN(granosPelados.tolerance.value) ? 0 : granosPelados.tolerance.value) +
+    (isNaN(granosYesosos.tolerance.value) ? 0 : granosYesosos.tolerance.value);
+  
+  // Actualizamos el valor y ejecutamos sus efectos
+  summary.tolerance.setValue(newSummaryToleranceValue);
 };
 
 export const clusters = {
