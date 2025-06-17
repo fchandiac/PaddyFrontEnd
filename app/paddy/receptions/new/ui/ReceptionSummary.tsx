@@ -43,7 +43,11 @@ export default function ReceptionSummary({  }: ReceptionSummaryProps) {
         </Box>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Bonificación</Box>
-          <Box component="dd">{liveClusters.Bonus.tolerance && !isNaN(liveClusters.Bonus.penalty.value) ? `${liveClusters.Bonus.tolerance.value} kg` : '0 kg'}</Box>
+          <Box component="dd">
+            {liveClusters.Bonus.penalty && !isNaN(liveClusters.Bonus.penalty.value) 
+              ? `${liveClusters.Bonus.penalty.value} kg` 
+              : '0 kg'}
+          </Box>
         </Box>
         <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Box component="dt">Paddy Neto</Box>

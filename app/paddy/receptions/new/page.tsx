@@ -161,7 +161,9 @@ export default function NewReceptionPage() {
                 >
                   <Box component="dt">Peso Bruto</Box>
                   <Box component="dd">
-                    {liveClusters.grossWeight.node.value} kg
+                    {isNaN(liveClusters.grossWeight.node.value) 
+                      ? '0 kg' 
+                      : `${liveClusters.grossWeight.node.value} kg`}
                   </Box>
                 </Box>
                 <Box
@@ -173,7 +175,11 @@ export default function NewReceptionPage() {
                   }}
                 >
                   <Box component="dt">Tara</Box>
-                  <Box component="dd">{liveClusters.tare.node.value} kg</Box>
+                  <Box component="dd">
+                    {isNaN(liveClusters.tare.node.value) 
+                      ? '0 kg' 
+                      : `${liveClusters.tare.node.value} kg`}
+                  </Box>
                 </Box>
                 <Box
                   component="div"
@@ -185,7 +191,9 @@ export default function NewReceptionPage() {
                 >
                   <Box component="dt">Peso Neto</Box>
                   <Box component="dd">
-                    {liveClusters.netWeight.node.value} kg
+                    {isNaN(liveClusters.netWeight.node.value) 
+                      ? '0 kg' 
+                      : `${liveClusters.netWeight.node.value} kg`}
                   </Box>
                 </Box>
                 <Box
@@ -198,7 +206,9 @@ export default function NewReceptionPage() {
                 >
                   <Box component="dt">Total Descuentos</Box>
                   <Box component="dd">
-                    {liveClusters.DiscountTotal.node.value} kg
+                    {isNaN(liveClusters.DiscountTotal.node.value) 
+                      ? '0 kg' 
+                      : `${liveClusters.DiscountTotal.node.value} kg`}
                   </Box>
                 </Box>
                 <Box
@@ -211,9 +221,9 @@ export default function NewReceptionPage() {
                 >
                   <Box component="dt">Bonificación</Box>
                   <Box component="dd">
-                    {liveClusters.Bonus.tolerance
-                      ? `${liveClusters.Bonus.tolerance.value} kg`
-                      : "-"}
+                    {liveClusters.Bonus.penalty && !isNaN(liveClusters.Bonus.penalty.value)
+                      ? `${liveClusters.Bonus.penalty.value} kg`
+                      : "0 kg"}
                   </Box>
                 </Box>
                 <Box
@@ -226,7 +236,9 @@ export default function NewReceptionPage() {
                 >
                   <Box component="dt">Paddy Neto</Box>
                   <Box component="dd">
-                    {liveClusters.totalPaddy.node.value} kg
+                    {isNaN(liveClusters.totalPaddy.node.value) 
+                      ? '0 kg' 
+                      : `${liveClusters.totalPaddy.node.value} kg`}
                   </Box>
                 </Box>
               </Box>
