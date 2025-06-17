@@ -42,7 +42,7 @@ interface SelectedTemplateTableProps {
 
 
 const SelectedTemplateTable: React.FC<SelectedTemplateTableProps> = ({selectedTemplate, closeDialog}) =>  {
-  const { setTemplateField, setTemplate, data } = useReceptionContext();
+  const { setTemplateField, setTemplate, data, liveClusters } = useReceptionContext();
 
 
 
@@ -63,20 +63,94 @@ const SelectedTemplateTable: React.FC<SelectedTemplateTableProps> = ({selectedTe
 
   const handleApply = () => {
     if (!selectedTemplate) return;
-    console.log('🔥 Cargando plantilla:', selectedTemplate);
-    console.log('🔥 Available flags:', {
-      availableHumedad: selectedTemplate.availableHumedad,
-      availableGranosVerdes: selectedTemplate.availableGranosVerdes,
-      availableImpurezas: selectedTemplate.availableImpurezas,
-      availableVano: selectedTemplate.availableVano,
-      availableHualcacho: selectedTemplate.availableHualcacho,
-      availableGranosManchados: selectedTemplate.availableGranosManchados,
-      availableGranosPelados: selectedTemplate.availableGranosPelados,
-      availableGranosYesosos: selectedTemplate.availableGranosYesosos,
-      availableBonus: selectedTemplate.availableBonus,
-      availableDry: selectedTemplate.availableDry,
-    });
-    setTemplate(selectedTemplate);
+    console.log('🔥 Cargando configuración de plantilla:', selectedTemplate);
+    
+    // Solo cargar configuración, no valores de parámetros
+    
+    // Actualizar configuraciones de disponibilidad
+    setTemplateField("availableHumedad", selectedTemplate.availableHumedad);
+    setTemplateField("availableGranosVerdes", selectedTemplate.availableGranosVerdes);
+    setTemplateField("availableImpurezas", selectedTemplate.availableImpurezas);
+    setTemplateField("availableVano", selectedTemplate.availableVano);
+    setTemplateField("availableHualcacho", selectedTemplate.availableHualcacho);
+    setTemplateField("availableGranosManchados", selectedTemplate.availableGranosManchados);
+    setTemplateField("availableGranosPelados", selectedTemplate.availableGranosPelados);
+    setTemplateField("availableGranosYesosos", selectedTemplate.availableGranosYesosos);
+    setTemplateField("availableBonus", selectedTemplate.availableBonus);
+    setTemplateField("availableDry", selectedTemplate.availableDry);
+    
+    // Actualizar configuraciones de tolerancia
+    setTemplateField("showToleranceHumedad", selectedTemplate.showToleranceHumedad);
+    setTemplateField("showToleranceGranosVerdes", selectedTemplate.showToleranceGranosVerdes);
+    setTemplateField("showToleranceImpurezas", selectedTemplate.showToleranceImpurezas);
+    setTemplateField("showToleranceVano", selectedTemplate.showToleranceVano);
+    setTemplateField("showToleranceHualcacho", selectedTemplate.showToleranceHualcacho);
+    setTemplateField("showToleranceGranosManchados", selectedTemplate.showToleranceGranosManchados);
+    setTemplateField("showToleranceGranosPelados", selectedTemplate.showToleranceGranosPelados);
+    setTemplateField("showToleranceGranosYesosos", selectedTemplate.showToleranceGranosYesosos);
+    
+    // Actualizar configuraciones de grupo de tolerancia
+    setTemplateField("groupToleranceHumedad", selectedTemplate.groupToleranceHumedad);
+    setTemplateField("groupToleranceGranosVerdes", selectedTemplate.groupToleranceGranosVerdes);
+    setTemplateField("groupToleranceImpurezas", selectedTemplate.groupToleranceImpurezas);
+    setTemplateField("groupToleranceVano", selectedTemplate.groupToleranceVano);
+    setTemplateField("groupToleranceHualcacho", selectedTemplate.groupToleranceHualcacho);
+    setTemplateField("groupToleranceGranosManchados", selectedTemplate.groupToleranceGranosManchados);
+    setTemplateField("groupToleranceGranosPelados", selectedTemplate.groupToleranceGranosPelados);
+    setTemplateField("groupToleranceGranosYesosos", selectedTemplate.groupToleranceGranosYesosos);
+    
+    // Actualizar configuraciones globales de tolerancia
+    setTemplateField("useToleranceGroup", selectedTemplate.useToleranceGroup);
+    setTemplateField("groupToleranceValue", selectedTemplate.groupToleranceValue);
+    
+    // Actualizar nombre de plantilla
+    setTemplateField("name", selectedTemplate.name);
+    
+    // Usar setTimeout para asegurar que los cambios se apliquen primero
+    setTimeout(() => {
+      // Resetear valores de parámetros deshabilitados
+      const parametersToReset = ['Humedad', 'GranosVerdes', 'Impurezas', 'Vano', 'Hualcacho', 'GranosManchados', 'GranosPelados', 'GranosYesosos'];
+      
+      parametersToReset.forEach(param => {
+        const availableKey = `available${param}` as keyof typeof selectedTemplate;
+        if (!selectedTemplate[availableKey]) {
+          // Resetear valores en liveClusters
+          const clusterKey = param as keyof typeof liveClusters;
+          if (liveClusters[clusterKey]) {
+            const cluster = liveClusters[clusterKey];
+            if ('percent' in cluster && cluster.percent) {
+              cluster.percent.onChange(0);
+            }
+            if ('tolerance' in cluster && cluster.tolerance) {
+              cluster.tolerance.onChange(0);
+            }
+            if ('range' in cluster && cluster.range) {
+              cluster.range.onChange(0);
+            }
+            if ('penalty' in cluster && cluster.penalty) {
+              cluster.penalty.onChange(0);
+            }
+          }
+        }
+      });
+
+      // Resetear Bonus y Dry si están deshabilitados
+      if (!selectedTemplate.availableBonus && liveClusters.Bonus) {
+        if (liveClusters.Bonus.tolerance) {
+          liveClusters.Bonus.tolerance.onChange(0);
+        }
+      }
+
+      if (!selectedTemplate.availableDry) {
+        const dryCluster = liveClusters.Dry;
+        if (dryCluster && 'percent' in dryCluster && dryCluster.percent) {
+          dryCluster.percent.onChange(0);
+        }
+      }
+      
+      console.log('🔥 Configuración de plantilla aplicada correctamente');
+    }, 100);
+    
     closeDialog();
   };
 
