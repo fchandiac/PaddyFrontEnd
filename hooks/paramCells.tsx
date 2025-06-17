@@ -955,7 +955,7 @@ bonus.tolerance.effect = () => {
       ? toleranceValue
       : 0;
 
-  if (toleranceV > 0) {
+  if (toleranceV >= 0) {
     bonus.tolerance.setError(false);
   } else {
     bonus.tolerance.setError(true);
@@ -979,7 +979,7 @@ bonus.penalty.effect = () => {
       ? toleranceValue
       : 0;
 
-  if (toleranceV > 0) {
+  if (toleranceV >= 0) {
     bonus.tolerance.setError(false);
   } else {
     bonus.tolerance.setError(true);
@@ -1454,7 +1454,7 @@ bonus.tolerance.onChange = (value: number) => {
   bonus.tolerance.setValue(value);
   
   // Validamos el valor
-  if (value > 0) {
+  if (value >= 0) {
     bonus.tolerance.setError(false);
   } else {
     bonus.tolerance.setError(true);

@@ -638,6 +638,11 @@ export default function GrainAnalysis() {
           allErrors.push(`Resumen total: penalización total (${liveClusters.Summary.penalty.value.toFixed(2)} kg) supera el peso neto`);
         }
         
+        // Errores de Bonus (solo mostrar si tolerancia es negativa)
+        if (liveClusters.Bonus.tolerance.error) {
+          allErrors.push(`Bonificación: tolerancia no puede ser negativa`);
+        }
+        
         // Solo mostrar la leyenda si hay errores
         return allErrors.length > 0 ? (
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'flex-start', gap: 1 }}>

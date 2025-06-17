@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Grid,
@@ -11,7 +11,7 @@ import {
   CircularProgress,
   Button,
 } from "@mui/material";
-import TemplateTable from "./TemplateTable";
+import TemplateTable, { TemplateTableRef } from "./TemplateTable";
 import { getAllProducers } from "@/app/actions/producer";
 import { createDiscountTemplate } from "@/app/actions/discount-template";
 import { useReceptionContext } from "@/context/ReceptionDataContext";
@@ -26,6 +26,7 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
   const { data, liveClusters, setField, setTemplate, setTemplateField } = useReceptionContext();
 
   const { showAlert } = useAlertContext();
+  const templateTableRef = useRef<TemplateTableRef>(null);
 
   const [producers, setProducers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,14 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
   const [newTemplateProducerId, setNewTemplateProducerId] = useState<
     number | null
   >(null);
+  const [useToleranceGroup, setUseToleranceGroup] = useState(false);
+  const [groupToleranceValue, setGroupToleranceValue] = useState(0);
+
+  // Inicializar con valores del template actual
+  useEffect(() => {
+    setUseToleranceGroup(data.template.useToleranceGroup);
+    setGroupToleranceValue(data.template.groupToleranceValue);
+  }, [data.template]);
 
   const fetchProducers = async () => {
     const result = await getAllProducers();
@@ -57,66 +66,73 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
       return;
     }
 
+    // Obtener los valores editados del TemplateTable
+    const localTemplate = templateTableRef.current?.getLocalTemplate();
+    if (!localTemplate) {
+      showAlert("Error al obtener la configuración de la plantilla", "error");
+      return;
+    }
+
     const payload: CreateTemplateType = {
       name: newTemplateName,
       producerId: newTemplateProducerId ?? undefined,
-      useToleranceGroup: data.template.useToleranceGroup,
-      groupToleranceValue: data.template.groupToleranceValue,
+      useToleranceGroup: useToleranceGroup,
+      groupToleranceValue: groupToleranceValue,
 
-      // Usamos los valores actuales de los clusters
-      availableHumedad: liveClusters.Humedad.available,
-      percentHumedad: liveClusters.Humedad.percent.value,
-      toleranceHumedad: liveClusters.Humedad.tolerance.value,
-      showToleranceHumedad: liveClusters.Humedad.tolerance.show,
-      groupToleranceHumedad: liveClusters.Humedad.toleranceGroup,
+      // Usamos los valores del estado local del TemplateTable
+      availableHumedad: localTemplate.availableHumedad,
+      percentHumedad: localTemplate.percentHumedad,
+      toleranceHumedad: localTemplate.toleranceHumedad,
+      showToleranceHumedad: localTemplate.showToleranceHumedad,
+      groupToleranceHumedad: localTemplate.groupToleranceHumedad,
 
-      availableGranosVerdes: liveClusters.GranosVerdes.available,
-      percentGranosVerdes: liveClusters.GranosVerdes.percent.value,
-      toleranceGranosVerdes: liveClusters.GranosVerdes.tolerance.value,
-      showToleranceGranosVerdes: liveClusters.GranosVerdes.tolerance.show,
-      groupToleranceGranosVerdes: liveClusters.GranosVerdes.toleranceGroup,
+      availableGranosVerdes: localTemplate.availableGranosVerdes,
+      percentGranosVerdes: localTemplate.percentGranosVerdes,
+      toleranceGranosVerdes: localTemplate.toleranceGranosVerdes,
+      showToleranceGranosVerdes: localTemplate.showToleranceGranosVerdes,
+      groupToleranceGranosVerdes: localTemplate.groupToleranceGranosVerdes,
 
-      availableImpurezas: liveClusters.Impurezas.available,
-      percentImpurezas: liveClusters.Impurezas.percent.value,
-      toleranceImpurezas: liveClusters.Impurezas.tolerance.value,
-      showToleranceImpurezas: liveClusters.Impurezas.tolerance.show,
-      groupToleranceImpurezas: liveClusters.Impurezas.toleranceGroup,
+      availableImpurezas: localTemplate.availableImpurezas,
+      percentImpurezas: localTemplate.percentImpurezas,
+      toleranceImpurezas: localTemplate.toleranceImpurezas,
+      showToleranceImpurezas: localTemplate.showToleranceImpurezas,
+      groupToleranceImpurezas: localTemplate.groupToleranceImpurezas,
 
-      availableVano: liveClusters.Vano.available,
-      percentVano: liveClusters.Vano.percent.value,
-      toleranceVano: liveClusters.Vano.tolerance.value,
-      showToleranceVano: liveClusters.Vano.tolerance.show,
-      groupToleranceVano: liveClusters.Vano.toleranceGroup,
+      availableVano: localTemplate.availableVano,
+      percentVano: localTemplate.percentVano,
+      toleranceVano: localTemplate.toleranceVano,
+      showToleranceVano: localTemplate.showToleranceVano,
+      groupToleranceVano: localTemplate.groupToleranceVano,
 
-      availableHualcacho: liveClusters.Hualcacho.available,
-      percentHualcacho: liveClusters.Hualcacho.percent.value,
-      toleranceHualcacho: liveClusters.Hualcacho.tolerance.value,
-      showToleranceHualcacho: liveClusters.Hualcacho.tolerance.show,
-      groupToleranceHualcacho: liveClusters.Hualcacho.toleranceGroup,
+      availableHualcacho: localTemplate.availableHualcacho,
+      percentHualcacho: localTemplate.percentHualcacho,
+      toleranceHualcacho: localTemplate.toleranceHualcacho,
+      showToleranceHualcacho: localTemplate.showToleranceHualcacho,
+      groupToleranceHualcacho: localTemplate.groupToleranceHualcacho,
 
-      availableGranosManchados: liveClusters.GranosManchados.available,
-      percentGranosManchados: liveClusters.GranosManchados.percent.value,
-      toleranceGranosManchados: liveClusters.GranosManchados.tolerance.value,
-      showToleranceGranosManchados: liveClusters.GranosManchados.tolerance.show,
-      groupToleranceGranosManchados: liveClusters.GranosManchados.toleranceGroup,
+      availableGranosManchados: localTemplate.availableGranosManchados,
+      percentGranosManchados: localTemplate.percentGranosManchados,
+      toleranceGranosManchados: localTemplate.toleranceGranosManchados,
+      showToleranceGranosManchados: localTemplate.showToleranceGranosManchados,
+      groupToleranceGranosManchados: localTemplate.groupToleranceGranosManchados,
 
-      availableGranosPelados: liveClusters.GranosPelados.available,
-      percentGranosPelados: liveClusters.GranosPelados.percent.value,
-      toleranceGranosPelados: liveClusters.GranosPelados.tolerance.value,
-      showToleranceGranosPelados: liveClusters.GranosPelados.tolerance.show,
-      groupToleranceGranosPelados: liveClusters.GranosPelados.toleranceGroup,
+      availableGranosPelados: localTemplate.availableGranosPelados,
+      percentGranosPelados: localTemplate.percentGranosPelados,
+      toleranceGranosPelados: localTemplate.toleranceGranosPelados,
+      showToleranceGranosPelados: localTemplate.showToleranceGranosPelados,
+      groupToleranceGranosPelados: localTemplate.groupToleranceGranosPelados,
 
-      availableGranosYesosos: liveClusters.GranosYesosos.available,
-      percentGranosYesosos: liveClusters.GranosYesosos.percent.value,
-      toleranceGranosYesosos: liveClusters.GranosYesosos.tolerance.value,
-      showToleranceGranosYesosos: liveClusters.GranosYesosos.tolerance.show,
-      groupToleranceGranosYesosos: liveClusters.GranosYesosos.toleranceGroup,
+      availableGranosYesosos: localTemplate.availableGranosYesosos,
+      percentGranosYesosos: localTemplate.percentGranosYesosos,
+      toleranceGranosYesosos: localTemplate.toleranceGranosYesosos,
+      showToleranceGranosYesosos: localTemplate.showToleranceGranosYesosos,
+      groupToleranceGranosYesosos: localTemplate.groupToleranceGranosYesosos,
 
-      availableBonificacion: liveClusters.Bonus.tolerance.show,
-      toleranceBonificacion: liveClusters.Bonus.tolerance.value,
+      availableBonificacion: localTemplate.availableBonus,
+      toleranceBonificacion: localTemplate.toleranceBonus,
 
-      availableSecado: liveClusters.Dry.percent.show,
-      percentSecado: liveClusters.Dry.percent.value,
+      availableSecado: localTemplate.availableDry,
+      percentSecado: localTemplate.percentDry,
     };
 
     try {
@@ -197,29 +213,32 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={data.template.useToleranceGroup}
+                    checked={useToleranceGroup}
                     onChange={(e) => {
-                      setTemplateField("useToleranceGroup", e.target.checked);
+                      const checked = e.target.checked;
+                      setUseToleranceGroup(checked);
+                      // Actualizar también el TemplateTable
+                      templateTableRef.current?.updateUseToleranceGroup(checked);
                     }}
                   />
                 }
                 label="Usar grupo de tolerancia"
               />
             </Grid>
-            {data.template.useToleranceGroup && (
+            {useToleranceGroup && (
               <Grid item xs={12}>
                 <TextField
                   label="Valor grupo de tolerancia"
                   variant="outlined"
                   fullWidth
                   size="small"
-                  value={data.template.groupToleranceValue}
+                  value={groupToleranceValue}
                   onChange={(e) => {
                     const val = parseFloat(e.target.value);
-                    setTemplateField(
-                      "groupToleranceValue",
-                      isNaN(val) ? 0 : val
-                    );
+                    const newVal = isNaN(val) ? 0 : val;
+                    setGroupToleranceValue(newVal);
+                    // Actualizar también el TemplateTable
+                    templateTableRef.current?.updateGroupToleranceValue(newVal);
                   }}
                 />
               </Grid>
@@ -236,7 +255,7 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
               border: "1px solid #ccc",
             }}
           >
-            <TemplateTable />
+            <TemplateTable ref={templateTableRef} />
           </Box>
         </Grid>
       </Grid>

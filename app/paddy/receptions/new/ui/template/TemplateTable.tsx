@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import {
   Box,
   Table,
@@ -26,164 +26,285 @@ interface ParamLoadType {
   setTolerance?: (value: number) => void;
 }
 
-const TemplateTable: React.FC = () => {
-  const { data, liveClusters, setTemplateField } = useReceptionContext();
+export interface TemplateTableRef {
+  getLocalTemplate: () => any;
+  updateUseToleranceGroup: (value: boolean) => void;
+  updateGroupToleranceValue: (value: number) => void;
+}
 
-  // Helper para obtener el nodo de tolerancia según el nombre
-  const getToleranceNode = (name: string) => {
-    switch (name) {
-      case "Humedad":
-        return liveClusters.Humedad.tolerance;
-      case "Granos verdes":
-        return liveClusters.GranosVerdes.tolerance;
-      case "Impurezas":
-        return liveClusters.Impurezas.tolerance;
-      case "Vano":
-        return liveClusters.Vano.tolerance;
-      case "Hualcacho":
-        return liveClusters.Hualcacho.tolerance;
-      case "Granos manchados":
-        return liveClusters.GranosManchados.tolerance;
-      case "Granos pelados":
-        return liveClusters.GranosPelados.tolerance;
-      case "Granos yesosos":
-        return liveClusters.GranosYesosos.tolerance;
-      case "Bonificación":
-        return liveClusters.Bonus.tolerance;
-      default:
-        return undefined;
-    }
+const TemplateTable = forwardRef<TemplateTableRef>((props, ref) => {
+  const { data, liveClusters } = useReceptionContext();
+  
+  // Estado local para el template en edición (NO modifica data.template)
+  const [localTemplate, setLocalTemplate] = useState({
+    availableHumedad: false,
+    showToleranceHumedad: false,
+    groupToleranceHumedad: false,
+    percentHumedad: 0,
+    toleranceHumedad: 0,
+    
+    availableGranosVerdes: false,
+    showToleranceGranosVerdes: false,
+    groupToleranceGranosVerdes: false,
+    percentGranosVerdes: 0,
+    toleranceGranosVerdes: 0,
+    
+    availableImpurezas: false,
+    showToleranceImpurezas: false,
+    groupToleranceImpurezas: false,
+    percentImpurezas: 0,
+    toleranceImpurezas: 0,
+    
+    availableVano: false,
+    showToleranceVano: false,
+    groupToleranceVano: false,
+    percentVano: 0,
+    toleranceVano: 0,
+    
+    availableHualcacho: false,
+    showToleranceHualcacho: false,
+    groupToleranceHualcacho: false,
+    percentHualcacho: 0,
+    toleranceHualcacho: 0,
+    
+    availableGranosManchados: false,
+    showToleranceGranosManchados: false,
+    groupToleranceGranosManchados: false,
+    percentGranosManchados: 0,
+    toleranceGranosManchados: 0,
+    
+    availableGranosPelados: false,
+    showToleranceGranosPelados: false,
+    groupToleranceGranosPelados: false,
+    percentGranosPelados: 0,
+    toleranceGranosPelados: 0,
+    
+    availableGranosYesosos: false,
+    showToleranceGranosYesosos: false,
+    groupToleranceGranosYesosos: false,
+    percentGranosYesosos: 0,
+    toleranceGranosYesosos: 0,
+    
+    availableBonus: false,
+    toleranceBonus: 0,
+    
+    availableDry: false,
+    percentDry: 0,
+    
+    useToleranceGroup: false,
+    groupToleranceValue: 0,
+  });
+
+  // Inicializar estado local con valores actuales del template al abrir
+  useEffect(() => {
+    setLocalTemplate({
+      availableHumedad: data.template.availableHumedad,
+      showToleranceHumedad: data.template.showToleranceHumedad,
+      groupToleranceHumedad: data.template.groupToleranceHumedad,
+      percentHumedad: liveClusters.Humedad.percent.value,
+      toleranceHumedad: liveClusters.Humedad.tolerance.value,
+      
+      availableGranosVerdes: data.template.availableGranosVerdes,
+      showToleranceGranosVerdes: data.template.showToleranceGranosVerdes,
+      groupToleranceGranosVerdes: data.template.groupToleranceGranosVerdes,
+      percentGranosVerdes: liveClusters.GranosVerdes.percent.value,
+      toleranceGranosVerdes: liveClusters.GranosVerdes.tolerance.value,
+      
+      availableImpurezas: data.template.availableImpurezas,
+      showToleranceImpurezas: data.template.showToleranceImpurezas,
+      groupToleranceImpurezas: data.template.groupToleranceImpurezas,
+      percentImpurezas: liveClusters.Impurezas.percent.value,
+      toleranceImpurezas: liveClusters.Impurezas.tolerance.value,
+      
+      availableVano: data.template.availableVano,
+      showToleranceVano: data.template.showToleranceVano,
+      groupToleranceVano: data.template.groupToleranceVano,
+      percentVano: liveClusters.Vano.percent.value,
+      toleranceVano: liveClusters.Vano.tolerance.value,
+      
+      availableHualcacho: data.template.availableHualcacho,
+      showToleranceHualcacho: data.template.showToleranceHualcacho,
+      groupToleranceHualcacho: data.template.groupToleranceHualcacho,
+      percentHualcacho: liveClusters.Hualcacho.percent.value,
+      toleranceHualcacho: liveClusters.Hualcacho.tolerance.value,
+      
+      availableGranosManchados: data.template.availableGranosManchados,
+      showToleranceGranosManchados: data.template.showToleranceGranosManchados,
+      groupToleranceGranosManchados: data.template.groupToleranceGranosManchados,
+      percentGranosManchados: liveClusters.GranosManchados.percent.value,
+      toleranceGranosManchados: liveClusters.GranosManchados.tolerance.value,
+      
+      availableGranosPelados: data.template.availableGranosPelados,
+      showToleranceGranosPelados: data.template.showToleranceGranosPelados,
+      groupToleranceGranosPelados: data.template.groupToleranceGranosPelados,
+      percentGranosPelados: liveClusters.GranosPelados.percent.value,
+      toleranceGranosPelados: liveClusters.GranosPelados.tolerance.value,
+      
+      availableGranosYesosos: data.template.availableGranosYesosos,
+      showToleranceGranosYesosos: data.template.showToleranceGranosYesosos,
+      groupToleranceGranosYesosos: data.template.groupToleranceGranosYesosos,
+      percentGranosYesosos: liveClusters.GranosYesosos.percent.value,
+      toleranceGranosYesosos: liveClusters.GranosYesosos.tolerance.value,
+      
+      availableBonus: data.template.availableBonus,
+      toleranceBonus: liveClusters.Bonus.tolerance.value,
+      
+      availableDry: data.template.availableDry,
+      percentDry: liveClusters.Dry.percent.value,
+      
+      useToleranceGroup: data.template.useToleranceGroup,
+      groupToleranceValue: data.template.groupToleranceValue,
+    });
+  }, [data.template, liveClusters]);
+
+  // Función para actualizar el estado local (NO afecta data.template)
+  const setLocalTemplateField = (field: string, value: any) => {
+    setLocalTemplate(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
+
+  // Exponer el estado local a través de ref
+  useImperativeHandle(ref, () => ({
+    getLocalTemplate: () => localTemplate,
+    updateUseToleranceGroup: (value: boolean) => {
+      setLocalTemplate(prev => ({ ...prev, useToleranceGroup: value }));
+    },
+    updateGroupToleranceValue: (value: number) => {
+      setLocalTemplate(prev => ({ ...prev, groupToleranceValue: value }));
+    }
+  }));
 
   const grainParamsData: ParamLoadType[] = [
     {
       name: "Humedad",
-      available: data.template.availableHumedad,
-      percent: liveClusters.Humedad.percent.value,
-      tolerance: liveClusters.Humedad.tolerance.value,
-      showTolerance: data.template.showToleranceHumedad,
-      groupTolerance: data.template.groupToleranceHumedad,
-      setAvailable: (v) => setTemplateField("availableHumedad", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceHumedad", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceHumedad", v),
-      setPercent: (v) => setTemplateField("percentHumedad", v),
-      setTolerance: (v) => setTemplateField("toleranceHumedad", v),
+      available: localTemplate.availableHumedad,
+      percent: localTemplate.percentHumedad,
+      tolerance: localTemplate.toleranceHumedad,
+      showTolerance: localTemplate.showToleranceHumedad,
+      groupTolerance: localTemplate.groupToleranceHumedad,
+      setAvailable: (v) => setLocalTemplateField("availableHumedad", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceHumedad", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceHumedad", v),
+      setPercent: (v) => setLocalTemplateField("percentHumedad", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceHumedad", v),
     },
     {
       name: "Granos verdes",
-      available: data.template.availableGranosVerdes,
-      percent: liveClusters.GranosVerdes.percent.value,
-      tolerance: liveClusters.GranosVerdes.tolerance.value,
-      showTolerance: data.template.showToleranceGranosVerdes,
-      groupTolerance: data.template.groupToleranceGranosVerdes,
-      setAvailable: (v) => setTemplateField("availableGranosVerdes", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceGranosVerdes", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceGranosVerdes", v),
-      setPercent: (v) => setTemplateField("percentGranosVerdes", v),
-      setTolerance: (v) => setTemplateField("toleranceGranosVerdes", v),
+      available: localTemplate.availableGranosVerdes,
+      percent: localTemplate.percentGranosVerdes,
+      tolerance: localTemplate.toleranceGranosVerdes,
+      showTolerance: localTemplate.showToleranceGranosVerdes,
+      groupTolerance: localTemplate.groupToleranceGranosVerdes,
+      setAvailable: (v) => setLocalTemplateField("availableGranosVerdes", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceGranosVerdes", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceGranosVerdes", v),
+      setPercent: (v) => setLocalTemplateField("percentGranosVerdes", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceGranosVerdes", v),
     },
     {
       name: "Impurezas",
-      available: data.template.availableImpurezas,
-      percent: liveClusters.Impurezas.percent.value,
-      tolerance: liveClusters.Impurezas.tolerance.value,
-      showTolerance: data.template.showToleranceImpurezas,
-      groupTolerance: data.template.groupToleranceImpurezas,
-      setAvailable: (v) => setTemplateField("availableImpurezas", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceImpurezas", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceImpurezas", v),
-      setPercent: (v) => setTemplateField("percentImpurezas", v),
-      setTolerance: (v) => setTemplateField("toleranceImpurezas", v),
+      available: localTemplate.availableImpurezas,
+      percent: localTemplate.percentImpurezas,
+      tolerance: localTemplate.toleranceImpurezas,
+      showTolerance: localTemplate.showToleranceImpurezas,
+      groupTolerance: localTemplate.groupToleranceImpurezas,
+      setAvailable: (v) => setLocalTemplateField("availableImpurezas", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceImpurezas", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceImpurezas", v),
+      setPercent: (v) => setLocalTemplateField("percentImpurezas", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceImpurezas", v),
     },
     {
       name: "Vano",
-      available: data.template.availableVano,
-      percent: liveClusters.Vano.percent.value,
-      tolerance: liveClusters.Vano.tolerance.value,
-      showTolerance: data.template.showToleranceVano,
-      groupTolerance: data.template.groupToleranceVano,
-      setAvailable: (v) => setTemplateField("availableVano", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceVano", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceVano", v),
-      setPercent: (v) => setTemplateField("percentVano", v),
-      setTolerance: (v) => setTemplateField("toleranceVano", v),
+      available: localTemplate.availableVano,
+      percent: localTemplate.percentVano,
+      tolerance: localTemplate.toleranceVano,
+      showTolerance: localTemplate.showToleranceVano,
+      groupTolerance: localTemplate.groupToleranceVano,
+      setAvailable: (v) => setLocalTemplateField("availableVano", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceVano", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceVano", v),
+      setPercent: (v) => setLocalTemplateField("percentVano", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceVano", v),
     },
     {
       name: "Hualcacho",
-      available: data.template.availableHualcacho,
-      percent: liveClusters.Hualcacho.percent.value,
-      tolerance: liveClusters.Hualcacho.tolerance.value,
-      showTolerance: data.template.showToleranceHualcacho,
-      groupTolerance: data.template.groupToleranceHualcacho,
-      setAvailable: (v) => setTemplateField("availableHualcacho", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceHualcacho", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceHualcacho", v),
-      setPercent: (v) => setTemplateField("percentHualcacho", v),
-      setTolerance: (v) => setTemplateField("toleranceHualcacho", v),
+      available: localTemplate.availableHualcacho,
+      percent: localTemplate.percentHualcacho,
+      tolerance: localTemplate.toleranceHualcacho,
+      showTolerance: localTemplate.showToleranceHualcacho,
+      groupTolerance: localTemplate.groupToleranceHualcacho,
+      setAvailable: (v) => setLocalTemplateField("availableHualcacho", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceHualcacho", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceHualcacho", v),
+      setPercent: (v) => setLocalTemplateField("percentHualcacho", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceHualcacho", v),
     },
     {
       name: "Granos manchados",
-      available: data.template.availableGranosManchados,
-      percent: liveClusters.GranosManchados.percent.value,
-      tolerance: liveClusters.GranosManchados.tolerance.value,
-      showTolerance: data.template.showToleranceGranosManchados,
-      groupTolerance: data.template.groupToleranceGranosManchados,
-      setAvailable: (v) => setTemplateField("availableGranosManchados", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceGranosManchados", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceGranosManchados", v),
-      setPercent: (v) => setTemplateField("percentGranosManchados", v),
-      setTolerance: (v) => setTemplateField("toleranceGranosManchados", v),
+      available: localTemplate.availableGranosManchados,
+      percent: localTemplate.percentGranosManchados,
+      tolerance: localTemplate.toleranceGranosManchados,
+      showTolerance: localTemplate.showToleranceGranosManchados,
+      groupTolerance: localTemplate.groupToleranceGranosManchados,
+      setAvailable: (v) => setLocalTemplateField("availableGranosManchados", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceGranosManchados", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceGranosManchados", v),
+      setPercent: (v) => setLocalTemplateField("percentGranosManchados", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceGranosManchados", v),
     },
     {
       name: "Granos pelados",
-      available: data.template.availableGranosPelados,
-      percent: liveClusters.GranosPelados.percent.value,
-      tolerance: liveClusters.GranosPelados.tolerance.value,
-      showTolerance: data.template.showToleranceGranosPelados,
-      groupTolerance: data.template.groupToleranceGranosPelados,
-      setAvailable: (v) => setTemplateField("availableGranosPelados", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceGranosPelados", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceGranosPelados", v),
-      setPercent: (v) => setTemplateField("percentGranosPelados", v),
-      setTolerance: (v) => setTemplateField("toleranceGranosPelados", v),
+      available: localTemplate.availableGranosPelados,
+      percent: localTemplate.percentGranosPelados,
+      tolerance: localTemplate.toleranceGranosPelados,
+      showTolerance: localTemplate.showToleranceGranosPelados,
+      groupTolerance: localTemplate.groupToleranceGranosPelados,
+      setAvailable: (v) => setLocalTemplateField("availableGranosPelados", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceGranosPelados", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceGranosPelados", v),
+      setPercent: (v) => setLocalTemplateField("percentGranosPelados", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceGranosPelados", v),
     },
     {
       name: "Granos yesosos",
-      available: data.template.availableGranosYesosos,
-      percent: liveClusters.GranosYesosos.percent.value,
-      tolerance: liveClusters.GranosYesosos.tolerance.value,
-      showTolerance: data.template.showToleranceGranosYesosos,
-      groupTolerance: data.template.groupToleranceGranosYesosos,
-      setAvailable: (v) => setTemplateField("availableGranosYesosos", v),
-      setShowTolerance: (v) => setTemplateField("showToleranceGranosYesosos", v),
-      setGroupTolerance: (v) => setTemplateField("groupToleranceGranosYesosos", v),
-      setPercent: (v) => setTemplateField("percentGranosYesosos", v),
-      setTolerance: (v) => setTemplateField("toleranceGranosYesosos", v),
+      available: localTemplate.availableGranosYesosos,
+      percent: localTemplate.percentGranosYesosos,
+      tolerance: localTemplate.toleranceGranosYesosos,
+      showTolerance: localTemplate.showToleranceGranosYesosos,
+      groupTolerance: localTemplate.groupToleranceGranosYesosos,
+      setAvailable: (v) => setLocalTemplateField("availableGranosYesosos", v),
+      setShowTolerance: (v) => setLocalTemplateField("showToleranceGranosYesosos", v),
+      setGroupTolerance: (v) => setLocalTemplateField("groupToleranceGranosYesosos", v),
+      setPercent: (v) => setLocalTemplateField("percentGranosYesosos", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceGranosYesosos", v),
     },
     {
       name: "Bonificación",
-      available: data.template.availableBonus,
+      available: localTemplate.availableBonus,
       percent: 0,
-      tolerance: liveClusters.Bonus.tolerance.value,
+      tolerance: localTemplate.toleranceBonus,
       showTolerance: true,
       groupTolerance: false,
-      setAvailable: (v) => setTemplateField("availableBonus", v),
+      setAvailable: (v) => setLocalTemplateField("availableBonus", v),
       setShowTolerance: () => undefined,
       setGroupTolerance: () => undefined,
       setPercent: (v) => {},
-      setTolerance: (v) => setTemplateField("toleranceBonus", v),
+      setTolerance: (v) => setLocalTemplateField("toleranceBonus", v),
     },
     {
       name: "Secado",
-      available: data.template.availableDry,
-      percent: liveClusters.Dry.percent.value,
+      available: localTemplate.availableDry,
+      percent: localTemplate.percentDry,
       tolerance: 0,
       showTolerance: false,
       groupTolerance: false,
-      setAvailable: (v) => setTemplateField("availableDry", v),
+      setAvailable: (v) => setLocalTemplateField("availableDry", v),
       setShowTolerance: () => undefined,
       setGroupTolerance: () => undefined,
-      setPercent: (v) => setTemplateField("percentDry", v),
+      setPercent: (v) => setLocalTemplateField("percentDry", v),
       setTolerance: (v => {}),
     }
   ];
@@ -203,7 +324,6 @@ const TemplateTable: React.FC = () => {
         </TableHead>
         <TableBody>
           {grainParamsData.map((row, idx) => {
-            const toleranceNode = getToleranceNode(row.name);
             return (
               <TableRow key={idx}>
                 <TableCell>
@@ -218,8 +338,6 @@ const TemplateTable: React.FC = () => {
                         row.setGroupTolerance?.(false);
                         row.setPercent?.(0);
                         row.setTolerance?.(0);
-                        // Si se desactiva, ocultar también el nodo de tolerancia
-                        if (toleranceNode) toleranceNode.show = false;
                       }
                     }}
                   />
@@ -239,8 +357,6 @@ const TemplateTable: React.FC = () => {
                       onChange={(e) => {
                         const checked = e.target.checked;
                         row.setShowTolerance?.(checked);
-                        // Actualiza el nodo real de tolerancia
-                        if (toleranceNode) toleranceNode.show = checked;
                       }}
                     />
                   )}
@@ -251,7 +367,7 @@ const TemplateTable: React.FC = () => {
                     <Box sx={{ width: 40, height: 24 }} />
                   ) : (
                     <Switch
-                      disabled={!data.template.useToleranceGroup || !row.available}
+                      disabled={!localTemplate.useToleranceGroup || !row.available}
                       checked={row.groupTolerance}
                       size="small"
                       onChange={(e) => {
@@ -260,7 +376,6 @@ const TemplateTable: React.FC = () => {
                         if (checked) {
                           // Cuando se activa grupo de tolerancia: ocultar tolerancia individual
                           row.setShowTolerance?.(false);
-                          if (toleranceNode) toleranceNode.show = false;
                         }
                       }}
                     />
@@ -273,6 +388,8 @@ const TemplateTable: React.FC = () => {
       </Table>
     </Box>
   );
-};
+});
+
+TemplateTable.displayName = "TemplateTable";
 
 export default TemplateTable;
