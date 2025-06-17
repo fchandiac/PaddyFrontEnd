@@ -19,6 +19,7 @@ import {
 } from "@/hooks/paramCells";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { getDiscountPercentsByCode } from "@/app/actions/discount-percent";
+import { KeyCluster } from "@/hooks/paramCells";
 
 interface NodeProps {
   key: string;
@@ -404,6 +405,41 @@ export default function GrainAnalysis() {
     fetchGranosPeladosRanges();
     fetchGranosYesososRanges();
   }, [liveClusters.Humedad.range.code]);
+
+  // Efecto: Si el grupo de tolerancia está activo, ocultar los campos de tolerancia individuales
+  useEffect(() => {
+    if (data?.template?.useToleranceGroup) {
+      // Solo incluir los parámetros relevantes para grupo de tolerancia
+      const groupToleranceKeys = [
+        "Humedad",
+        "GranosVerdes",
+        "Impurezas",
+        "Vano",
+        "Hualcacho",
+        "GranosManchados",
+        "GranosPelados",
+        "GranosYesosos",
+      ] as const;
+      const groupToleranceMap = {
+        Humedad: data.template.groupToleranceHumedad,
+        GranosVerdes: data.template.groupToleranceGranosVerdes,
+        Impurezas: data.template.groupToleranceImpurezas,
+        Vano: data.template.groupToleranceVano,
+        Hualcacho: data.template.groupToleranceHualcacho,
+        GranosManchados: data.template.groupToleranceGranosManchados,
+        GranosPelados: data.template.groupToleranceGranosPelados,
+        GranosYesosos: data.template.groupToleranceGranosYesosos,
+      };
+      groupToleranceKeys.forEach((key) => {
+        const isGroup = groupToleranceMap[key];
+        // liveClusters always has these keys, and they are ParamCluster
+        const cluster = liveClusters[key];
+        if (isGroup && cluster && 'tolerance' in cluster && cluster.tolerance) {
+          cluster.tolerance.show = false;
+        }
+      });
+    }
+  }, [data?.template?.useToleranceGroup, data?.template?.groupToleranceHumedad, data?.template?.groupToleranceGranosVerdes, data?.template?.groupToleranceImpurezas, data?.template?.groupToleranceVano, data?.template?.groupToleranceHualcacho, data?.template?.groupToleranceGranosManchados, data?.template?.groupToleranceGranosPelados, data?.template?.groupToleranceGranosYesosos, liveClusters]);
 
   const paramClusters = Object.values(liveClusters).filter(
     (c): c is ParamCluster => c.type === "param"

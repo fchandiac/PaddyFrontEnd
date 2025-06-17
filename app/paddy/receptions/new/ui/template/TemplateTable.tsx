@@ -29,6 +29,32 @@ interface ParamLoadType {
 const TemplateTable: React.FC = () => {
   const { data, liveClusters, setTemplateField } = useReceptionContext();
 
+  // Helper para obtener el nodo de tolerancia según el nombre
+  const getToleranceNode = (name: string) => {
+    switch (name) {
+      case "Humedad":
+        return liveClusters.Humedad.tolerance;
+      case "Granos verdes":
+        return liveClusters.GranosVerdes.tolerance;
+      case "Impurezas":
+        return liveClusters.Impurezas.tolerance;
+      case "Vano":
+        return liveClusters.Vano.tolerance;
+      case "Hualcacho":
+        return liveClusters.Hualcacho.tolerance;
+      case "Granos manchados":
+        return liveClusters.GranosManchados.tolerance;
+      case "Granos pelados":
+        return liveClusters.GranosPelados.tolerance;
+      case "Granos yesosos":
+        return liveClusters.GranosYesosos.tolerance;
+      case "Bonificación":
+        return liveClusters.Bonus.tolerance;
+      default:
+        return undefined;
+    }
+  };
+
   const grainParamsData: ParamLoadType[] = [
     {
       name: "Humedad",
@@ -137,7 +163,7 @@ const TemplateTable: React.FC = () => {
     {
       name: "Bonificación",
       available: data.template.availableBonus,
-      percent:  0,
+      percent: 0,
       tolerance: liveClusters.Bonus.tolerance.value,
       showTolerance: true,
       groupTolerance: false,
@@ -176,49 +202,60 @@ const TemplateTable: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {grainParamsData.map((row, idx) => (
-            <TableRow key={idx}>
-              <TableCell>
-                <Switch
-                  checked={row.available}
-                  size="small"
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    row.setAvailable(checked);
-                    if (!checked) {
-                      row.setShowTolerance?.(false);
-                      row.setGroupTolerance?.(false);
-                      row.setPercent?.(0);
-                      row.setTolerance?.(0);
-                    }
-                  }}
-                />
-              </TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{`${row.percent.toFixed(2)} %`}</TableCell>
-              <TableCell>{`${row.tolerance.toFixed(2)} %`}</TableCell>
-              <TableCell>
-                <Switch
-                  disabled={!row.available}
-                  checked={row.showTolerance}
-                  size="small"
-                  onChange={(e) => row.setShowTolerance?.(e.target.checked)}
-                />
-              </TableCell>
-              <TableCell>
-                <Switch
-                  disabled={!data.template.useToleranceGroup || !row.available}
-                  checked={row.groupTolerance}
-                  size="small"
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    row.setGroupTolerance?.(checked);
-                    if (checked) row.setShowTolerance?.(false);
-                  }}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
+          {grainParamsData.map((row, idx) => {
+            const toleranceNode = getToleranceNode(row.name);
+            return (
+              <TableRow key={idx}>
+                <TableCell>
+                  <Switch
+                    checked={row.available}
+                    size="small"
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      row.setAvailable(checked);
+                      if (!checked) {
+                        row.setShowTolerance?.(false);
+                        row.setGroupTolerance?.(false);
+                        row.setPercent?.(0);
+                        row.setTolerance?.(0);
+                        // Si se desactiva, ocultar también el nodo de tolerancia
+                        if (toleranceNode) toleranceNode.show = false;
+                      }
+                    }}
+                  />
+                </TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{`${row.percent.toFixed(2)} %`}</TableCell>
+                <TableCell>{`${row.tolerance.toFixed(2)} %`}</TableCell>
+                <TableCell>
+                  <Switch
+                    disabled={!row.available}
+                    checked={toleranceNode ? toleranceNode.show : row.showTolerance}
+                    size="small"
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      // Actualiza el flag del template (por compatibilidad)
+                      row.setShowTolerance?.(checked);
+                      // Actualiza el nodo real de tolerancia
+                      if (toleranceNode) toleranceNode.show = checked;
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    disabled={!data.template.useToleranceGroup || !row.available}
+                    checked={row.groupTolerance}
+                    size="small"
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      row.setGroupTolerance?.(checked);
+                      if (checked) row.setShowTolerance?.(false);
+                    }}
+                  />
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </Box>
