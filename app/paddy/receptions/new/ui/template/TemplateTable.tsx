@@ -30,6 +30,8 @@ export interface TemplateTableRef {
   getLocalTemplate: () => any;
   updateUseToleranceGroup: (value: boolean) => void;
   updateGroupToleranceValue: (value: number) => void;
+  reinitializeState: () => void;
+  getTemplateConfiguration: () => any;
 }
 
 const TemplateTable = forwardRef<TemplateTableRef>((props, ref) => {
@@ -95,7 +97,7 @@ const TemplateTable = forwardRef<TemplateTableRef>((props, ref) => {
     groupToleranceValue: 0,
   });
 
-  // Inicializar estado local con valores actuales del template al abrir
+  // Inicializar estado local con valores actuales del template al abrir (solo una vez)
   useEffect(() => {
     setLocalTemplate({
       availableHumedad: data.template.availableHumedad,
@@ -155,7 +157,7 @@ const TemplateTable = forwardRef<TemplateTableRef>((props, ref) => {
       useToleranceGroup: data.template.useToleranceGroup,
       groupToleranceValue: data.template.groupToleranceValue,
     });
-  }, [data.template, liveClusters]);
+  }, []); // Eliminar dependencias para que solo se ejecute una vez al montar
 
   // Función para actualizar el estado local (NO afecta data.template)
   const setLocalTemplateField = (field: string, value: any) => {
@@ -173,7 +175,98 @@ const TemplateTable = forwardRef<TemplateTableRef>((props, ref) => {
     },
     updateGroupToleranceValue: (value: number) => {
       setLocalTemplate(prev => ({ ...prev, groupToleranceValue: value }));
-    }
+    },
+    // Método para reinicializar el estado cuando se abre el diálogo
+    reinitializeState: () => {
+      setLocalTemplate({
+        availableHumedad: data.template.availableHumedad,
+        showToleranceHumedad: data.template.showToleranceHumedad,
+        groupToleranceHumedad: data.template.groupToleranceHumedad,
+        percentHumedad: liveClusters.Humedad.percent.value,
+        toleranceHumedad: liveClusters.Humedad.tolerance.value,
+        
+        availableGranosVerdes: data.template.availableGranosVerdes,
+        showToleranceGranosVerdes: data.template.showToleranceGranosVerdes,
+        groupToleranceGranosVerdes: data.template.groupToleranceGranosVerdes,
+        percentGranosVerdes: liveClusters.GranosVerdes.percent.value,
+        toleranceGranosVerdes: liveClusters.GranosVerdes.tolerance.value,
+        
+        availableImpurezas: data.template.availableImpurezas,
+        showToleranceImpurezas: data.template.showToleranceImpurezas,
+        groupToleranceImpurezas: data.template.groupToleranceImpurezas,
+        percentImpurezas: liveClusters.Impurezas.percent.value,
+        toleranceImpurezas: liveClusters.Impurezas.tolerance.value,
+        
+        availableVano: data.template.availableVano,
+        showToleranceVano: data.template.showToleranceVano,
+        groupToleranceVano: data.template.groupToleranceVano,
+        percentVano: liveClusters.Vano.percent.value,
+        toleranceVano: liveClusters.Vano.tolerance.value,
+        
+        availableHualcacho: data.template.availableHualcacho,
+        showToleranceHualcacho: data.template.showToleranceHualcacho,
+        groupToleranceHualcacho: data.template.groupToleranceHualcacho,
+        percentHualcacho: liveClusters.Hualcacho.percent.value,
+        toleranceHualcacho: liveClusters.Hualcacho.tolerance.value,
+        
+        availableGranosManchados: data.template.availableGranosManchados,
+        showToleranceGranosManchados: data.template.showToleranceGranosManchados,
+        groupToleranceGranosManchados: data.template.groupToleranceGranosManchados,
+        percentGranosManchados: liveClusters.GranosManchados.percent.value,
+        toleranceGranosManchados: liveClusters.GranosManchados.tolerance.value,
+        
+        availableGranosPelados: data.template.availableGranosPelados,
+        showToleranceGranosPelados: data.template.showToleranceGranosPelados,
+        groupToleranceGranosPelados: data.template.groupToleranceGranosPelados,
+        percentGranosPelados: liveClusters.GranosPelados.percent.value,
+        toleranceGranosPelados: liveClusters.GranosPelados.tolerance.value,
+        
+        availableGranosYesosos: data.template.availableGranosYesosos,
+        showToleranceGranosYesosos: data.template.showToleranceGranosYesosos,
+        groupToleranceGranosYesosos: data.template.groupToleranceGranosYesosos,
+        percentGranosYesosos: liveClusters.GranosYesosos.percent.value,
+        toleranceGranosYesosos: liveClusters.GranosYesosos.tolerance.value,
+        
+        availableBonus: data.template.availableBonus,
+        toleranceBonus: liveClusters.Bonus.tolerance.value,
+        
+        availableDry: data.template.availableDry,
+        percentDry: liveClusters.Dry.percent.value,
+        
+        useToleranceGroup: data.template.useToleranceGroup,
+        groupToleranceValue: data.template.groupToleranceValue,
+      });
+    },
+    getTemplateConfiguration: () => ({
+      useToleranceGroup: localTemplate.useToleranceGroup,
+      groupToleranceValue: localTemplate.groupToleranceValue,
+      availableHumedad: localTemplate.availableHumedad,
+      showToleranceHumedad: localTemplate.showToleranceHumedad,
+      groupToleranceHumedad: localTemplate.groupToleranceHumedad,
+      availableGranosVerdes: localTemplate.availableGranosVerdes,
+      showToleranceGranosVerdes: localTemplate.showToleranceGranosVerdes,
+      groupToleranceGranosVerdes: localTemplate.groupToleranceGranosVerdes,
+      availableImpurezas: localTemplate.availableImpurezas,
+      showToleranceImpurezas: localTemplate.showToleranceImpurezas,
+      groupToleranceImpurezas: localTemplate.groupToleranceImpurezas,
+      availableVano: localTemplate.availableVano,
+      showToleranceVano: localTemplate.showToleranceVano,
+      groupToleranceVano: localTemplate.groupToleranceVano,
+      availableHualcacho: localTemplate.availableHualcacho,
+      showToleranceHualcacho: localTemplate.showToleranceHualcacho,
+      groupToleranceHualcacho: localTemplate.groupToleranceHualcacho,
+      availableGranosManchados: localTemplate.availableGranosManchados,
+      showToleranceGranosManchados: localTemplate.showToleranceGranosManchados,
+      groupToleranceGranosManchados: localTemplate.groupToleranceGranosManchados,
+      availableGranosPelados: localTemplate.availableGranosPelados,
+      showToleranceGranosPelados: localTemplate.showToleranceGranosPelados,
+      groupToleranceGranosPelados: localTemplate.groupToleranceGranosPelados,
+      availableGranosYesosos: localTemplate.availableGranosYesosos,
+      showToleranceGranosYesosos: localTemplate.showToleranceGranosYesosos,
+      groupToleranceGranosYesosos: localTemplate.groupToleranceGranosYesosos,
+      availableBonus: localTemplate.availableBonus,
+      availableDry: localTemplate.availableDry,
+    })
   }));
 
   const grainParamsData: ParamLoadType[] = [

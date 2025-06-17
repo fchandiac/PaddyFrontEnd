@@ -10,7 +10,9 @@ import {
   Autocomplete,
   CircularProgress,
   Button,
+  IconButton,
 } from "@mui/material";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import TemplateTable, { TemplateTableRef } from "./TemplateTable";
 import { getAllProducers } from "@/app/actions/producer";
 import { createDiscountTemplate } from "@/app/actions/discount-template";
@@ -38,10 +40,12 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
   const [useToleranceGroup, setUseToleranceGroup] = useState(false);
   const [groupToleranceValue, setGroupToleranceValue] = useState(0);
 
-  // Inicializar con valores del template actual
+  // Inicializar con valores del template actual y reinicializar TemplateTable
   useEffect(() => {
     setUseToleranceGroup(data.template.useToleranceGroup);
     setGroupToleranceValue(data.template.groupToleranceValue);
+    // Reinicializar el estado del TemplateTable cada vez que se abre el diálogo
+    templateTableRef.current?.reinitializeState();
   }, [data.template]);
 
   const fetchProducers = async () => {
@@ -149,6 +153,77 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
       }
     } catch (error) {
       showAlert("Error al guardar la plantilla", "error");
+    }
+  };
+
+  const handleLoadTemplate = async () => {
+    try {
+      // Obtener la configuración del TemplateTable
+      const templateConfig = templateTableRef.current?.getTemplateConfiguration();
+      if (!templateConfig) {
+        showAlert("Error al obtener la configuración de la plantilla", "error");
+        return;
+      }
+
+      // Primero actualizar data.template con la configuración (no valores)
+      setTemplateField("useToleranceGroup", useToleranceGroup);
+      setTemplateField("groupToleranceValue", groupToleranceValue);
+
+      // Actualizar configuraciones en data.template
+      Object.keys(templateConfig).forEach(key => {
+        if (key.startsWith('available') || key.startsWith('showTolerance') || key.startsWith('groupTolerance')) {
+          setTemplateField(key as any, templateConfig[key]);
+        }
+      });
+
+      // Usar setTimeout para asegurar que los cambios de template se apliquen primero
+      setTimeout(() => {
+        // Para cada parámetro, si está deshabilitado (available: false), resetear sus valores a cero
+        const parametersToReset = ['Humedad', 'GranosVerdes', 'Impurezas', 'Vano', 'Hualcacho', 'GranosManchados', 'GranosPelados', 'GranosYesosos'];
+        
+        parametersToReset.forEach(param => {
+          const availableKey = `available${param}` as any;
+          if (!templateConfig[availableKey]) {
+            // Resetear valores en liveClusters
+            const clusterKey = param as keyof typeof liveClusters;
+            if (liveClusters[clusterKey]) {
+              const cluster = liveClusters[clusterKey];
+              if ('percent' in cluster && cluster.percent) {
+                cluster.percent.onChange(0);
+              }
+              if ('tolerance' in cluster && cluster.tolerance) {
+                cluster.tolerance.onChange(0);
+              }
+              if ('range' in cluster && cluster.range) {
+                cluster.range.onChange(0);
+              }
+              if ('penalty' in cluster && cluster.penalty) {
+                cluster.penalty.onChange(0);
+              }
+            }
+          }
+        });
+
+        // Resetear Bonus y Dry si están deshabilitados
+        if (!templateConfig.availableBonus && liveClusters.Bonus) {
+          if (liveClusters.Bonus.tolerance) {
+            liveClusters.Bonus.tolerance.onChange(0);
+          }
+        }
+
+        if (!templateConfig.availableDry) {
+          const dryCluster = liveClusters.Dry;
+          if (dryCluster && 'percent' in dryCluster && dryCluster.percent) {
+            dryCluster.percent.onChange(0);
+          }
+        }
+
+        showAlert("Configuración de plantilla aplicada correctamente", "success");
+        closeDialog(); // Cerrar el diálogo después de cargar la configuración
+      }, 100); // Pequeño delay para asegurar que los cambios se propaguen
+
+    } catch (error) {
+      showAlert("Error al cargar la configuración de la plantilla", "error");
     }
   };
 
@@ -269,9 +344,16 @@ export default function TemplateComponent({ closeDialog }: TemplateProps) {
           startIcon={
             saving ? <CircularProgress size={18} color="inherit" /> : null
           }
+          sx={{ mr: 1 }}
         >
           {saving ? "Guardando..." : "Guardar plantilla"}
         </Button>
+        <IconButton
+          onClick={handleLoadTemplate}
+          title="Cargar configuración de plantilla"
+        >
+          <PlayCircleIcon fontSize="large" color="primary" />
+        </IconButton>
       </Grid>
     </Grid>
   );
