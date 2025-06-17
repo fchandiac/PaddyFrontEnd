@@ -228,30 +228,43 @@ const TemplateTable: React.FC = () => {
                 <TableCell>{`${row.percent.toFixed(2)} %`}</TableCell>
                 <TableCell>{`${row.tolerance.toFixed(2)} %`}</TableCell>
                 <TableCell>
-                  <Switch
-                    disabled={!row.available}
-                    checked={toleranceNode ? toleranceNode.show : row.showTolerance}
-                    size="small"
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      // Actualiza el flag del template (por compatibilidad)
-                      row.setShowTolerance?.(checked);
-                      // Actualiza el nodo real de tolerancia
-                      if (toleranceNode) toleranceNode.show = checked;
-                    }}
-                  />
+                  {row.name === "Bonificación" || row.name === "Secado" ? (
+                    // Para Bonus y Dry, no mostrar switch - solo espacio vacío
+                    <Box sx={{ width: 40, height: 24 }} />
+                  ) : (
+                    <Switch
+                      disabled={!row.available || row.groupTolerance}
+                      checked={row.showTolerance && !row.groupTolerance}
+                      size="small"
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        row.setShowTolerance?.(checked);
+                        // Actualiza el nodo real de tolerancia
+                        if (toleranceNode) toleranceNode.show = checked;
+                      }}
+                    />
+                  )}
                 </TableCell>
                 <TableCell>
-                  <Switch
-                    disabled={!data.template.useToleranceGroup || !row.available}
-                    checked={row.groupTolerance}
-                    size="small"
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      row.setGroupTolerance?.(checked);
-                      if (checked) row.setShowTolerance?.(false);
-                    }}
-                  />
+                  {row.name === "Bonificación" || row.name === "Secado" ? (
+                    // Para Bonus y Dry, no mostrar switch - solo espacio vacío
+                    <Box sx={{ width: 40, height: 24 }} />
+                  ) : (
+                    <Switch
+                      disabled={!data.template.useToleranceGroup || !row.available}
+                      checked={row.groupTolerance}
+                      size="small"
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        row.setGroupTolerance?.(checked);
+                        if (checked) {
+                          // Cuando se activa grupo de tolerancia: ocultar tolerancia individual
+                          row.setShowTolerance?.(false);
+                          if (toleranceNode) toleranceNode.show = false;
+                        }
+                      }}
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             );
