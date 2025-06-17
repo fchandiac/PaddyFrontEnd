@@ -1490,10 +1490,18 @@ discountTotal.node.effect = () => {
   discountTotal.node.setValue(totalDiscounts);
 };
 
-// Calcular el total de Paddy (totalPaddy) = totalDiscount + Bonus.penalty
+// Calcular el total de Paddy (totalPaddy) = netWeight - totalDiscounts + Bonus.penalty
 totalPaddy.node.effect = () => {
-  // Paddy net es igual a totalDiscount + Bonus.penalty
-  const paddyNet = discountTotal.node.value + bonus.penalty.value;
+  // Paddy Neto = Net Weight - Total Descuentos + Bonus
+  const netWeightValue = netWeight.node.value;
+  const totalDiscounts = summary.penalty.value;
+  const bonusValue = bonus.penalty.value;
+  
+  const netWeightV = typeof netWeightValue === "number" && !isNaN(netWeightValue) ? netWeightValue : 0;
+  const totalDiscountsV = typeof totalDiscounts === "number" && !isNaN(totalDiscounts) ? totalDiscounts : 0;
+  const bonusV = typeof bonusValue === "number" && !isNaN(bonusValue) ? bonusValue : 0;
+  
+  const paddyNet = netWeightV - totalDiscountsV + bonusV;
   totalPaddy.node.setValue(paddyNet);
 };
 
@@ -1502,6 +1510,8 @@ summary.penalty.addConsumer(discountTotal.node);
 // Eliminada la relación: dry.percent.addConsumer(discountTotal.node);
 discountTotal.node.addConsumer(totalPaddy.node);
 bonus.penalty.addConsumer(totalPaddy.node);
+// IMPORTANTE: Agregar netWeight como consumer de totalPaddy para que se recalcule cuando cambie el peso neto
+netWeight.node.addConsumer(totalPaddy.node);
 
 // Agregar conexiones para que el Bonus se re-valide cuando cambien los valores que afectan sus validaciones
 summary.penalty.addConsumer(bonus.tolerance); // Cuando cambien los descuentos totales
