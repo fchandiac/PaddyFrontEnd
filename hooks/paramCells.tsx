@@ -1007,16 +1007,50 @@ bonus.penalty.effect = () => {
       ? toleranceValue
       : 0;
 
-  if (toleranceV >= 0) {
-    bonus.tolerance.setError(false);
-    bonus.tolerance.setErrorMessage("");
-  } else {
+  // Validación 1: No puede ser negativo
+  if (toleranceV < 0) {
     bonus.tolerance.setError(true);
     bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
+    return;
   }
-
-  const netPenalty = (netWeight.node.value * toleranceV) / 100;
-  bonus.penalty.setValue(netPenalty);
+  
+  // Validación 2: No puede ser mayor a 100%
+  if (toleranceV > 100) {
+    bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Tolerance cannot exceed 100%");
+    return;
+  }
+  
+  // Calculamos valores necesarios para validaciones adicionales
+  const netWeightValue = netWeight.node.value;
+  const netWeightV = typeof netWeightValue === "number" && !isNaN(netWeightValue) ? netWeightValue : 0;
+  const netBonus = (netWeightV * toleranceV) / 100;
+  
+  // Calculamos el total de descuentos actuales
+  const totalDiscounts = summary.penalty.value;
+  
+  // Validación 3: No puede generar que Paddy Neto sea mayor que Peso Neto
+  // Paddy Neto = Peso Neto - Total Descuentos + Bonus
+  const paddyNeto = netWeightV - totalDiscounts + netBonus;
+  if (paddyNeto > netWeightV) {
+    bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Bonus cannot make Paddy Net exceed Net Weight");
+    return;
+  }
+  
+  // Validación 4: Bonus.penalty no puede ser igual al total de descuentos
+  if (Math.abs(netBonus - totalDiscounts) < 0.01) { // Usamos pequeña tolerancia para comparación de floats
+    bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Bonus cannot equal total discounts");
+    return;
+  }
+  
+  // Si llegamos aquí, todas las validaciones pasaron
+  bonus.tolerance.setError(false);
+  bonus.tolerance.setErrorMessage("");
+  
+  // Establecemos el valor del bonus
+  bonus.penalty.setValue(netBonus);
 }
 
 
@@ -1469,6 +1503,10 @@ summary.penalty.addConsumer(discountTotal.node);
 discountTotal.node.addConsumer(totalPaddy.node);
 bonus.penalty.addConsumer(totalPaddy.node);
 
+// Agregar conexiones para que el Bonus se re-valide cuando cambien los valores que afectan sus validaciones
+summary.penalty.addConsumer(bonus.tolerance); // Cuando cambien los descuentos totales
+netWeight.node.addConsumer(bonus.tolerance); // Cuando cambie el peso neto
+
 // Agregar efecto para calcular la tolerancia del grupo
 groupSummary.tolerance.effect = () => {
   // Solo sumar las tolerancias de los parámetros que pertenecen al grupo de tolerancia
@@ -1524,20 +1562,49 @@ bonus.tolerance.onChange = (value: number) => {
   // Validamos el valor - convertir NaN a 0 para permitir campos vacíos
   const toleranceV = typeof value === "number" && !isNaN(value) ? value : 0;
   
-  if (toleranceV >= 0) {
-    bonus.tolerance.setError(false);
-    bonus.tolerance.setErrorMessage("");
-  } else {
+  // Validación 1: No puede ser negativo
+  if (toleranceV < 0) {
     bonus.tolerance.setError(true);
     bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
+    return;
   }
   
-  // Calculamos el nuevo penalty basado en netWeight y el valor de tolerancia actualizado
+  // Validación 2: No puede ser mayor a 100%
+  if (toleranceV > 100) {
+    bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Tolerance cannot exceed 100%");
+    return;
+  }
+  
+  // Calculamos valores necesarios para validaciones adicionales
   const netWeightValue = netWeight.node.value;
   const netWeightV = typeof netWeightValue === "number" && !isNaN(netWeightValue) ? netWeightValue : 0;
-  
-  // Calculamos el bonus como porcentaje del peso neto - usar toleranceV en lugar de value
   const netBonus = (netWeightV * toleranceV) / 100;
+  
+  // Calculamos el total de descuentos actuales
+  const totalDiscounts = summary.penalty.value;
+  
+  // Validación 3: No puede generar que Paddy Neto sea mayor que Peso Neto
+  // Paddy Neto = Peso Neto - Total Descuentos + Bonus
+  const paddyNeto = netWeightV - totalDiscounts + netBonus;
+  if (paddyNeto > netWeightV) {
+    bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Bonus cannot make Paddy Net exceed Net Weight");
+    return;
+  }
+  
+  // Validación 4: Bonus.penalty no puede ser igual al total de descuentos
+  if (Math.abs(netBonus - totalDiscounts) < 0.01) { // Usamos pequeña tolerancia para comparación de floats
+    bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Bonus cannot equal total discounts");
+    return;
+  }
+  
+  // Si llegamos aquí, todas las validaciones pasaron
+  bonus.tolerance.setError(false);
+  bonus.tolerance.setErrorMessage("");
+  
+  // Establecemos el valor del bonus
   bonus.penalty.setValue(netBonus);
 };
 
