@@ -24,6 +24,7 @@ import { getDefaultTemplate } from "@/app/actions/discount-template";
 import { TemplateType } from "@/types/discount-template";
 import SelectTemplate from "./ui/template/SelectTemplate";
 import TemplateComponent from "./ui/template/Template";
+import ErrorSummary from "./ui/ErrorSummary";
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
@@ -67,11 +68,9 @@ export default function NewReceptionPage() {
       ).filter(
         (el) =>
           el.offsetParent !== null &&
-          getComputedStyle(el).visibility !== "hidden" && 
-         el.getAttribute("aria-hidden") !== "true" &&
+          getComputedStyle(el).visibility !== "hidden" &&
+          el.getAttribute("aria-hidden") !== "true" &&
           !el.hasAttribute("data-skip-focus")
-      
-
       );
       const idx = focusable.indexOf(e.target as HTMLElement);
       const next = focusable[idx + 1];
@@ -101,6 +100,17 @@ export default function NewReceptionPage() {
           <Grid item xs={12} md={3}>
             <Typography gutterBottom>Datos de la recepción</Typography>
             <ReceptionGeneralData />
+
+            <Divider
+              sx={{
+                my: 2,
+                borderColor: "primary.main",
+                borderBottomWidth: 2,
+              }}
+            />
+            {/* Error Summary */}
+            <Typography gutterBottom>Errores de validación</Typography>
+            <ErrorSummary />
           </Grid>
 
           {/* Grain Analysis */}
@@ -113,7 +123,9 @@ export default function NewReceptionPage() {
               }}
             >
               <Typography gutterBottom>Análisis de granos</Typography>
-              <Typography gutterBottom>Plantilla: {data.template.name}</Typography>
+              <Typography gutterBottom>
+                Plantilla: {data.template.name}
+              </Typography>
             </Box>
 
             <GrainAnalysis
@@ -127,39 +139,95 @@ export default function NewReceptionPage() {
             <Typography gutterBottom>Totales</Typography>
 
             {/* Box resumen con borde redondeado y valores */}
-            <Box sx={{
-              border: '1px solid #1976d2',
-              borderRadius: 2,
-              p: 2,
-              mb: 2,
-              background: '#f7fafd',
-              overflow: 'auto',
-              minWidth: 0,
-            }}>
+            <Box
+              sx={{
+                border: "1px solid #1976d2",
+                borderRadius: 2,
+                p: 2,
+                mb: 2,
+                background: "#f7fafd",
+                overflow: "auto",
+                minWidth: 0,
+              }}
+            >
               <Box component="dl" sx={{ m: 0 }}>
-                <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Box
+                  component="div"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 0.5,
+                  }}
+                >
                   <Box component="dt">Peso Bruto</Box>
-                  <Box component="dd">{liveClusters.grossWeight.node.value} kg</Box>
+                  <Box component="dd">
+                    {liveClusters.grossWeight.node.value} kg
+                  </Box>
                 </Box>
-                <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Box
+                  component="div"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 0.5,
+                  }}
+                >
                   <Box component="dt">Tara</Box>
                   <Box component="dd">{liveClusters.tare.node.value} kg</Box>
                 </Box>
-                <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Box
+                  component="div"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 0.5,
+                  }}
+                >
                   <Box component="dt">Peso Neto</Box>
-                  <Box component="dd">{liveClusters.netWeight.node.value} kg</Box>
+                  <Box component="dd">
+                    {liveClusters.netWeight.node.value} kg
+                  </Box>
                 </Box>
-                <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Box
+                  component="div"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 0.5,
+                  }}
+                >
                   <Box component="dt">Total Descuentos</Box>
-                  <Box component="dd">{liveClusters.DiscountTotal.node.value} kg</Box>
+                  <Box component="dd">
+                    {liveClusters.DiscountTotal.node.value} kg
+                  </Box>
                 </Box>
-                <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Box
+                  component="div"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 0.5,
+                  }}
+                >
                   <Box component="dt">Bonificación</Box>
-                  <Box component="dd">{liveClusters.Bonus.tolerance ? `${liveClusters.Bonus.tolerance.value} kg` : '-'}</Box>
+                  <Box component="dd">
+                    {liveClusters.Bonus.tolerance
+                      ? `${liveClusters.Bonus.tolerance.value} kg`
+                      : "-"}
+                  </Box>
                 </Box>
-                <Box component="div" sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Box
+                  component="div"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 0.5,
+                  }}
+                >
                   <Box component="dt">Paddy Neto</Box>
-                  <Box component="dd">{liveClusters.totalPaddy.node.value} kg</Box>
+                  <Box component="dd">
+                    {liveClusters.totalPaddy.node.value} kg
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -178,7 +246,13 @@ export default function NewReceptionPage() {
               )}
             </Button>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider 
+              sx={{ 
+                my: 2,
+                borderColor: "primary.main",
+                borderBottomWidth: 2,
+              }} 
+            />
             <Typography gutterBottom>Plantillas</Typography>
 
             <Stack direction="row" spacing={1} alignItems="center">

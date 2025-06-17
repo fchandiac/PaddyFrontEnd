@@ -123,6 +123,8 @@ export interface Node {
 
   error: boolean;
   setError: (error: boolean) => void;
+  errorMessage: string;
+  setErrorMessage: (message: string) => void;
 }
 
 export interface RangeNode extends Node {
@@ -158,6 +160,10 @@ export function createBlankNode(key: string, label: string): Node {
     error: false,
     setError: (error: boolean) => {
       node.error = error;
+    },
+    errorMessage: "",
+    setErrorMessage: (message: string) => {
+      node.errorMessage = message;
     },
   };
   return node;
@@ -198,6 +204,10 @@ function createGenericNode(key: string, parentCluster: Cluster): Node {
     error: false,
     setError: (error: boolean) => {
       node.error = error;
+    },
+    errorMessage: "",
+    setErrorMessage: (message: string) => {
+      node.errorMessage = message;
     },
   };
   return node;
@@ -255,6 +265,10 @@ function createRangeNode(key: string, parentCluster: Cluster): RangeNode {
         }
       }
     },
+    errorMessage: "",
+    setErrorMessage: (message: string) => {
+      node.errorMessage = message;
+    },
   };
   return node;
 }
@@ -304,6 +318,10 @@ function createPercentNode(key: string, parentCluster: Cluster): Node {
           node.backgroundColor = "inherit";
         }
       }
+    },
+    errorMessage: "",
+    setErrorMessage: (message: string) => {
+      node.errorMessage = message;
     },
   };
   return node;
@@ -355,6 +373,10 @@ function createToleranceNode(key: string, parentCluster: Cluster): Node {
         }
       }
     },
+    errorMessage: "",
+    setErrorMessage: (message: string) => {
+      node.errorMessage = message;
+    },
   };
   return node;
 }
@@ -404,6 +426,10 @@ function createPenaltyNode(key: string, parentCluster: Cluster): Node {
           node.backgroundColor = "inherit";
         }
       }
+    },
+    errorMessage: "",
+    setErrorMessage: (message: string) => {
+      node.errorMessage = message;
     },
   };
   return node;
@@ -957,8 +983,10 @@ bonus.tolerance.effect = () => {
 
   if (toleranceV >= 0) {
     bonus.tolerance.setError(false);
+    bonus.tolerance.setErrorMessage("");
   } else {
     bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
   }
 
   const netWeightValue = netWeight.node.value;
@@ -1034,14 +1062,18 @@ humedad.penalty.effect = () => {
       : 0;
   if (percentV > 100) {
     humedad.percent.setError(true);
+    humedad.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     humedad.percent.setError(false);
+    humedad.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     humedad.tolerance.setError(true);
+    humedad.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     humedad.tolerance.setError(false);
+    humedad.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1070,14 +1102,18 @@ granosVerdes.penalty.effect = () => {
 
   if (percentV > 100) {
     granosVerdes.percent.setError(true);
+    granosVerdes.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     granosVerdes.percent.setError(false);
+    granosVerdes.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     granosVerdes.tolerance.setError(true);
+    granosVerdes.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     granosVerdes.tolerance.setError(false);
+    granosVerdes.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1106,14 +1142,18 @@ impurezas.penalty.effect = () => {
 
   if (percentV > 100) {
     impurezas.percent.setError(true);
+    impurezas.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     impurezas.percent.setError(false);
+    impurezas.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     impurezas.tolerance.setError(true);
+    impurezas.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     impurezas.tolerance.setError(false);
+    impurezas.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1142,14 +1182,18 @@ vano.penalty.effect = () => {
 
   if (percentV > 100) {
     vano.percent.setError(true);
+    vano.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     vano.percent.setError(false);
+    vano.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     vano.tolerance.setError(true);
+    vano.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     vano.tolerance.setError(false);
+    vano.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1178,14 +1222,18 @@ hualcacho.penalty.effect = () => {
 
   if (percentV > 100) {
     hualcacho.percent.setError(true);
+    hualcacho.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     hualcacho.percent.setError(false);
+    hualcacho.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     hualcacho.tolerance.setError(true);
+    hualcacho.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     hualcacho.tolerance.setError(false);
+    hualcacho.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1214,14 +1262,18 @@ granosManchados.penalty.effect = () => {
 
   if (percentV > 100) {
     granosManchados.percent.setError(true);
+    granosManchados.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     granosManchados.percent.setError(false);
+    granosManchados.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     granosManchados.tolerance.setError(true);
+    granosManchados.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     granosManchados.tolerance.setError(false);
+    granosManchados.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1250,14 +1302,18 @@ granosPelados.penalty.effect = () => {
 
   if (percentV > 100) {
     granosPelados.percent.setError(true);
+    granosPelados.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     granosPelados.percent.setError(false);
+    granosPelados.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     granosPelados.tolerance.setError(true);
+    granosPelados.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     granosPelados.tolerance.setError(false);
+    granosPelados.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1286,14 +1342,18 @@ granosYesosos.penalty.effect = () => {
 
   if (percentV > 100) {
     granosYesosos.percent.setError(true);
+    granosYesosos.percent.setErrorMessage("Percentage cannot exceed 100%");
   } else {
     granosYesosos.percent.setError(false);
+    granosYesosos.percent.setErrorMessage("");
   }
 
   if (toleranceV > percentV) {
     granosYesosos.tolerance.setError(true);
+    granosYesosos.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
   } else {
     granosYesosos.tolerance.setError(false);
+    granosYesosos.tolerance.setErrorMessage("");
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
@@ -1316,8 +1376,10 @@ groupSummary.percent.effect = () => {
   
   if (total > 100) {
     groupSummary.percent.setError(true);
+    groupSummary.percent.setErrorMessage("Group percentage cannot exceed 100%");
   } else {
     groupSummary.percent.setError(false);
+    groupSummary.percent.setErrorMessage("");
   }
   groupSummary.percent.setValue(total);
 }
@@ -1337,8 +1399,10 @@ summary.percent.effect = () => {
     (isNaN(granosYesosos.percent.value) ? 0 : granosYesosos.percent.value);
   if (total > 100) {
     summary.percent.setError(true);
+    summary.percent.setErrorMessage("Total percentage cannot exceed 100%");
   } else {
     summary.percent.setError(false);
+    summary.percent.setErrorMessage("");
   }
   summary.percent.setValue(total);
 };
@@ -1356,8 +1420,10 @@ summary.tolerance.effect = () => {
     (isNaN(granosYesosos.tolerance.value) ? 0 : granosYesosos.tolerance.value);
   if (total > 100) {
     summary.tolerance.setError(true);
+    summary.tolerance.setErrorMessage("Total tolerance cannot exceed 100%");
   } else {
     summary.tolerance.setError(false);
+    summary.tolerance.setErrorMessage("");
   }
   summary.tolerance.setValue(total);
 };
