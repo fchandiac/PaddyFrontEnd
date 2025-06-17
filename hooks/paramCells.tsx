@@ -1009,8 +1009,10 @@ bonus.penalty.effect = () => {
 
   if (toleranceV >= 0) {
     bonus.tolerance.setError(false);
+    bonus.tolerance.setErrorMessage("");
   } else {
     bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
   }
 
   const netPenalty = (netWeight.node.value * toleranceV) / 100;
@@ -1519,19 +1521,23 @@ bonus.tolerance.onChange = (value: number) => {
   // Actualizamos el valor del nodo
   bonus.tolerance.setValue(value);
   
-  // Validamos el valor
-  if (value >= 0) {
+  // Validamos el valor - convertir NaN a 0 para permitir campos vacíos
+  const toleranceV = typeof value === "number" && !isNaN(value) ? value : 0;
+  
+  if (toleranceV >= 0) {
     bonus.tolerance.setError(false);
+    bonus.tolerance.setErrorMessage("");
   } else {
     bonus.tolerance.setError(true);
+    bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
   }
   
   // Calculamos el nuevo penalty basado en netWeight y el valor de tolerancia actualizado
   const netWeightValue = netWeight.node.value;
   const netWeightV = typeof netWeightValue === "number" && !isNaN(netWeightValue) ? netWeightValue : 0;
   
-  // Calculamos el bonus como porcentaje del peso neto
-  const netBonus = (netWeightV * value) / 100;
+  // Calculamos el bonus como porcentaje del peso neto - usar toleranceV en lugar de value
+  const netBonus = (netWeightV * toleranceV) / 100;
   bonus.penalty.setValue(netBonus);
 };
 
