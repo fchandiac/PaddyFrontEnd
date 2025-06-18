@@ -986,7 +986,7 @@ bonus.tolerance.effect = () => {
     bonus.tolerance.setErrorMessage("");
   } else {
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
+    bonus.tolerance.setErrorMessage("La tolerancia no puede ser negativa");
   }
 
   const netWeightValue = netWeight.node.value;
@@ -1010,14 +1010,14 @@ bonus.penalty.effect = () => {
   // Validación 1: No puede ser negativo
   if (toleranceV < 0) {
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
+    bonus.tolerance.setErrorMessage("La tolerancia no puede ser negativa");
     return;
   }
   
   // Validación 2: No puede ser mayor a 100%
   if (toleranceV > 100) {
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Tolerance cannot exceed 100%");
+    bonus.tolerance.setErrorMessage("La tolerancia no puede exceder 100%");
     return;
   }
   
@@ -1034,14 +1034,14 @@ bonus.penalty.effect = () => {
   const paddyNeto = netWeightV - totalDiscounts + netBonus;
   if (paddyNeto > netWeightV) {
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Bonus cannot make Paddy Net exceed Net Weight");
+    bonus.tolerance.setErrorMessage("El bonus no puede hacer que el Paddy Neto exceda el Peso Neto");
     return;
   }
   
   // Validación 4: Bonus.penalty no puede ser igual al total de descuentos
   if (Math.abs(netBonus - totalDiscounts) < 0.01) { // Usamos pequeña tolerancia para comparación de floats
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Bonus cannot equal total discounts");
+    bonus.tolerance.setErrorMessage("El bonus no puede ser igual al total de descuentos");
     return;
   }
   
@@ -1098,7 +1098,7 @@ humedad.penalty.effect = () => {
       : 0;
   if (percentV > 100) {
     humedad.percent.setError(true);
-    humedad.percent.setErrorMessage("Percentage cannot exceed 100%");
+    humedad.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     humedad.percent.setError(false);
     humedad.percent.setErrorMessage("");
@@ -1106,7 +1106,7 @@ humedad.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     humedad.tolerance.setError(true);
-    humedad.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    humedad.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     humedad.tolerance.setError(false);
     humedad.tolerance.setErrorMessage("");
@@ -1138,7 +1138,7 @@ granosVerdes.penalty.effect = () => {
 
   if (percentV > 100) {
     granosVerdes.percent.setError(true);
-    granosVerdes.percent.setErrorMessage("Percentage cannot exceed 100%");
+    granosVerdes.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     granosVerdes.percent.setError(false);
     granosVerdes.percent.setErrorMessage("");
@@ -1146,7 +1146,7 @@ granosVerdes.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     granosVerdes.tolerance.setError(true);
-    granosVerdes.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    granosVerdes.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     granosVerdes.tolerance.setError(false);
     granosVerdes.tolerance.setErrorMessage("");
@@ -1178,7 +1178,7 @@ impurezas.penalty.effect = () => {
 
   if (percentV > 100) {
     impurezas.percent.setError(true);
-    impurezas.percent.setErrorMessage("Percentage cannot exceed 100%");
+    impurezas.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     impurezas.percent.setError(false);
     impurezas.percent.setErrorMessage("");
@@ -1186,7 +1186,7 @@ impurezas.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     impurezas.tolerance.setError(true);
-    impurezas.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    impurezas.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     impurezas.tolerance.setError(false);
     impurezas.tolerance.setErrorMessage("");
@@ -1218,7 +1218,7 @@ vano.penalty.effect = () => {
 
   if (percentV > 100) {
     vano.percent.setError(true);
-    vano.percent.setErrorMessage("Percentage cannot exceed 100%");
+    vano.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     vano.percent.setError(false);
     vano.percent.setErrorMessage("");
@@ -1226,7 +1226,7 @@ vano.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     vano.tolerance.setError(true);
-    vano.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    vano.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     vano.tolerance.setError(false);
     vano.tolerance.setErrorMessage("");
@@ -1258,7 +1258,7 @@ hualcacho.penalty.effect = () => {
 
   if (percentV > 100) {
     hualcacho.percent.setError(true);
-    hualcacho.percent.setErrorMessage("Percentage cannot exceed 100%");
+    hualcacho.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     hualcacho.percent.setError(false);
     hualcacho.percent.setErrorMessage("");
@@ -1266,7 +1266,7 @@ hualcacho.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     hualcacho.tolerance.setError(true);
-    hualcacho.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    hualcacho.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     hualcacho.tolerance.setError(false);
     hualcacho.tolerance.setErrorMessage("");
@@ -1298,7 +1298,7 @@ granosManchados.penalty.effect = () => {
 
   if (percentV > 100) {
     granosManchados.percent.setError(true);
-    granosManchados.percent.setErrorMessage("Percentage cannot exceed 100%");
+    granosManchados.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     granosManchados.percent.setError(false);
     granosManchados.percent.setErrorMessage("");
@@ -1306,7 +1306,7 @@ granosManchados.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     granosManchados.tolerance.setError(true);
-    granosManchados.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    granosManchados.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     granosManchados.tolerance.setError(false);
     granosManchados.tolerance.setErrorMessage("");
@@ -1338,7 +1338,7 @@ granosPelados.penalty.effect = () => {
 
   if (percentV > 100) {
     granosPelados.percent.setError(true);
-    granosPelados.percent.setErrorMessage("Percentage cannot exceed 100%");
+    granosPelados.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     granosPelados.percent.setError(false);
     granosPelados.percent.setErrorMessage("");
@@ -1346,7 +1346,7 @@ granosPelados.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     granosPelados.tolerance.setError(true);
-    granosPelados.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    granosPelados.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     granosPelados.tolerance.setError(false);
     granosPelados.tolerance.setErrorMessage("");
@@ -1378,7 +1378,7 @@ granosYesosos.penalty.effect = () => {
 
   if (percentV > 100) {
     granosYesosos.percent.setError(true);
-    granosYesosos.percent.setErrorMessage("Percentage cannot exceed 100%");
+    granosYesosos.percent.setErrorMessage("El porcentaje no puede exceder 100%");
   } else {
     granosYesosos.percent.setError(false);
     granosYesosos.percent.setErrorMessage("");
@@ -1386,7 +1386,7 @@ granosYesosos.penalty.effect = () => {
 
   if (toleranceV > percentV) {
     granosYesosos.tolerance.setError(true);
-    granosYesosos.tolerance.setErrorMessage("Tolerance cannot exceed percentage");
+    granosYesosos.tolerance.setErrorMessage("La tolerancia no puede exceder el porcentaje");
   } else {
     granosYesosos.tolerance.setError(false);
     granosYesosos.tolerance.setErrorMessage("");
@@ -1456,7 +1456,7 @@ summary.tolerance.effect = () => {
     (isNaN(granosYesosos.tolerance.value) ? 0 : granosYesosos.tolerance.value);
   if (total > 100) {
     summary.tolerance.setError(true);
-    summary.tolerance.setErrorMessage("Total tolerance cannot exceed 100%");
+    summary.tolerance.setErrorMessage("La tolerancia total no puede exceder 100%");
   } else {
     summary.tolerance.setError(false);
     summary.tolerance.setErrorMessage("");
@@ -1575,14 +1575,14 @@ bonus.tolerance.onChange = (value: number) => {
   // Validación 1: No puede ser negativo
   if (toleranceV < 0) {
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Tolerance cannot be negative");
+    bonus.tolerance.setErrorMessage("La tolerancia no puede ser negativa");
     return;
   }
   
   // Validación 2: No puede ser mayor a 100%
   if (toleranceV > 100) {
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Tolerance cannot exceed 100%");
+    bonus.tolerance.setErrorMessage("La tolerancia no puede exceder 100%");
     return;
   }
   
@@ -1599,14 +1599,14 @@ bonus.tolerance.onChange = (value: number) => {
   const paddyNeto = netWeightV - totalDiscounts + netBonus;
   if (paddyNeto > netWeightV) {
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Bonus cannot make Paddy Net exceed Net Weight");
+    bonus.tolerance.setErrorMessage("El bonus no puede hacer que el Paddy Neto exceda el Peso Neto");
     return;
   }
   
   // Validación 4: Bonus.penalty no puede ser igual al total de descuentos
   if (Math.abs(netBonus - totalDiscounts) < 0.01) { // Usamos pequeña tolerancia para comparación de floats
     bonus.tolerance.setError(true);
-    bonus.tolerance.setErrorMessage("Bonus cannot equal total discounts");
+    bonus.tolerance.setErrorMessage("El bonus no puede ser igual al total de descuentos");
     return;
   }
   
