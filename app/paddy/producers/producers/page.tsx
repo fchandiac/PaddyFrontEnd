@@ -125,7 +125,7 @@ export default function ProducerPage() {
           height="80vh"
           FormComponent={({ afterSubmit }) => (
             <CreateProducerForm
-              afterSubmit={() => {
+              afterSubmit={(newProducer) => {
                 afterSubmit();
                 setRowData(null);
               }}

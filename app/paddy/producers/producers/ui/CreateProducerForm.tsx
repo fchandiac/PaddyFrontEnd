@@ -31,7 +31,7 @@ const initialForm = {
 export const CreateProducerForm = ({
   afterSubmit,
 }: {
-  afterSubmit: () => void;
+  afterSubmit: (newProducer?: any) => void;
 }) => {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState(initialForm);
@@ -93,9 +93,7 @@ export const CreateProducerForm = ({
 
       showAlert("Productor creado correctamente", "success");
 
-     
-
-      afterSubmit();
+      afterSubmit(result); // Pasar el productor creado
       setFormData(initialForm);
     } catch (err) {
       setErrors(["Error inesperado al guardar el productor"]);

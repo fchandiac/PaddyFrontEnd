@@ -18,7 +18,7 @@ import { CreateProducerForm } from "@/app/paddy/producers/producers/ui/CreatePro
 
 
 export default function ReceptionGeneralData() {
-  const { data, liveClusters } = useReceptionContext();
+  const { data, liveClusters, setField } = useReceptionContext();
 
   const [producers, setProducers] = useState<any[]>([]);
   const [riceTypes, setRiceTypes] = useState<any[]>([]);
@@ -26,8 +26,11 @@ export default function ReceptionGeneralData() {
   const [loadingProducers, setLoadingProducers] = useState(true);
   const [loadingRiceTypes, setLoadingRiceTypes] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
+  const [selectedProducer, setSelectedProducer] = useState<any>(null);
+  const [inputValue, setInputValue] = useState('');
+  const [highlightedOption, setHighlightedOption] = useState<any>(null);
 
-  const  fetchProducers = async () => {
+  const fetchProducers = async () => {
     setLoadingProducers(true);
     const producers = await getAllProducers();
     setProducers(producers);
@@ -41,14 +44,23 @@ export default function ReceptionGeneralData() {
     setLoadingRiceTypes(false);
   }
 
-
-
   useEffect(() => {
-
     fetchProducers();
     fetchRiceTypes();
-    
   }, []);
+
+  // Sincronizar el productor seleccionado con el contexto
+  useEffect(() => {
+    const currentProducer = producers.find((p) => p.id === data.producerId);
+    setSelectedProducer(currentProducer || null);
+    
+    // Actualizar inputValue cuando cambia el productor seleccionado
+    if (currentProducer) {
+      setInputValue(`${currentProducer.rut} - ${currentProducer.name}`);
+    } else {
+      setInputValue('');
+    }
+  }, [data.producerId, producers]);
 
   return (
     <>
@@ -58,32 +70,120 @@ export default function ReceptionGeneralData() {
         {/* Productor */}
         <Grid item xs={12}>
           <Autocomplete
-            options={[...producers, { id: "__add_new__", name: "", rut: "" }]}
+            options={[...producers, { id: "__add_new__", name: "Agregar nuevo productor", rut: "" }]}
             autoHighlight
             noOptionsText="No se encontraron resultados"
             loading={loadingProducers}
             loadingText="Cargando productores..."
+            inputValue={inputValue}
+            onInputChange={(_, newInputValue, reason) => {
+              setInputValue(newInputValue);
+              
+              // Si el usuario presiona Enter y la opción resaltada es "agregar nuevo"
+              if (reason === 'input' && newInputValue === "➕ Agregar nuevo productor") {
+                setOpenDialog(true);
+                setSelectedProducer(null);
+                setInputValue('');
+              }
+            }}
+            filterOptions={(options, { inputValue }) => {
+              // Filtrar productores normalmente
+              const filtered = options.filter((option) => {
+                if (option.id === "__add_new__") return false; // No mostrar la opción "agregar" en el filtro normal
+                const searchTerm = inputValue.toLowerCase();
+                return (
+                  option.name?.toLowerCase().includes(searchTerm) ||
+                  option.rut?.toLowerCase().includes(searchTerm) ||
+                  option.businessName?.toLowerCase().includes(searchTerm)
+                );
+              });
+              
+              // Si no hay resultados y hay texto de búsqueda, mostrar la opción "agregar nuevo"
+              if (filtered.length === 0 && inputValue.trim()) {
+                return [{ id: "__add_new__", name: "Agregar nuevo productor", rut: "" }];
+              }
+              
+              // Si hay resultados, mostrar los resultados + opción agregar
+              return [...filtered, { id: "__add_new__", name: "Agregar nuevo productor", rut: "" }];
+            }}
             getOptionLabel={(option) =>
               option.id === "__add_new__"
                 ? "➕ Agregar nuevo productor"
                 : `${option.rut} - ${option.name}`
             }
-            value={producers.find((p) => p.id === data.producerId) || null}
-            onChange={(_, newValue) => {
+            value={selectedProducer}
+            onChange={(_, newValue, reason) => {
               if (newValue?.id === "__add_new__") {
-                // setOpenDialog(true);
+                setOpenDialog(true);
+                setSelectedProducer(null);
+                setInputValue('');
               } else {
-                // setProducerId(newValue?.id || 0);
-         
+                setSelectedProducer(newValue);
+                if (newValue) {
+                  // Actualizar contexto con datos del productor
+                  setField('producerId', newValue.id);
+                  setField('producerName', newValue.name);
+                  setField('producerBusinessName', newValue.businessName || '');
+                  setField('producerRut', newValue.rut);
+                  setField('producerAddress', newValue.address || '');
+                  setInputValue(`${newValue.rut} - ${newValue.name}`);
+                } else {
+                  // Limpiar datos del productor
+                  setField('producerId', 0);
+                  setField('producerName', '');
+                  setField('producerBusinessName', '');
+                  setField('producerRut', '');
+                  setField('producerAddress', '');
+                  setInputValue('');
+                }
               }
             }}
+            onHighlightChange={(_, option) => {
+              setHighlightedOption(option);
+            }}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                {option.id === "__add_new__" ? (
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1, 
+                    color: 'primary.main', 
+                    fontWeight: 500,
+                    py: 1,
+                    borderTop: '1px solid #e0e0e0',
+                    width: '100%'
+                  }}>
+                    <span>➕</span>
+                    <span>Agregar nuevo productor</span>
+                  </Box>
+                ) : (
+                  <Box sx={{ width: '100%' }}>
+                    <Box sx={{ fontWeight: 500 }}>{option.name}</Box>
+                    <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                      {option.rut} {option.businessName && `• ${option.businessName}`}
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            )}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Productor"
                 fullWidth
                 size="small"
-                // inputRef={producerAutocompleteRef}
+                placeholder="Buscar por nombre, RUT o razón social..."
+                onKeyDown={(event) => {
+                  // Manejar Enter cuando se resalta la opción "Agregar nuevo productor"
+                  if (event.key === 'Enter' && highlightedOption?.id === "__add_new__") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setOpenDialog(true);
+                    setSelectedProducer(null);
+                    setInputValue('');
+                  }
+                }}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -268,15 +368,36 @@ export default function ReceptionGeneralData() {
 
       <Dialog
         open={openDialog}
-        onClose={() => setOpenDialog(false)}
+        onClose={() => {
+          setOpenDialog(false);
+          // Restaurar el inputValue al cerrar sin crear
+          const currentProducer = producers.find((p) => p.id === data.producerId);
+          if (currentProducer) {
+            setInputValue(`${currentProducer.rut} - ${currentProducer.name}`);
+          } else {
+            setInputValue('');
+          }
+        }}
         fullWidth
         maxWidth="sm"
       >
         <Box sx={{ p: 2 }}>
           <CreateProducerForm
-            afterSubmit={async () => {
-              const updated = await getAllProducers();
-              setProducers(updated);
+            afterSubmit={async (newProducer?: any) => {
+              // Actualizar lista de productores
+              await fetchProducers();
+              
+              // Si se proporcionó el nuevo productor, seleccionarlo automáticamente
+              if (newProducer) {
+                setSelectedProducer(newProducer);
+                setField('producerId', newProducer.id);
+                setField('producerName', newProducer.name);
+                setField('producerBusinessName', newProducer.businessName || '');
+                setField('producerRut', newProducer.rut);
+                setField('producerAddress', newProducer.address || '');
+                setInputValue(`${newProducer.rut} - ${newProducer.name}`);
+              }
+              
               setOpenDialog(false);
             }}
           />
