@@ -8,6 +8,7 @@ import {
   Stack,
   TextField,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
@@ -34,6 +35,134 @@ interface NodeProps {
   setShow: () => void;
   error: boolean;
 }
+
+// Componente de carga con logo
+const LoadingIndicator: React.FC = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 300,
+      gap: 3,
+      py: 4
+    }}
+  >
+    {/* Logo animado con efecto pulsante y rotación */}
+    <Box
+      sx={{
+        width: 100,
+        height: 100,
+        position: 'relative',
+        animation: 'logoAnimation 3s ease-in-out infinite',
+        '@keyframes logoAnimation': {
+          '0%': { 
+            transform: 'rotate(0deg) scale(1)',
+            opacity: 0.8
+          },
+          '25%': { 
+            transform: 'rotate(90deg) scale(1.05)',
+            opacity: 1
+          },
+          '50%': { 
+            transform: 'rotate(180deg) scale(1)',
+            opacity: 0.9
+          },
+          '75%': { 
+            transform: 'rotate(270deg) scale(1.05)',
+            opacity: 1
+          },
+          '100%': { 
+            transform: 'rotate(360deg) scale(1)',
+            opacity: 0.8
+          }
+        }
+      }}
+    >
+      <img 
+        src="/logo.svg" 
+        alt="Cargando análisis de grano"
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          objectFit: 'contain',
+          filter: 'drop-shadow(0 4px 8px rgba(25, 118, 210, 0.3))'
+        }}
+      />
+    </Box>
+    
+    {/* Puntos de carga animados */}
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        mb: 1
+      }}
+    >
+      {[0, 1, 2].map((index) => (
+        <Box
+          key={index}
+          sx={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            backgroundColor: '#1976d2',
+            animation: 'dotPulse 1.4s ease-in-out infinite',
+            animationDelay: `${index * 0.16}s`,
+            '@keyframes dotPulse': {
+              '0%': {
+                transform: 'scale(0)',
+                opacity: 1
+              },
+              '50%': {
+                transform: 'scale(1)',
+                opacity: 0.7
+              },
+              '100%': {
+                transform: 'scale(0)',
+                opacity: 1
+              }
+            }
+          }}
+        />
+      ))}
+    </Box>
+    
+    {/* Texto de carga con animación de escritura */}
+    <Typography 
+      variant="body1" 
+      color="text.secondary"
+      sx={{ 
+        fontSize: '16px',
+        fontWeight: 500,
+        textAlign: 'center',
+        animation: 'textFade 2s ease-in-out infinite alternate',
+        '@keyframes textFade': {
+          '0%': { opacity: 0.6 },
+          '100%': { opacity: 1 }
+        }
+      }}
+    >
+      Cargando análisis de grano...
+    </Typography>
+    
+    {/* Subtexto informativo */}
+    <Typography 
+      variant="caption" 
+      color="text.disabled"
+      sx={{ 
+        fontSize: '12px',
+        textAlign: 'center',
+        maxWidth: 250,
+        lineHeight: 1.4
+      }}
+    >
+      Configurando parámetros y rangos de descuento según el template seleccionado
+    </Typography>
+  </Box>
+);
 
 // Helper function to create a text display node that accepts string values
 const createTextDisplayNode = (key: string, textValue: string): Node => {
@@ -334,6 +463,8 @@ const GrainRow: React.FC<{
 
 export default function GrainAnalysis() {
   const { liveClusters, data } = useReceptionContext();
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
 
   const hasGroupToleranceParams = data.template && data.template.useToleranceGroup && (
     data.template.groupToleranceHumedad ||
@@ -347,63 +478,47 @@ export default function GrainAnalysis() {
   );
 
   useEffect(() => {
-    const fetchHumedadRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.Humedad.range.code
-      );
-      liveClusters.Humedad.range.setRanges(ranges);
-    };
-    const fetchGranosVerdesRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.GranosVerdes.range.code
-      );
-      liveClusters.GranosVerdes.range.setRanges(ranges);
-    };
-    const fetchImpurezasRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.Impurezas.range.code
-      );
-      liveClusters.Impurezas.range.setRanges(ranges);
-    };
-    const fetchVanoRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.Vano.range.code
-      );
-      liveClusters.Vano.range.setRanges(ranges);
-    };
-    const fetchHualcachoRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.Hualcacho.range.code
-      );
-      liveClusters.Hualcacho.range.setRanges(ranges);
-    };
-    const fetchGranosManchadosRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.GranosManchados.range.code
-      );
-      liveClusters.GranosManchados.range.setRanges(ranges);
-    };
-    const fetchGranosPeladosRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.GranosPelados.range.code
-      );
-      liveClusters.GranosPelados.range.setRanges(ranges);
-    };
-    const fetchGranosYesososRanges = async () => {
-      const ranges = await getDiscountPercentsByCode(
-        liveClusters.GranosYesosos.range.code
-      );
-      liveClusters.GranosYesosos.range.setRanges(ranges);
+    const fetchAllRanges = async () => {
+      setIsLoading(true);
+      setShowContent(false);
+      
+      try {
+        // Crear todas las promesas de manera paralela para mejor rendimiento
+        const fetchPromises = [
+          getDiscountPercentsByCode(liveClusters.Humedad.range.code)
+            .then(ranges => liveClusters.Humedad.range.setRanges(ranges)),
+          getDiscountPercentsByCode(liveClusters.GranosVerdes.range.code)
+            .then(ranges => liveClusters.GranosVerdes.range.setRanges(ranges)),
+          getDiscountPercentsByCode(liveClusters.Impurezas.range.code)
+            .then(ranges => liveClusters.Impurezas.range.setRanges(ranges)),
+          getDiscountPercentsByCode(liveClusters.Vano.range.code)
+            .then(ranges => liveClusters.Vano.range.setRanges(ranges)),
+          getDiscountPercentsByCode(liveClusters.Hualcacho.range.code)
+            .then(ranges => liveClusters.Hualcacho.range.setRanges(ranges)),
+          getDiscountPercentsByCode(liveClusters.GranosManchados.range.code)
+            .then(ranges => liveClusters.GranosManchados.range.setRanges(ranges)),
+          getDiscountPercentsByCode(liveClusters.GranosPelados.range.code)
+            .then(ranges => liveClusters.GranosPelados.range.setRanges(ranges)),
+          getDiscountPercentsByCode(liveClusters.GranosYesosos.range.code)
+            .then(ranges => liveClusters.GranosYesosos.range.setRanges(ranges))
+        ];
+
+        // Esperar a que todas las promesas se resuelvan
+        await Promise.all(fetchPromises);
+        
+        // Pequeña pausa adicional para asegurar que todos los parámetros se han procesado
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+      } catch (error) {
+        console.error('Error cargando rangos de descuento:', error);
+      } finally {
+        setIsLoading(false);
+        // Activar la animación después de un pequeño delay
+        setTimeout(() => setShowContent(true), 100);
+      }
     };
 
-    fetchHumedadRanges();
-    fetchGranosVerdesRanges();
-    fetchImpurezasRanges();
-    fetchVanoRanges();
-    fetchHualcachoRanges();
-    fetchGranosManchadosRanges();
-    fetchGranosPeladosRanges();
-    fetchGranosYesososRanges();
+    fetchAllRanges();
   }, [liveClusters.Humedad.range.code]);
 
   // Efecto: Si el grupo de tolerancia está activo, ocultar los campos de tolerancia individuales
@@ -500,97 +615,123 @@ export default function GrainAnalysis() {
         minWidth: 700,
       }}
     >
-      {/* Renderizar primero los parámetros que NO pertenecen al grupo de tolerancia */}
-      {nonGroupToleranceParams.map((cluster) => (
-        <GrainRow
-          key={cluster.key}
-          paramName={cluster.name}
-          range={cluster.range}
-          percent={cluster.percent}
-          tolerance={cluster.tolerance}
-          showVisibilityButton={true}
-          onToggleVisibility={cluster.tolerance.setShow}
-          isVisible={cluster.tolerance.show}
-          penalty={cluster.penalty}
-        />
-      ))}
-      
-      {/* Renderizar después los parámetros del grupo de tolerancia */}
-      {groupToleranceParams.map((cluster) => (
-        <GrainRow
-          key={cluster.key}
-          paramName={cluster.name}
-          range={cluster.range}
-          percent={cluster.percent}
-          tolerance={cluster.tolerance}
-          showVisibilityButton={true}
-          onToggleVisibility={cluster.tolerance.setShow}
-          isVisible={cluster.tolerance.show}
-          penalty={cluster.penalty}
-        />
-      ))}
-      
-      {/* GroupSummary: Se muestra después de los parámetros del grupo de tolerancia */}
-      {hasGroupToleranceParams && (
-        <GrainRow
-          paramName=""
-          range={createTextDisplayNode("groupSummary-name", liveClusters.groupSummary.name)}
-          percent={liveClusters.groupSummary.percent}
-          tolerance={liveClusters.groupSummary.tolerance}
-          penalty={liveClusters.groupSummary.penalty}
-        />
-      )}
-
-      {/* Summary: Total del análisis */}
-      <GrainRow
-        paramName=""
-        range={createTextDisplayNode("summary-name", liveClusters.Summary.name)}
-        percent={liveClusters.Summary.percent}
-        tolerance={liveClusters.Summary.tolerance}
-        penalty={liveClusters.Summary.penalty}
-      />
-      
-      {/* Bonificación */}
-      {(!data?.template || data.template.availableBonus) && (
-        <GrainRow
-          paramName=""
-          range={createTextDisplayNode("bonus-name", liveClusters.Bonus.name)}
-          tolerance={liveClusters.Bonus.tolerance}
-          penalty={liveClusters.Bonus.penalty}
-        />
-      )}
-      
-      {/* Secado */}
-      {(!data?.template || data.template.availableDry) && (
-        <GrainRow
-          paramName=""
-          range={createTextDisplayNode("dry-name", liveClusters.Dry.name)}
-          percent={liveClusters.Dry.percent}
-        />
-      )}
-
-
-      
-      {/* Leyenda de colores para grupo de tolerancia */}
-      {hasGroupToleranceParams && (
-        <>
-          <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box 
-              sx={{ 
-                width: 16, 
-                height: 16, 
-                backgroundColor: '#ede7f6', 
-                borderRadius: '4px',
-                border: '1px solid #d1c4e9'
-              }} 
+      {/* Mostrar indicador de carga mientras se cargan los datos */}
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <Box
+          sx={{
+            opacity: showContent ? 1 : 0,
+            transform: showContent ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            '& > *': {
+              opacity: showContent ? 1 : 0,
+              transform: showContent ? 'translateY(0)' : 'translateY(10px)',
+              transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              transitionDelay: showContent ? 'var(--delay, 0ms)' : '0ms',
+            },
+            '& > *:nth-of-type(1)': { '--delay': '100ms' },
+            '& > *:nth-of-type(2)': { '--delay': '150ms' },
+            '& > *:nth-of-type(3)': { '--delay': '200ms' },
+            '& > *:nth-of-type(4)': { '--delay': '250ms' },
+            '& > *:nth-of-type(5)': { '--delay': '300ms' },
+            '& > *:nth-of-type(6)': { '--delay': '350ms' },
+            '& > *:nth-of-type(7)': { '--delay': '400ms' },
+            '& > *:nth-of-type(8)': { '--delay': '450ms' },
+            '& > *:nth-of-type(9)': { '--delay': '500ms' },
+            '& > *:nth-of-type(10)': { '--delay': '550ms' },
+          }}
+        >
+          {/* Renderizar primero los parámetros que NO pertenecen al grupo de tolerancia */}
+          {nonGroupToleranceParams.map((cluster, index) => (
+            <GrainRow
+              key={cluster.key}
+              paramName={cluster.name}
+              range={cluster.range}
+              percent={cluster.percent}
+              tolerance={cluster.tolerance}
+              showVisibilityButton={true}
+              onToggleVisibility={cluster.tolerance.setShow}
+              isVisible={cluster.tolerance.show}
+              penalty={cluster.penalty}
             />
-            <Typography variant="caption" color="text.secondary">
-              Parámetros que pertenecen al grupo de tolerancia
-            </Typography>
-          </Box>
-        </>
-      )}
+          ))}
+          
+          {/* Renderizar después los parámetros del grupo de tolerancia */}
+          {groupToleranceParams.map((cluster, index) => (
+            <GrainRow
+              key={cluster.key}
+              paramName={cluster.name}
+              range={cluster.range}
+              percent={cluster.percent}
+              tolerance={cluster.tolerance}
+              showVisibilityButton={true}
+              onToggleVisibility={cluster.tolerance.setShow}
+              isVisible={cluster.tolerance.show}
+              penalty={cluster.penalty}
+            />
+          ))}
+          
+          {/* GroupSummary: Se muestra después de los parámetros del grupo de tolerancia */}
+          {hasGroupToleranceParams && (
+            <GrainRow
+              paramName=""
+              range={createTextDisplayNode("groupSummary-name", liveClusters.groupSummary.name)}
+              percent={liveClusters.groupSummary.percent}
+              tolerance={liveClusters.groupSummary.tolerance}
+              penalty={liveClusters.groupSummary.penalty}
+            />
+          )}
 
+          {/* Summary: Total del análisis */}
+          <GrainRow
+            paramName=""
+            range={createTextDisplayNode("summary-name", liveClusters.Summary.name)}
+            percent={liveClusters.Summary.percent}
+            tolerance={liveClusters.Summary.tolerance}
+            penalty={liveClusters.Summary.penalty}
+          />
+          
+          {/* Bonificación */}
+          {(!data?.template || data.template.availableBonus) && (
+            <GrainRow
+              paramName=""
+              range={createTextDisplayNode("bonus-name", liveClusters.Bonus.name)}
+              tolerance={liveClusters.Bonus.tolerance}
+              penalty={liveClusters.Bonus.penalty}
+            />
+          )}
+          
+          {/* Secado */}
+          {(!data?.template || data.template.availableDry) && (
+            <GrainRow
+              paramName=""
+              range={createTextDisplayNode("dry-name", liveClusters.Dry.name)}
+              percent={liveClusters.Dry.percent}
+            />
+          )}
+
+          {/* Leyenda de colores para grupo de tolerancia */}
+          {hasGroupToleranceParams && (
+            <>
+              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box 
+                  sx={{ 
+                    width: 16, 
+                    height: 16, 
+                    backgroundColor: '#ede7f6', 
+                    borderRadius: '4px',
+                    border: '1px solid #d1c4e9'
+                  }} 
+                />
+                <Typography variant="caption" color="text.secondary">
+                  Parámetros que pertenecen al grupo de tolerancia
+                </Typography>
+              </Box>
+            </>
+          )}
+        </Box>
+      )}
     </Box>
   );
 }
