@@ -30,10 +30,27 @@ export default function ReceptionGeneralData() {
   const [inputValue, setInputValue] = useState('');
   const [highlightedOption, setHighlightedOption] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isRiceTypeOpen, setIsRiceTypeOpen] = useState(false);
+  const [riceTypeHighlighted, setRiceTypeHighlighted] = useState<any>(null);
   
   // Refs para manejar el foco entre campos
   const riceTypeRef = useRef<HTMLInputElement>(null);
   const priceRef = useRef<HTMLInputElement>(null);
+  const guideRef = useRef<HTMLInputElement>(null);
+  const licenseRef = useRef<HTMLInputElement>(null);
+  
+  // Función para manejar navegación con Enter
+  const handleEnterNavigation = (nextRef: React.RefObject<HTMLInputElement>) => {
+    setTimeout(() => {
+      if (nextRef.current) {
+        nextRef.current.focus();
+        // Seleccionar el texto si existe
+        if (nextRef.current.select) {
+          nextRef.current.select();
+        }
+      }
+    }, 50);
+  };
 
   const fetchProducers = async () => {
     setLoadingProducers(true);
@@ -53,6 +70,29 @@ export default function ReceptionGeneralData() {
     fetchProducers();
     fetchRiceTypes();
   }, []);
+
+  // Desactivar foco en botones internos de autocomplete (solo Tab, no Enter)
+  useEffect(() => {
+    const disableAutocompleteButtonTabFocus = () => {
+      const autocompleteButtons = document.querySelectorAll('.MuiAutocomplete-endAdornment button');
+      autocompleteButtons.forEach((button) => {
+        (button as HTMLElement).tabIndex = -1;
+        // Solo interceptar Tab, no Enter
+        button.addEventListener('keydown', (e: Event) => {
+          const keyboardEvent = e as KeyboardEvent;
+          if (keyboardEvent.key === 'Tab') {
+            e.preventDefault();
+            (e.target as HTMLElement).blur();
+          }
+        });
+      });
+    };
+
+    // Ejecutar después de que se rendericen los componentes
+    const timer = setTimeout(disableAutocompleteButtonTabFocus, 100);
+    
+    return () => clearTimeout(timer);
+  }, [producers, riceTypes]);
 
   // Sincronizar el productor seleccionado con el contexto
   useEffect(() => {
@@ -86,6 +126,17 @@ export default function ReceptionGeneralData() {
             onClose={() => {
               setIsOpen(false);
               setHighlightedOption(null);
+            }}
+            disableClearable={false}
+            slotProps={{
+              popupIndicator: {
+                tabIndex: -1,
+                sx: { '&:focus': { outline: 'none' } }
+              },
+              clearIndicator: {
+                tabIndex: -1,
+                sx: { '&:focus': { outline: 'none' } }
+              },
             }}
             onInputChange={(_, newInputValue, reason) => {
               setInputValue(newInputValue);
@@ -187,25 +238,44 @@ export default function ReceptionGeneralData() {
                 placeholder="Buscar por nombre, RUT o razón social..."
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
+                    // Si el dropdown está abierto y hay una opción resaltada (navegando por opciones)
+                    if (isOpen && highlightedOption) {
+                      // Si es la opción "Agregar nuevo productor"
+                      if (highlightedOption.id === "__add_new__") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setOpenDialog(true);
+                        setSelectedProducer(null);
+                        setInputValue('');
+                        setIsOpen(false);
+                        return;
+                      }
+                      // Para opciones normales de productor, permitir comportamiento por defecto
+                      // (el autocomplete se encargará de la selección)
+                      return;
+                    }
+                    
                     // Si ya hay un productor seleccionado y el dropdown no está abierto
                     if (selectedProducer && !isOpen) {
                       event.preventDefault();
                       event.stopPropagation();
-                      // Enfocar el siguiente campo (Tipo de arroz)
-                      setTimeout(() => {
-                        riceTypeRef.current?.focus();
-                      }, 100);
+                      handleEnterNavigation(riceTypeRef);
                       return;
                     }
-                    
-                    // Si el dropdown está abierto y se está resaltando la opción "Agregar nuevo productor"
-                    if (isOpen && highlightedOption?.id === "__add_new__") {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      setOpenDialog(true);
-                      setSelectedProducer(null);
-                      setInputValue('');
-                      setIsOpen(false);
+                  }
+                  
+                  // Prevenir que Tab navegue a botones internos solo si hay productor seleccionado
+                  if (event.key === 'Tab' && !event.shiftKey && selectedProducer && !isOpen) {
+                    event.preventDefault();
+                    handleEnterNavigation(riceTypeRef);
+                  }
+                }}
+                sx={{
+                  '& .MuiAutocomplete-endAdornment button': {
+                    tabIndex: -1,
+                    '&:focus': {
+                      outline: 'none',
+                      backgroundColor: 'transparent'
                     }
                   }
                 }}
@@ -233,6 +303,26 @@ export default function ReceptionGeneralData() {
             loadingText="Cargando tipos de arroz..."
             getOptionLabel={(option) => `${option.id} - ${option.name}`}
             value={riceTypes.find((r) => r.id === data.riceTypeId) || null}
+            open={isRiceTypeOpen}
+            onOpen={() => setIsRiceTypeOpen(true)}
+            onClose={() => {
+              setIsRiceTypeOpen(false);
+              setRiceTypeHighlighted(null);
+            }}
+            onHighlightChange={(_, option) => {
+              setRiceTypeHighlighted(option);
+            }}
+            disableClearable={false}
+            slotProps={{
+              popupIndicator: {
+                tabIndex: -1,
+                sx: { '&:focus': { outline: 'none' } }
+              },
+              clearIndicator: {
+                tabIndex: -1,
+                sx: { '&:focus': { outline: 'none' } }
+              },
+            }}
             onChange={(_, newValue) => {
               // setRiceTypeId(newValue?.id || 0);
 
@@ -249,12 +339,34 @@ export default function ReceptionGeneralData() {
                 fullWidth
                 size="small"
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter' && riceTypes.find((r) => r.id === data.riceTypeId)) {
-                    // Si ya hay un tipo de arroz seleccionado, pasar al siguiente campo (Precio)
+                  if (event.key === 'Enter') {
+                    // Si el dropdown está abierto y hay una opción resaltada (navegando por opciones)
+                    if (isRiceTypeOpen && riceTypeHighlighted) {
+                      // Permitir comportamiento por defecto (selección normal)
+                      return;
+                    }
+                    
+                    // Si ya hay un tipo de arroz seleccionado y el dropdown no está abierto
+                    if (riceTypes.find((r) => r.id === data.riceTypeId) && !isRiceTypeOpen) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      handleEnterNavigation(priceRef);
+                    }
+                  }
+                  
+                  // Prevenir que Tab navegue a botones internos solo si hay valor seleccionado
+                  if (event.key === 'Tab' && !event.shiftKey && riceTypes.find((r) => r.id === data.riceTypeId) && !isRiceTypeOpen) {
                     event.preventDefault();
-                    setTimeout(() => {
-                      priceRef.current?.focus();
-                    }, 100);
+                    handleEnterNavigation(priceRef);
+                  }
+                }}
+                sx={{
+                  '& .MuiAutocomplete-endAdornment button': {
+                    tabIndex: -1,
+                    '&:focus': {
+                      outline: 'none',
+                      backgroundColor: 'transparent'
+                    }
                   }
                 }}
                 InputProps={{
@@ -303,15 +415,28 @@ export default function ReceptionGeneralData() {
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
             }}
             onFocus={(e) => (e.target as HTMLInputElement).select()}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                handleEnterNavigation(guideRef);
+              }
+            }}
           />
         </Grid>
 
         {/* Guía */}
         <Grid item xs={6}>
           <TextField
+            inputRef={guideRef}
             label="Guía"
             fullWidth
             size="small"
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                handleEnterNavigation(licenseRef);
+              }
+            }}
             // value={guideInput}
             // onChange={(e) => setGuideInput(e.target.value)}
             // onBlur={() =>  setGuide(guideInput)}
@@ -323,6 +448,7 @@ export default function ReceptionGeneralData() {
         {/* Placa patente */}
         <Grid item xs={6}>
           <TextField
+            inputRef={licenseRef}
             label="Placa patente"
             autoComplete="off"
             fullWidth
