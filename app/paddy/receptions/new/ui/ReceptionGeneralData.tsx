@@ -29,6 +29,10 @@ export default function ReceptionGeneralData() {
   const [selectedProducer, setSelectedProducer] = useState<any>(null);
   const [inputValue, setInputValue] = useState('');
   const [highlightedOption, setHighlightedOption] = useState<any>(null);
+  
+  // Refs para manejar el foco entre campos
+  const riceTypeRef = useRef<HTMLInputElement>(null);
+  const priceRef = useRef<HTMLInputElement>(null);
 
   const fetchProducers = async () => {
     setLoadingProducers(true);
@@ -175,13 +179,26 @@ export default function ReceptionGeneralData() {
                 size="small"
                 placeholder="Buscar por nombre, RUT o razón social..."
                 onKeyDown={(event) => {
-                  // Manejar Enter cuando se resalta la opción "Agregar nuevo productor"
-                  if (event.key === 'Enter' && highlightedOption?.id === "__add_new__") {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setOpenDialog(true);
-                    setSelectedProducer(null);
-                    setInputValue('');
+                  if (event.key === 'Enter') {
+                    // Si ya hay un productor seleccionado y no hay opciones abiertas, pasar al siguiente campo
+                    if (selectedProducer && !highlightedOption) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      // Enfocar el siguiente campo (Tipo de arroz)
+                      setTimeout(() => {
+                        riceTypeRef.current?.focus();
+                      }, 100);
+                      return;
+                    }
+                    
+                    // Si se está resaltando la opción "Agregar nuevo productor"
+                    if (highlightedOption?.id === "__add_new__") {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setOpenDialog(true);
+                      setSelectedProducer(null);
+                      setInputValue('');
+                    }
                   }
                 }}
                 InputProps={{
