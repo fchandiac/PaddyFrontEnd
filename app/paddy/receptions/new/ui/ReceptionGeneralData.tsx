@@ -29,6 +29,7 @@ export default function ReceptionGeneralData() {
   const [selectedProducer, setSelectedProducer] = useState<any>(null);
   const [inputValue, setInputValue] = useState('');
   const [highlightedOption, setHighlightedOption] = useState<any>(null);
+  const [isOpen, setIsOpen] = useState(false);
   
   // Refs para manejar el foco entre campos
   const riceTypeRef = useRef<HTMLInputElement>(null);
@@ -80,6 +81,12 @@ export default function ReceptionGeneralData() {
             loading={loadingProducers}
             loadingText="Cargando productores..."
             inputValue={inputValue}
+            open={isOpen}
+            onOpen={() => setIsOpen(true)}
+            onClose={() => {
+              setIsOpen(false);
+              setHighlightedOption(null);
+            }}
             onInputChange={(_, newInputValue, reason) => {
               setInputValue(newInputValue);
               
@@ -180,8 +187,8 @@ export default function ReceptionGeneralData() {
                 placeholder="Buscar por nombre, RUT o razón social..."
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
-                    // Si ya hay un productor seleccionado y no hay opciones abiertas, pasar al siguiente campo
-                    if (selectedProducer && !highlightedOption) {
+                    // Si ya hay un productor seleccionado y el dropdown no está abierto
+                    if (selectedProducer && !isOpen) {
                       event.preventDefault();
                       event.stopPropagation();
                       // Enfocar el siguiente campo (Tipo de arroz)
@@ -191,13 +198,14 @@ export default function ReceptionGeneralData() {
                       return;
                     }
                     
-                    // Si se está resaltando la opción "Agregar nuevo productor"
-                    if (highlightedOption?.id === "__add_new__") {
+                    // Si el dropdown está abierto y se está resaltando la opción "Agregar nuevo productor"
+                    if (isOpen && highlightedOption?.id === "__add_new__") {
                       event.preventDefault();
                       event.stopPropagation();
                       setOpenDialog(true);
                       setSelectedProducer(null);
                       setInputValue('');
+                      setIsOpen(false);
                     }
                   }
                 }}
@@ -236,9 +244,19 @@ export default function ReceptionGeneralData() {
             renderInput={(params) => (
               <TextField
                 {...params}
+                inputRef={riceTypeRef}
                 label="Tipo de arroz"
                 fullWidth
                 size="small"
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && riceTypes.find((r) => r.id === data.riceTypeId)) {
+                    // Si ya hay un tipo de arroz seleccionado, pasar al siguiente campo (Precio)
+                    event.preventDefault();
+                    setTimeout(() => {
+                      priceRef.current?.focus();
+                    }, 100);
+                  }
+                }}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -256,6 +274,7 @@ export default function ReceptionGeneralData() {
         {/* Precio */}
         <Grid item xs={6}>
           <TextField
+            inputRef={priceRef}
             label="Precio ($/kg)"
             type="text"
             autoComplete="off"
