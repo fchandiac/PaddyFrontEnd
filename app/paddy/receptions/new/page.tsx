@@ -106,6 +106,7 @@ export default function NewReceptionPage() {
                 my: 2,
                 borderColor: "primary.main",
                 borderBottomWidth: 2,
+                opacity: 0.6,
               }}
             />
             {/* Error Summary */}
@@ -263,6 +264,7 @@ export default function NewReceptionPage() {
                 my: 2,
                 borderColor: "primary.main",
                 borderBottomWidth: 2,
+                opacity: 0.6,
               }} 
             />
             <Typography gutterBottom>Plantillas</Typography>
