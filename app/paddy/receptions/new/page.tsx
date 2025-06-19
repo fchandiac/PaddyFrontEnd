@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import ArticleIcon from "@mui/icons-material/Article";
+import PrintIcon from "@mui/icons-material/Print";
 import { useAlertContext } from "@/context/AlertContext";
 import { createReception } from "@/app/actions/reception";
 import ReceptionGeneralData from "./ui/ReceptionGeneralData";
@@ -55,6 +56,11 @@ export default function NewReceptionPage() {
   const handleSave = async () => {
     console.log("data", data);
     // guardar recepción...
+  };
+
+  const handlePrint = () => {
+    console.log("Imprimir recepción");
+    // lógica de impresión...
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -245,19 +251,35 @@ export default function NewReceptionPage() {
               </Box>
             </Box>
 
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 2 }}
-              // onClick={handleSave}
-              // disabled={loadingSave}
-            >
-              {loadingSave ? (
-                <CircularProgress size={24} />
-              ) : (
-                "Guardar recepción"
-              )}
-            </Button>
+            <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+              <IconButton
+                color="primary"
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                    borderColor: 'primary.dark',
+                  },
+                }}
+                onClick={handlePrint}
+              >
+                <PrintIcon />
+              </IconButton>
+              
+              <Button
+                fullWidth
+                variant="contained"
+                // onClick={handleSave}
+                // disabled={loadingSave}
+              >
+                {loadingSave ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  "Guardar recepción"
+                )}
+              </Button>
+            </Stack>
 
             <Divider 
               sx={{ 
