@@ -34,6 +34,7 @@ export default function ReceptionGeneralData() {
   const [riceTypeHighlighted, setRiceTypeHighlighted] = useState<any>(null);
   
   // Refs para manejar el foco entre campos
+  const producerRef = useRef<HTMLInputElement>(null);
   const riceTypeRef = useRef<HTMLInputElement>(null);
   const priceRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLInputElement>(null);
@@ -69,6 +70,17 @@ export default function ReceptionGeneralData() {
   useEffect(() => {
     fetchProducers();
     fetchRiceTypes();
+  }, []);
+
+  // Enfocar automáticamente el campo del productor cuando se carga la página
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (producerRef.current) {
+        producerRef.current.focus();
+      }
+    }, 300); // Pequeño delay para asegurar que el componente esté completamente renderizado
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Desactivar foco en botones internos de autocomplete (solo Tab, no Enter)
@@ -232,6 +244,7 @@ export default function ReceptionGeneralData() {
             renderInput={(params) => (
               <TextField
                 {...params}
+                inputRef={producerRef}
                 label="Productor"
                 fullWidth
                 size="small"

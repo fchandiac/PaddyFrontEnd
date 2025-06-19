@@ -26,6 +26,7 @@ import { TemplateType } from "@/types/discount-template";
 import SelectTemplate from "./ui/template/SelectTemplate";
 import TemplateComponent from "./ui/template/Template";
 import ErrorSummary from "./ui/ErrorSummary";
+import PrintDialog from "@/components/PrintDialog/PrintDialog";
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
@@ -38,6 +39,24 @@ export default function NewReceptionPage() {
   // dialog state
   const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
   const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+  const [openPrintDialog, setOpenPrintDialog] = useState(false);
+
+  // Función para detectar si hay errores de validación
+  const hasValidationErrors = (): boolean => {
+    const checkNodeErrors = (cluster: any): boolean => {
+      return !!(
+        (cluster.percent?.error && cluster.percent?.errorMessage) ||
+        (cluster.tolerance?.error && cluster.tolerance?.errorMessage) ||
+        (cluster.penalty?.error && cluster.penalty?.errorMessage) ||
+        (cluster.range?.error && cluster.range?.errorMessage) ||
+        (cluster.node?.error && cluster.node?.errorMessage)
+      );
+    };
+
+    return Object.values(liveClusters).some(cluster => 
+      cluster && typeof cluster === 'object' && checkNodeErrors(cluster)
+    );
+  };
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -59,8 +78,7 @@ export default function NewReceptionPage() {
   };
 
   const handlePrint = () => {
-    console.log("Imprimir recepción");
-    // lógica de impresión...
+    setOpenPrintDialog(true);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -115,9 +133,14 @@ export default function NewReceptionPage() {
                 opacity: 0.6,
               }}
             />
-            {/* Error Summary */}
-            <Typography gutterBottom>Errores de validación</Typography>
-            <ErrorSummary />
+            
+            {/* Error Summary - Solo visible cuando hay errores */}
+            {hasValidationErrors() && (
+              <>
+                <Typography gutterBottom sx={{ textAlign: 'right' }}>Errores de validación</Typography>
+                <ErrorSummary />
+              </>
+            )}
           </Grid>
 
           {/* Grain Analysis */}
@@ -289,18 +312,35 @@ export default function NewReceptionPage() {
                 opacity: 0.6,
               }} 
             />
-            <Typography gutterBottom>Plantillas</Typography>
+            <Typography gutterBottom sx={{ textAlign: 'right' }}>Plantillas</Typography>
 
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
               <IconButton
+                color="primary"
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                    borderColor: 'primary.dark',
+                  },
+                }}
                 onClick={() => {
                   setOpenSaveTemplateDialog(true);
                 }}
               >
-                <SaveIcon color="primary" />
+                <SaveIcon />
               </IconButton>
               <Button
                 variant="outlined"
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                    borderColor: 'primary.dark',
+                  },
+                }}
                 onClick={() => setOpenTemplateDialog(true)}
                 startIcon={<ArticleIcon />}
               >
@@ -336,6 +376,91 @@ export default function NewReceptionPage() {
           />
         </Box>
       </Dialog>
+
+      {/* Dialog para imprimir */}
+      <PrintDialog
+        open={openPrintDialog}
+        setOpen={setOpenPrintDialog}
+        title="Recepción"
+        dialogWidth="lg"
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h4" gutterBottom align="center">
+            RECEPCIÓN DE PADDY
+          </Typography>
+          
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            {/* Datos del Productor */}
+            <Grid item xs={6}>
+              <Typography variant="h6" gutterBottom>
+                Datos del Productor
+              </Typography>
+              <Typography><strong>Nombre:</strong> {data.producerName || 'N/A'}</Typography>
+              <Typography><strong>RUT:</strong> {data.producerRut || 'N/A'}</Typography>
+              <Typography><strong>Razón Social:</strong> {data.producerBusinessName || 'N/A'}</Typography>
+              <Typography><strong>Dirección:</strong> {data.producerAddress || 'N/A'}</Typography>
+            </Grid>
+
+            {/* Datos de la Recepción */}
+            <Grid item xs={6}>
+              <Typography variant="h6" gutterBottom>
+                Datos de la Recepción
+              </Typography>
+              <Typography><strong>Fecha:</strong> {new Date().toLocaleDateString('es-CL')}</Typography>
+              <Typography><strong>Guía:</strong> {data.guide || 'N/A'}</Typography>
+              <Typography><strong>Placa Patente:</strong> {data.licensePlate || 'N/A'}</Typography>
+            </Grid>
+
+            {/* Totales */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                Resumen de Pesos
+              </Typography>
+              <Box sx={{ 
+                border: '1px solid #ccc', 
+                borderRadius: 1, 
+                p: 2,
+                backgroundColor: '#f9f9f9'
+              }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={3}>
+                    <Typography><strong>Peso Bruto:</strong></Typography>
+                    <Typography>
+                      {isNaN(liveClusters.grossWeight.node.value) 
+                        ? '0 kg' 
+                        : `${liveClusters.grossWeight.node.value} kg`}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Typography><strong>Tara:</strong></Typography>
+                    <Typography>
+                      {isNaN(liveClusters.tare.node.value) 
+                        ? '0 kg' 
+                        : `${liveClusters.tare.node.value} kg`}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Typography><strong>Peso Neto:</strong></Typography>
+                    <Typography>
+                      {isNaN(liveClusters.netWeight.node.value) 
+                        ? '0 kg' 
+                        : `${liveClusters.netWeight.node.value} kg`}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Typography><strong>Paddy Neto:</strong></Typography>
+                    <Typography>
+                      {isNaN(liveClusters.totalPaddy.node.value) 
+                        ? '0 kg' 
+                        : `${liveClusters.totalPaddy.node.value} kg`}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </PrintDialog>
     </>
   );
 }
