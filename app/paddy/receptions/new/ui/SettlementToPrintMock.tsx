@@ -71,7 +71,7 @@ export default function SettlementToPrintMock() {
         </Box>
       </Box>
 
-      <Divider sx={{ my: 2, borderBottomWidth: 2, opacity: 0.6 }} />
+      <Divider />
 
       <Box>
         <Typography><strong>RUT:</strong> 15.789.654-2</Typography>
@@ -79,7 +79,7 @@ export default function SettlementToPrintMock() {
         <Typography><strong>Giro:</strong> Producción de arroz</Typography>
       </Box>
 
-      <Divider sx={{ my: 2, borderBottomWidth: 2, opacity: 0.6 }} />
+      <Divider />
 
       <Typography variant="h6">Detalle de Recepciones</Typography>
       <Table size="small">
@@ -119,7 +119,7 @@ export default function SettlementToPrintMock() {
         <Typography><strong>Total:</strong> {total.toLocaleString("es-CL")}</Typography>
       </Box>
 
-      <Divider sx={{ my: 4, borderBottomWidth: 2, opacity: 0.6 }} />
+      <Divider />
 
       <Typography variant="h6">Detalle de Anticipos / Cheques</Typography>
       <Table size="small">

@@ -93,14 +93,7 @@ export default function NewReceptionPage() {
             <Typography gutterBottom>Datos de la recepción</Typography>
             <ReceptionGeneralData />
 
-            <Divider
-              sx={{
-                my: 2,
-                borderColor: "primary.main",
-                borderBottomWidth: 2,
-                opacity: 0.6,
-              }}
-            />
+            <Divider />
             
             {/* Error Summary - Solo visible cuando hay errores */}
             {hasValidationErrors() && (
@@ -270,16 +263,7 @@ export default function NewReceptionPage() {
                   "Guardar recepción"
                 )}
               </Button>
-            </Stack>
-
-            <Divider 
-              sx={{ 
-                my: 2,
-                borderColor: "primary.main",
-                borderBottomWidth: 2,
-                opacity: 0.6,
-              }} 
-            />
+            </Stack>            <Divider />
             <Typography gutterBottom sx={{ textAlign: 'right' }}>Plantillas</Typography>
 
             <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">

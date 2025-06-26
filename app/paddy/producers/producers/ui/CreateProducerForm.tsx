@@ -263,7 +263,7 @@ export const CreateProducerForm = ({
 
           {/* Divider y subtítulo para datos bancarios */}
           <Grid item>
-            <Divider sx={{ my: 1, opacity: 0.6 }} />
+            <Divider />
             <Typography variant="subtitle2" sx={{ mt: 2, mb: 1, fontWeight: 600, color: 'text.secondary' }}>
               Cuenta bancaria
             </Typography>
