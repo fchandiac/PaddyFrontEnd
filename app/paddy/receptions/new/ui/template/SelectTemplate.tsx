@@ -246,37 +246,39 @@ export default function SelectTemplate({ closeDialog }: SelectTemplateProps) {
                         {tpl.producer?.name || "Sin productor"}
                       </TableCell>
                       <TableCell align="right">
-                        {!tpl.default && (
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setTemplateToDelete({ id: tpl.id, name: tpl.name });
-                              setOpenDeleteDialog(true);
-                            }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                        <Tooltip title="Cargar plantilla">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setSelectedTemplate(tpl);
-                            }}
-                          >
-                            <ArticleIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleSetDefault(tpl.id)}
-                        >
-                          {tpl.default ? (
-                            <StarIcon fontSize="small" color="warning" />
-                          ) : (
-                            <StarBorderIcon fontSize="small" />
+                        <Box display="flex" alignItems="center" justifyContent="flex-end" gap={0.5}>
+                          {!tpl.default && (
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                setTemplateToDelete({ id: tpl.id, name: tpl.name });
+                                setOpenDeleteDialog(true);
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
                           )}
-                        </IconButton>
+                          <Tooltip title="Cargar plantilla">
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                setSelectedTemplate(tpl);
+                              }}
+                            >
+                              <ArticleIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleSetDefault(tpl.id)}
+                          >
+                            {tpl.default ? (
+                              <StarIcon fontSize="small" color="warning" />
+                            ) : (
+                              <StarBorderIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))}

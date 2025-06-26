@@ -26,8 +26,8 @@ const parameterOrder = [
 export default function ReceptionToPrint() {
   const { data, liveClusters } = useReceptionContext();
 
-  // Simulamos template básico para la vista previa
-  const template = {
+  // Usar template del contexto si está disponible, sino usar template básico
+  const template = data.template || {
     name: "Plantilla por defecto",
     useToleranceGroup: false,
     availableHumedad: true,
@@ -38,8 +38,8 @@ export default function ReceptionToPrint() {
     availableGranosPelados: true,
     availableGranosYesosos: true,
     availableGranosManchados: true,
-    availableBonificacion: true,
-    availableSecado: true,
+    availableBonus: true,
+    availableDry: true,
     showToleranceHumedad: true,
     showToleranceGranosVerdes: true,
     showToleranceImpurezas: true,
@@ -177,7 +177,7 @@ export default function ReceptionToPrint() {
   // Bonificación
   const calcPenaltyBonificacion = liveClusters.Bonus.tolerance.value > 0
     ? +((liveClusters.Bonus.tolerance.value * netWeight) / 100).toFixed(2) : 0;
-  if (template.availableBonificacion) {
+  if (template.availableBonus) {
     rows.push({
       name: "Bonificación",
       percent: liveClusters.Bonus.tolerance.value,
@@ -188,7 +188,7 @@ export default function ReceptionToPrint() {
   }
 
   // Secado
-  if (template.availableSecado)
+  if (template.availableDry)
     rows.push({
       name: "Secado",
       percent: liveClusters.Dry.percent.value,
@@ -290,9 +290,16 @@ export default function ReceptionToPrint() {
       <Divider sx={{ borderBottom: "1px solid #212121", my: 2 }} />
 
       {/* Análisis */}
-      <Typography variant="h6" gutterBottom>
-        Análisis de granos
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6" gutterBottom>
+          Análisis de granos
+        </Typography>
+        {template.name && (
+          <Typography variant="body2" sx={{ fontSize: "11px", color: "#666" }}>
+            Plantilla: {template.name}
+          </Typography>
+        )}
+      </Box>
 
       <Table size="small" sx={{ "& th, & td": { fontSize: "12px" } }}>
         <TableHead>
