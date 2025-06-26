@@ -8,7 +8,7 @@ import SplashScreen from '@/components/SplashScreen/SplashScreen';
 
 export default function RootWrapper({ children }: { children: ReactNode }) {
   const userState = useUser();
-  const { showSplash, hideSplash } = useSplashScreen(8000); // 8 segundos
+  const { showSplash, hideSplash } = useSplashScreen(8500); // 8.5 segundos incluyendo fade-out
 
   // Si hay que mostrar el splash, renderizarlo
   if (showSplash) {

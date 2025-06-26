@@ -54,7 +54,7 @@ export default function Page() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLogin(true);
-    }, 100);
+    }, 300); // Aumentado a 300ms para mejor transición
 
     return () => clearTimeout(timer);
   }, []);

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-export function useSplashScreen(duration: number = 8000) {
+export function useSplashScreen(duration: number = 8500) {
   const [showSplash, setShowSplash] = useState(true);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
