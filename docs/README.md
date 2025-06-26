@@ -1,13 +1,50 @@
-# Documentation
+# Documentación - Paddy Frontend
 
-Esta carpeta contiene toda la documentación del proyecto Paddy Frontend.
+## 📋 Índice de Documentación Actualizado
 
-## Estructura
+### 📊 **Reportes y Análisis**
+- [`appReport.txt`](reports/appReport.txt) - Análisis técnico principal y últimas actualizaciones
+- [`general-changelog.md`](reports/general-changelog.md) - Changelog general con todas las mejoras (NUEVO)
+- [`print-system-changelog.md`](reports/print-system-changelog.md) - Historial específico del sistema de impresión
 
-### 📁 `improvements/`
-Documentación de mejoras implementadas en el proyecto:
-- `BONUS_VALIDATIONS.md` - Validaciones adicionales implementadas
-- `KEYBOARD_NAVIGATION_IMPROVEMENTS.md` - Mejoras en navegación por teclado
+### � **Mejoras e Implementaciones**
+- [`splash-screen-implementation.md`](improvements/splash-screen-implementation.md) - Documentación del splash screen (NUEVO)
+- [`print-system-refactor.md`](improvements/print-system-refactor.md) - Refactorización del sistema de impresión
+- [`keyboard-navigation-improvements.md`](improvements/keyboard-navigation-improvements.md) - Mejoras de navegación por teclado
+
+### 📋 **Requerimientos y Especificaciones**
+- [`requerimiento.txt`](requirements/requerimiento.txt) - Requerimientos originales del proyecto
+- [`BONUS_VALIDATIONS.md`](requirements/BONUS_VALIDATIONS.md) - Validaciones de bonificaciones
+- [`KEYBOARD_NAVIGATION_IMPROVEMENTS.md`](requirements/KEYBOARD_NAVIGATION_IMPROVEMENTS.md) - Especificaciones de navegación
+- [`LOADING_INDICATOR_IMPROVEMENTS.md`](requirements/LOADING_INDICATOR_IMPROVEMENTS.md) - Indicadores de carga
+- [`PRODUCER_AUTOCOMPLETE_IMPROVEMENTS.md`](requirements/PRODUCER_AUTOCOMPLETE_IMPROVEMENTS.md) - Mejoras de autocompletado
+- [`PRODUCER_FORM_IMPROVEMENTS.md`](requirements/PRODUCER_FORM_IMPROVEMENTS.md) - Mejoras de formularios
+
+### 🔧 **Backend y API**
+- [`backend_template_model.md`](backend/backend_template_model.md) - Modelo de datos para plantillas
+
+### 🧪 **Testing y Calidad**
+- [`TEST-E2E-README.md`](testing/TEST-E2E-README.md) - Guía de testing end-to-end
+
+### 📁 **Directorios Reservados**
+- `templates/` - Reservado para futuras implementaciones de plantillas
+
+---
+
+## 🎯 **Estado Actual del Proyecto (26 de junio de 2025)**
+
+### ✅ **Últimas Implementaciones**
+- ✅ **Splash Screen**: Pantalla de bienvenida animada con branding corporativo
+- ✅ **Correcciones TypeScript**: Tipos alineados en ReceptionToPrint.tsx
+- ✅ **UI Mejorada**: Alineación de íconos en tabla de plantillas
+- ✅ **Documentación**: Actualizada completamente con últimos cambios
+
+### 🔧 **Componentes Principales**
+- `ReceptionToPrint.tsx` - Componente único de impresión
+- `SplashScreen.tsx` - Pantalla de bienvenida animada
+- `SelectTemplate.tsx` - Gestión de plantillas con UI mejorada
+- `useReceptionData.tsx` - Hook principal de contexto
+- `paramCells.tsx` - Sistema reactivo de cálculos
 - `LOADING_INDICATOR_IMPROVEMENTS.md` - Mejoras en indicadores de carga
 - `PRODUCER_AUTOCOMPLETE_IMPROVEMENTS.md` - Mejoras en autocomplete de productores
 - `PRODUCER_FORM_IMPROVEMENTS.md` - Mejoras en formularios de productores

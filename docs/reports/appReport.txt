@@ -1,3 +1,38 @@
+# Últimas Actualizaciones - 26 de junio de 2025
+
+## 🎨 Splash Screen Implementado
+Se agregó una pantalla de bienvenida animada que mejora significativamente la experiencia de usuario:
+- Duración: 4 segundos en primera carga por sesión
+- Animaciones: Logo flotante, gradientes corporativos, efectos de glow
+- Integración: app/RootWrapper.tsx modificado con hook personalizado
+- Componentes: SplashScreen.tsx y useSplashScreen.tsx
+- UX: Solo se muestra una vez por sesión, transición automática
+
+## 🐛 Correcciones de TypeScript
+Resueltos errores de tipos en ReceptionToPrint.tsx:
+- availableBonus → availableBonificacion
+- availableDry → availableSecado
+- Alineación completa con tipos TemplateType
+
+## 🎯 Mejoras de UI
+Corregida alineación de íconos en tabla de plantillas (SelectTemplate.tsx):
+- Íconos horizontalmente alineados usando flexbox
+- Mejor experiencia visual en gestión de plantillas
+- Consistencia mejorada en la interfaz
+
+## 📊 Verificación de Cache
+Confirmada configuración de cache en productores:
+- getAllProducers() usa cache: "no-store"
+- Datos siempre actualizados desde servidor
+- Optimal para datos dinámicos
+
+## 🧹 Limpieza de Código
+- Revertidos scripts experimentales de creación masiva de plantillas
+- Código base más limpio y enfocado
+- Documentación actualizada y organizada
+
+---
+
 # Análisis de ParamCells: Arquitectura y Lógica
 
 El archivo `hooks/paramCells.tsx` implementa un sistema sofisticado de cálculo para el procesamiento de arroz (paddy), utilizando un patrón de diseño basado en nodos reactivos.

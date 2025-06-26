@@ -1,6 +1,41 @@
-# Changelog - Sistema de Impresión
+# Changelog - Sistema de Impresión y UI
 
-## [26 de junio de 2025] - Refactorización y Limpieza
+## [26 de junio de 2025] - Últimas Mejoras y Correcciones
+
+### 🎨 **Splash Screen Implementado:**
+- ✅ **Nuevo**: Pantalla de bienvenida animada (4 segundos)
+- ✅ **Componente**: `components/SplashScreen/SplashScreen.tsx`
+- ✅ **Hook**: `hooks/useSplashScreen.tsx` para manejo de estado
+- ✅ **Integración**: `app/RootWrapper.tsx` modificado
+- ✅ **Características**:
+  - Animación del logo con flotación y escala
+  - Gradiente corporativo azul-verde
+  - Aparición secuencial de elementos
+  - Solo se muestra en primera carga por sesión
+  - Transición automática al login
+
+### 🔧 **Correcciones TypeScript:**
+- ✅ **Corregido**: Propiedades en `ReceptionToPrint.tsx`
+  - `availableBonus` → `availableBonificacion`
+  - `availableDry` → `availableSecado` 
+- ✅ **Alineación**: Íconos en tabla de plantillas (`SelectTemplate.tsx`)
+  - Agregado `Box` con `display="flex"` para alinear horizontalmente
+  - Íconos (eliminar, cargar, estrella) ahora en la misma línea
+
+### 🧹 **Limpieza de Código:**
+- ❌ **Revertido**: Scripts de creación masiva de plantillas
+- ❌ **Eliminado**: Archivos relacionados con generación automática
+- ✅ **Conservado**: `docs/templates/` para futuras implementaciones
+- ✅ **Limpio**: `package.json` sin scripts innecesarios
+
+### 📊 **Cache de Productores:**
+- ✅ **Verificado**: `app/actions/producer.ts` usa `cache: "no-store"`
+- ✅ **Comportamiento**: Datos siempre actualizados desde servidor
+- ✅ **Rendimiento**: Sin cache para datos dinámicos
+
+---
+
+## [26 de junio de 2025] - Refactorización y Limpieza Anterior
 
 ### 🗂️ **Archivos Reorganizados:**
 - ❌ **Eliminado**: `ReceptionToPrint.tsx` (versión original)
