@@ -16,9 +16,10 @@ import SideBar from "./SideBar";
 import { useUserContext } from "@/context/UserContext";
 import UserInfoForm from "@/components/appBar/UserInfoForm";
 import moment from "moment";
+import packageJson from "../../package.json";
 
 const AppName = "Paddy AyG";
-const AppVersion = "v1.0.0";
+const AppVersion = `v${packageJson.version}`;
 
 const TopBar: React.FC = () => {
   const [openUserInfoDialog, setOpenUserInfoDialog] = useState(false);
