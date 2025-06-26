@@ -596,7 +596,7 @@ export const defaultReceptionData: DataReceptionContextType = {
   price: 0,
   guide: "",
   licensePlate: "",
-  note: "",
+  note: "Sin observaciones.",
   status: "pending",
   discountTemplateId: 0,
   createdAt: "",

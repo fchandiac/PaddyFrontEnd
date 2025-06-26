@@ -15,8 +15,6 @@ import { getAllRiceTypes } from "@/app/actions/rice-type";
 import { useReceptionContext } from "@/context/ReceptionDataContext";
 import { CreateProducerForm } from "@/app/paddy/producers/producers/ui/CreateProducerForm";
 
-
-
 export default function ReceptionGeneralData() {
   const { data, liveClusters, setField } = useReceptionContext();
 
@@ -39,6 +37,10 @@ export default function ReceptionGeneralData() {
   const priceRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLInputElement>(null);
   const licenseRef = useRef<HTMLInputElement>(null);
+  const grossWeightRef = useRef<HTMLInputElement>(null);
+  const tareRef = useRef<HTMLInputElement>(null);
+  const netWeightRef = useRef<HTMLInputElement>(null);
+  const observationsRef = useRef<HTMLInputElement>(null);
   
   // Función para manejar navegación con Enter
   const handleEnterNavigation = (nextRef: React.RefObject<HTMLInputElement>) => {
@@ -121,9 +123,7 @@ export default function ReceptionGeneralData() {
 
   return (
     <>
-      <Grid container spacing={1.3} sx = {{
-   
-      }}>
+      <Grid container spacing={1.3}>
         {/* Productor */}
         <Grid item xs={12}>
           <Autocomplete
@@ -337,11 +337,9 @@ export default function ReceptionGeneralData() {
               },
             }}
             onChange={(_, newValue) => {
-              // setRiceTypeId(newValue?.id || 0);
-
+              setField('riceTypeId', newValue?.id || 0);
               if (newValue?.price != null) {
-                // setPriceInput(newValue.price.toString());
-                // setParamTable("price" as ParamKey, newValue.price);
+                setPrice(newValue.price);
               }
             }}
             renderInput={(params) => (
@@ -419,7 +417,6 @@ export default function ReceptionGeneralData() {
               if (numericValue) {
                 const parsedValue = parseInt(numericValue, 10);
                 setPrice(parsedValue);
-                // El precio se guardará cuando se envíe el formulario
               } else {
                 setPrice(0);
               }
@@ -444,17 +441,15 @@ export default function ReceptionGeneralData() {
             label="Guía"
             fullWidth
             size="small"
+            value={data.guide || ''}
+            onChange={(e) => setField("guide", e.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();
                 handleEnterNavigation(licenseRef);
               }
             }}
-            // value={guideInput}
-            // onChange={(e) => setGuideInput(e.target.value)}
-            // onBlur={() =>  setGuide(guideInput)}
-            // onFocus={(e) => (e.target as HTMLInputElement).select()}
-           
+            onFocus={(e) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
 
@@ -466,16 +461,22 @@ export default function ReceptionGeneralData() {
             autoComplete="off"
             fullWidth
             size="small"
-            // value={licenseInput}
-            // onChange={(e) => setLicenseInput(e.target.value)}
-            // onBlur={() => setLicensePlate(licenseInput)}
-            // onFocus={(e) => (e.target as HTMLInputElement).select()}
+            value={data.licensePlate}
+            onChange={(e) => setField("licensePlate", e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleEnterNavigation(grossWeightRef);
+              }
+            }}
+            onFocus={(e) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
 
         {/* Peso bruto */}
         <Grid item xs={6}>
           <TextField
+            inputRef={grossWeightRef}
             label="Peso bruto"
             type="number"
             fullWidth
@@ -487,6 +488,12 @@ export default function ReceptionGeneralData() {
             InputProps={{
               endAdornment: <InputAdornment position="end">kg</InputAdornment>,
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleEnterNavigation(tareRef);
+              }
+            }}
             onFocus={(e) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
@@ -494,6 +501,7 @@ export default function ReceptionGeneralData() {
         {/* Tara */}
         <Grid item xs={6}>
           <TextField
+            inputRef={tareRef}
             label="Tara"
             type="number"
             fullWidth
@@ -505,13 +513,20 @@ export default function ReceptionGeneralData() {
             InputProps={{
               endAdornment: <InputAdornment position="end">kg</InputAdornment>,
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleEnterNavigation(observationsRef);
+              }
+            }}
             onFocus={(e) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
 
-        {/* Peso neto (calculado) */}
+        {/* Peso neto (calculado) - Sin navegación con Enter */}
         <Grid item xs={12}>
           <TextField
+            inputRef={netWeightRef}
             label="Peso neto"
             type="number"
             fullWidth
@@ -519,24 +534,30 @@ export default function ReceptionGeneralData() {
             value={liveClusters.netWeight.node.value}
             InputProps={{
               readOnly: true,
-              tabIndex: -1,
               endAdornment: <InputAdornment position="end">kg</InputAdornment>,
               sx: { "& input": { textAlign: "right" } },
             }}
+            onFocus={(e) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
 
         {/* Observaciones */}
         <Grid item xs={12}>
           <TextField
+            inputRef={observationsRef}
             label="Observaciones"
             multiline
             rows={3}
             fullWidth
             size="small"
-            // value={noteInput}
-            // onChange={(e) => setNoteInput(e.target.value)}
-
+            value={data.note}
+            onChange={(e) => setField("note", e.target.value)}
+            onFocus={(e) => {
+              // Seleccionar todo el texto cuando se recibe el foco
+              setTimeout(() => {
+                (e.target as HTMLInputElement).select();
+              }, 10);
+            }}
           />
         </Grid>
       </Grid>

@@ -341,10 +341,8 @@ export default function ReceptionToPrint() {
         {(() => {
           const items: { label: string; value: number }[] = [
             { label: "Total descuentos", value: calcPenaltyTotalAnalisis },
+            { label: "Bonificación", value: calcPenaltyBonificacion },
           ];
-          if (calcPenaltyBonificacion > 0) {
-            items.push({ label: "Bonificación", value: calcPenaltyBonificacion });
-          }
           const bonif = calcPenaltyBonificacion > 0 ? calcPenaltyBonificacion : 0;
           const paddyNet = data.netWeight - calcPenaltyTotalAnalisis + bonif;
           items.push({ label: "Paddy neto", value: paddyNet });
