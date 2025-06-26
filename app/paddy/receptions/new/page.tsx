@@ -28,6 +28,7 @@ import TemplateComponent from "./ui/template/Template";
 import ErrorSummary from "./ui/ErrorSummary";
 import PrintDialog from "@/components/PrintDialog/PrintDialog";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import ReceptionToPrint from "../ReceptionToPrint";
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
@@ -348,85 +349,10 @@ export default function NewReceptionPage() {
       <PrintDialog
         open={openPrintDialog}
         setOpen={setOpenPrintDialog}
-        title="Recepción"
+        title="Recepción de Paddy"
         dialogWidth="lg"
       >
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h4" gutterBottom align="center">
-            RECEPCIÓN DE PADDY
-          </Typography>
-          
-          <Grid container spacing={2} sx={{ mt: 2 }}>
-            {/* Datos del Productor */}
-            <Grid item xs={6}>
-              <Typography variant="h6" gutterBottom>
-                Datos del Productor
-              </Typography>
-              <Typography><strong>Nombre:</strong> {data.producerName || 'N/A'}</Typography>
-              <Typography><strong>RUT:</strong> {data.producerRut || 'N/A'}</Typography>
-              <Typography><strong>Razón Social:</strong> {data.producerBusinessName || 'N/A'}</Typography>
-              <Typography><strong>Dirección:</strong> {data.producerAddress || 'N/A'}</Typography>
-            </Grid>
-
-            {/* Datos de la Recepción */}
-            <Grid item xs={6}>
-              <Typography variant="h6" gutterBottom>
-                Datos de la Recepción
-              </Typography>
-              <Typography><strong>Fecha:</strong> {new Date().toLocaleDateString('es-CL')}</Typography>
-              <Typography><strong>Guía:</strong> {data.guide || 'N/A'}</Typography>
-              <Typography><strong>Placa Patente:</strong> {data.licensePlate || 'N/A'}</Typography>
-            </Grid>
-
-            {/* Totales */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-                Resumen de Pesos
-              </Typography>
-              <Box sx={{ 
-                border: '1px solid #ccc', 
-                borderRadius: 1, 
-                p: 2,
-                backgroundColor: '#f9f9f9'
-              }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={3}>
-                    <Typography><strong>Peso Bruto:</strong></Typography>
-                    <Typography>
-                      {isNaN(liveClusters.grossWeight.node.value) 
-                        ? '0 kg' 
-                        : `${liveClusters.grossWeight.node.value} kg`}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Typography><strong>Tara:</strong></Typography>
-                    <Typography>
-                      {isNaN(liveClusters.tare.node.value) 
-                        ? '0 kg' 
-                        : `${liveClusters.tare.node.value} kg`}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Typography><strong>Peso Neto:</strong></Typography>
-                    <Typography>
-                      {isNaN(liveClusters.netWeight.node.value) 
-                        ? '0 kg' 
-                        : `${liveClusters.netWeight.node.value} kg`}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Typography><strong>Paddy Neto:</strong></Typography>
-                    <Typography>
-                      {isNaN(liveClusters.totalPaddy.node.value) 
-                        ? '0 kg' 
-                        : `${liveClusters.totalPaddy.node.value} kg`}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Box>
-            </Grid>
-          </Grid>
-        </Box>
+        <ReceptionToPrint />
       </PrintDialog>
     </>
   );
