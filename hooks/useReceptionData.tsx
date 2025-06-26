@@ -174,10 +174,10 @@ export function useReceptionData(
       if (data.template.useToleranceGroup && groupTolerance && available) {
         console.log(`🔥 Setting ${name} group tolerance background color`);
         // Color morado pastel claro para elementos del grupo de tolerancia
-        cluster.range.backgroundColor = "#ede7f6"; // Morado pastel claro para range también
-        cluster.tolerance.backgroundColor = "#ede7f6"; // Morado pastel claro
-        cluster.percent.backgroundColor = "#ede7f6"; // Morado pastel claro
-        cluster.penalty.backgroundColor = "#ede7f6"; // Morado pastel claro para penalty también
+        cluster.range.backgroundColor = "#eceff1"; // Morado pastel claro para range también
+        cluster.tolerance.backgroundColor = "#eceff1"; // Morado pastel claro
+        cluster.percent.backgroundColor = "#eceff1"; // Morado pastel claro
+        cluster.penalty.backgroundColor = "#eceff1"; // Morado pastel claro para penalty también
       } else {
         // Restaurar color predeterminado solo si no hay error
         if (!cluster.range.error) {
@@ -207,9 +207,9 @@ export function useReceptionData(
     if (data.template.useToleranceGroup && hasGroupToleranceParams) {
       console.log('🔥 Setting GroupSummary background color for tolerance group');
       liveClusters.groupSummary.toleranceGroup = true; // Marcar como parte del grupo de tolerancia
-      liveClusters.groupSummary.percent.backgroundColor = "#ede7f6";
-      liveClusters.groupSummary.tolerance.backgroundColor = "#ede7f6";
-      liveClusters.groupSummary.penalty.backgroundColor = "#ede7f6";
+      liveClusters.groupSummary.percent.backgroundColor = "#eceff1";
+      liveClusters.groupSummary.tolerance.backgroundColor = "#eceff1";
+      liveClusters.groupSummary.penalty.backgroundColor = "#eceff1";
     } else {
       liveClusters.groupSummary.toleranceGroup = false; // No pertenece al grupo de tolerancia
       liveClusters.groupSummary.percent.backgroundColor = "inherit";
@@ -327,10 +327,10 @@ export function useReceptionData(
           
           // Actualizar colores de fondo según corresponda
           if (useToleranceGroup && groupTolerance) {
-            cluster.range.backgroundColor = "#ede7f6";
-            cluster.tolerance.backgroundColor = "#ede7f6";
-            cluster.percent.backgroundColor = "#ede7f6";
-            cluster.penalty.backgroundColor = "#ede7f6";
+            cluster.range.backgroundColor = "#eceff1";
+            cluster.tolerance.backgroundColor = "#eceff1";
+            cluster.percent.backgroundColor = "#eceff1";
+            cluster.penalty.backgroundColor = "#eceff1";
           } else {
             // Restaurar colores predeterminados si no hay error
             if (!cluster.range.error) {
@@ -351,9 +351,9 @@ export function useReceptionData(
       
       // Actualizar el color de fondo del groupSummary
       if (useToleranceGroup && paramClusters.some(c => c.available && c.toleranceGroup)) {
-        liveClusters.groupSummary.percent.backgroundColor = "#ede7f6";
-        liveClusters.groupSummary.tolerance.backgroundColor = "#ede7f6";
-        liveClusters.groupSummary.penalty.backgroundColor = "#ede7f6";
+        liveClusters.groupSummary.percent.backgroundColor = "#eceff1";
+        liveClusters.groupSummary.tolerance.backgroundColor = "#eceff1";
+        liveClusters.groupSummary.penalty.backgroundColor = "#eceff1";
       } else {
         liveClusters.groupSummary.percent.backgroundColor = "inherit";
         liveClusters.groupSummary.tolerance.backgroundColor = "inherit";

@@ -259,7 +259,7 @@ function createRangeNode(key: string, parentCluster: Cluster): RangeNode {
       } else {
         // Si pertenece al grupo de tolerancia, mantener el color del grupo
         if (node.parentCluster.toleranceGroup) {
-          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+          node.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
         } else {
           node.backgroundColor = "inherit";
         }
@@ -313,7 +313,7 @@ function createPercentNode(key: string, parentCluster: Cluster): Node {
       } else {
         // Si pertenece al grupo de tolerancia, mantener el color del grupo
         if (node.parentCluster.toleranceGroup) {
-          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+          node.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
         } else {
           node.backgroundColor = "inherit";
         }
@@ -367,7 +367,7 @@ function createToleranceNode(key: string, parentCluster: Cluster): Node {
       } else {
         // Si pertenece al grupo de tolerancia, mantener el color del grupo
         if (node.parentCluster.toleranceGroup) {
-          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+          node.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
         } else {
           node.backgroundColor = "inherit";
         }
@@ -421,7 +421,7 @@ function createPenaltyNode(key: string, parentCluster: Cluster): Node {
       } else {
         // Si pertenece al grupo de tolerancia, mantener el color del grupo
         if (node.parentCluster.toleranceGroup) {
-          node.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+          node.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
         } else {
           node.backgroundColor = "inherit";
         }
@@ -539,7 +539,7 @@ function createParamCluster(
     } else {
       // Si pertenece al grupo de tolerancia, mantener el color del grupo
       if (cluster.toleranceGroup) {
-        cluster.percent.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        cluster.percent.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
       } else {
         cluster.percent.backgroundColor = "inherit"; // Sin color especial cuando no hay error
       }
@@ -588,7 +588,7 @@ function createGroupSummaryCluster(
     } else {
       // Si pertenece al grupo de tolerancia, mantener el color del grupo
       if (cluster.toleranceGroup) {
-        cluster.percent.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        cluster.percent.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
       } else {
         cluster.percent.backgroundColor = "inherit"; // Sin color cuando no hay error
       }
@@ -606,7 +606,7 @@ function createGroupSummaryCluster(
     } else {
       // Si pertenece al grupo de tolerancia, mantener el color del grupo
       if (cluster.toleranceGroup) {
-        cluster.tolerance.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        cluster.tolerance.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
       } else {
         cluster.tolerance.backgroundColor = "inherit"; // Sin color cuando no hay error
       }
@@ -623,7 +623,7 @@ function createGroupSummaryCluster(
     } else {
       // Si pertenece al grupo de tolerancia, mantener el color del grupo
       if (cluster.toleranceGroup) {
-        cluster.penalty.backgroundColor = "#ede7f6"; // Mantener color del grupo de tolerancia
+        cluster.penalty.backgroundColor = "#eceff1"; // Mantener color del grupo de tolerancia
       } else {
         cluster.penalty.backgroundColor = "inherit"; // Sin color cuando no hay error
       }

@@ -719,7 +719,7 @@ export default function GrainAnalysis() {
                   sx={{ 
                     width: 16, 
                     height: 16, 
-                    backgroundColor: '#ede7f6', 
+                    backgroundColor: '#eceff1', 
                     borderRadius: '4px',
                     border: '1px solid #d1c4e9'
                   }} 
