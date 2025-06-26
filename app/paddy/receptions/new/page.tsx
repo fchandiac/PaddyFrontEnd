@@ -27,11 +27,13 @@ import SelectTemplate from "./ui/template/SelectTemplate";
 import TemplateComponent from "./ui/template/Template";
 import ErrorSummary from "./ui/ErrorSummary";
 import PrintDialog from "@/components/PrintDialog/PrintDialog";
+import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
   const { data, liveClusters, setTemplate } = useReceptionContext();
   const { user } = useUserContext();
+  const { handleKeyDown } = useKeyboardNavigation();
 
   const [loadingTemplate, setLoadingTemplate] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
@@ -79,41 +81,6 @@ export default function NewReceptionPage() {
 
   const handlePrint = () => {
     setOpenPrintDialog(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    const { key, code } = e;
-    if (key === "Enter") {
-      e.preventDefault();
-      const focusable = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          "input:not([readonly]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
-        )
-      ).filter(
-        (el) =>
-          el.offsetParent !== null &&
-          getComputedStyle(el).visibility !== "hidden" &&
-          el.getAttribute("aria-hidden") !== "true" &&
-          !el.hasAttribute("data-skip-focus")
-      );
-      const idx = focusable.indexOf(e.target as HTMLElement);
-      const next = focusable[idx + 1];
-      if (next) next.focus();
-      return;
-    }
-    if (code === "NumpadAdd") {
-      e.preventDefault();
-      const target = e.target as HTMLElement;
-      if (target.tagName === "BUTTON") {
-        (target as HTMLButtonElement).click();
-        return;
-      }
-      const form = target.closest("form");
-      const defaultBtn =
-        form?.querySelector('button[type="submit"]') ||
-        document.querySelector("button[data-default-action]");
-      if (defaultBtn instanceof HTMLButtonElement) defaultBtn.click();
-    }
   };
 
   return (

@@ -1412,7 +1412,7 @@ groupSummary.percent.effect = () => {
   
   if (total > 100) {
     groupSummary.percent.setError(true);
-    groupSummary.percent.setErrorMessage("Group percentage cannot exceed 100%");
+    groupSummary.percent.setErrorMessage("El porcentaje del grupo no puede exceder 100%");
   } else {
     groupSummary.percent.setError(false);
     groupSummary.percent.setErrorMessage("");
@@ -1435,7 +1435,7 @@ summary.percent.effect = () => {
     (isNaN(granosYesosos.percent.value) ? 0 : granosYesosos.percent.value);
   if (total > 100) {
     summary.percent.setError(true);
-    summary.percent.setErrorMessage("Total percentage cannot exceed 100%");
+    summary.percent.setErrorMessage("El porcentaje total no puede exceder 100%");
   } else {
     summary.percent.setError(false);
     summary.percent.setErrorMessage("");

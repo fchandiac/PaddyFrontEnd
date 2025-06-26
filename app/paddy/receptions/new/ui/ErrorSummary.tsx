@@ -14,6 +14,8 @@ export default function ErrorSummary() {
       "Tolerance cannot exceed 100%": "La tolerancia no puede exceder 100%",
       "Tolerance cannot exceed percentage": "La tolerancia no puede exceder el porcentaje",
       "Percentage cannot exceed 100%": "El porcentaje no puede exceder 100%",
+      "Group percentage cannot exceed 100%": "El porcentaje del grupo no puede exceder 100%",
+      "Total percentage cannot exceed 100%": "El porcentaje total no puede exceder 100%",
       "Bonus cannot make Paddy Net exceed Net Weight": "El bonus no puede hacer que el Paddy Neto exceda el Peso Neto",
       "Bonus cannot equal total discounts": "El bonus no puede ser igual al total de descuentos",
       "Total tolerance cannot exceed 100%": "La tolerancia total no puede exceder 100%"

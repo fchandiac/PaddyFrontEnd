@@ -1,14 +1,11 @@
-import NextAuth, { Session } from 'next-auth';
+import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
 
-
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
-
   session: {
     strategy: 'jwt',
   },
-
   trustHost: true,
   callbacks: {
     jwt: async ({ token, user, account, profile, isNewUser }) => {
@@ -24,11 +21,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: '/',
   },
-
   events: {
     signIn: async ({ user, account }) => {},
     signOut: async (user) => {},
   },
-
   ...authConfig,
 });
