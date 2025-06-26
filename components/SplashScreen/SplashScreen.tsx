@@ -115,12 +115,21 @@ export default function SplashScreen({ onComplete, duration = 8000 }: SplashScre
           <Fade in={companyNameVisible} timeout={800}>
             <Box textAlign="center" mb={2}>
               <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 400,
+                  color: '#666666',
+                  mb: 0.5,
+                }}
+              >
+                Soc. Comercial e Industrial
+              </Typography>
+              <Typography
                 variant="h4"
                 component="h1"
                 sx={{
                   fontWeight: 700,
                   color: '#1976d2',
-                  mb: 1,
                   animation: companyNameVisible 
                     ? 'textGlow 2s ease-in-out infinite alternate' 
                     : 'none',
@@ -134,16 +143,7 @@ export default function SplashScreen({ onComplete, duration = 8000 }: SplashScre
                   },
                 }}
               >
-                Aparicio y García
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 400,
-                  color: '#666666',
-                }}
-              >
-                Sociedad Comercial e Industrial Ltda.
+                Aparicio y García Ltda.
               </Typography>
             </Box>
           </Fade>
@@ -172,7 +172,7 @@ export default function SplashScreen({ onComplete, duration = 8000 }: SplashScre
                 },
               }}
             >
-              Sistema de Gestión de Recepción de Paddy
+              Sistema Integral para la Gestión de Paddy
             </Typography>
           </Fade>
 
@@ -187,7 +187,7 @@ export default function SplashScreen({ onComplete, duration = 8000 }: SplashScre
                 fontWeight: 500,
               }}
             >
-              Versión 2.1.0
+              Paddy AyG - Versión 2.1.0
             </Typography>
           </Fade>
 

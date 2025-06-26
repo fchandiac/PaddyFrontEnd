@@ -9,6 +9,7 @@ import {
   IconButton,
   InputAdornment,
   Fade,
+  Typography,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { signIn } from "next-auth/react";
@@ -146,6 +147,58 @@ export default function Page() {
               >
                 {loading ? "Procesando..." : "Ingresar"}
               </Button>
+            </Grid>
+
+            {/* Información de la empresa */}
+            <Grid item xs={2} sx={{ mt: 3 }}>
+              <Box textAlign="center">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 400,
+                    color: '#666666',
+                    fontSize: '0.8rem',
+                    display: 'block',
+                    mb: 0.3,
+                  }}
+                >
+                  Soc. Comercial e Industrial
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  component="h2"
+                  sx={{
+                    fontWeight: 600,
+                    color: '#1976d2',
+                    fontSize: '1rem',
+                    mb: 1,
+                  }}
+                >
+                  Aparicio y García Ltda.
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: '#888888',
+                    fontSize: '0.75rem',
+                    fontStyle: 'italic',
+                    display: 'block',
+                    mb: 0.5,
+                  }}
+                >
+                  Sistema Integral para la Gestión de Paddy
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: '#aaaaaa',
+                    fontSize: '0.65rem',
+                    fontWeight: 500,
+                  }}
+                >
+                  Paddy AyG - Versión 2.1.0
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
         </form>

@@ -40,6 +40,9 @@ Archivo de índice para exportación limpia.
 - ✅ Animación Fade-in para el login (300ms delay)
 - ✅ Transición suave después del splash
 - ✅ Corrección de sintaxis (cierre de componente Fade)
+- ✅ **Información de empresa integrada en login**
+- ✅ **Fuentes reducidas y diseño compacto**
+- ✅ **Versión del sistema visible en login**
 
 ## 🎨 Características Visuales
 
@@ -72,6 +75,8 @@ Archivo de índice para exportación limpia.
 - ✅ **Fade-out completo a blanco antes del login**
 - ✅ **Pantalla completamente blanca intermedia**
 - ✅ **Transición más suave y profesional**
+- ✅ **Información de empresa en login con fuentes pequeñas**
+- ✅ **Login con branding consistente (sin dirección)**
 
 ## 💡 Comportamiento
 
@@ -107,6 +112,8 @@ El splash screen se activa automáticamente:
 - ✅ No repetitivo en la misma sesión
 - ✅ Diseño limpio sin distracciones
 - ✅ **Pantalla intermedia blanca para transición perfecta**
+- ✅ **Branding consistente entre splash y login**
+- ✅ **Login informativo con detalles de empresa y versión**
 
 ### **Performance:**
 - ✅ Carga solo una vez por sesión
