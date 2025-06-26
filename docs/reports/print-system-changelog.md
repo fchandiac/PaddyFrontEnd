@@ -37,4 +37,31 @@ import ReceptionToPrint from "../ReceptionToPrint";
 
 ---
 
-*Cambio de organización - 26 de junio de 2025*
+## [26 de junio de 2025] - Limpieza de Archivos Duplicados
+
+### 🧹 **Eliminación de Duplicados:**
+- ❌ **Eliminado**: `ReceptionToPrintNew.tsx` (archivo duplicado)
+- ✅ **Conservado**: `ReceptionToPrint.tsx` (archivo funcional)
+
+### 🎯 **Archivo Activo:**
+- **Ubicación**: `/app/paddy/receptions/ReceptionToPrint.tsx`
+- **Función**: `ReceptionToPrint()`
+- **Uso**: Importado en `new/page.tsx` y funcionando correctamente
+
+### ✅ **Estado Final:**
+- **Un solo archivo** de impresión activo
+- **Sin duplicados** en el sistema
+- **Funcionalidad intacta** y operativa
+
+---
+
+### 🎨 **Últimas Mejoras de Estilo:**
+- **Encabezado empresarial** con tamaños diferenciados:
+  - "Sociedad Comercial e Industrial": Texto pequeño (12px), sin negrita
+  - "Aparicio y García Ltda": Negrita, tamaño normal (nombre principal)
+  - "Panamericana Sur km 345": Texto pequeño (12px)
+  - "Parral": Texto pequeño (12px)
+
+---
+
+*Limpieza completada - 26 de junio de 2025*
