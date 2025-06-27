@@ -135,7 +135,7 @@ export default function ReceptionToPrint() {
     },
   };
 
-  // Build initial rows
+  // Build initial rows with proper order matching GrainAnalysis
   const rows: Array<{
     name: string;
     percent: number | string;
@@ -144,9 +144,10 @@ export default function ReceptionToPrint() {
     groupTolerance: boolean;
   }> = [];
 
+  // First: Parameters that do NOT belong to tolerance group
   parameterOrder.forEach((name) => {
     const cfg = mapConfig[name];
-    if (!cfg.available) return;
+    if (!cfg.available || (template.useToleranceGroup && cfg.groupTolerance)) return;
     const tol = cfg.showTolerance || (cfg.groupTolerance && template.useToleranceGroup)
       ? cfg.tolerance : 0;
     const pen = cfg.percent > tol
@@ -160,7 +161,43 @@ export default function ReceptionToPrint() {
     });
   });
 
-  // Total Análisis
+  // Second: Parameters that belong to tolerance group
+  parameterOrder.forEach((name) => {
+    const cfg = mapConfig[name];
+    if (!cfg.available || !(template.useToleranceGroup && cfg.groupTolerance)) return;
+    const tol = cfg.showTolerance || (cfg.groupTolerance && template.useToleranceGroup)
+      ? cfg.tolerance : 0;
+    const pen = cfg.percent > tol
+      ? +(((cfg.percent - tol) * netWeight) / 100).toFixed(2) : 0;
+    rows.push({
+      name,
+      percent: cfg.percent,
+      tolerance: cfg.showTolerance ? cfg.tolerance : "",
+      penalty: pen,
+      groupTolerance: cfg.groupTolerance,
+    });
+  });
+
+  // Third: Total granos (GroupSummary) - only if there are group tolerance parameters
+  const hasGroupToleranceParams = template.useToleranceGroup && Object.values(mapConfig).some(
+    cfg => cfg.available && cfg.groupTolerance
+  );
+  
+  if (hasGroupToleranceParams) {
+    const groupSummaryPercent = liveClusters.groupSummary.percent.value;
+    const groupSummaryTolerance = liveClusters.groupSummary.tolerance.value;
+    const groupSummaryPenalty = liveClusters.groupSummary.penalty.value;
+    
+    rows.push({
+      name: "Total granos",
+      percent: groupSummaryPercent,
+      tolerance: groupSummaryTolerance,
+      penalty: groupSummaryPenalty,
+      groupTolerance: false,
+    });
+  }
+
+  // Fourth: Total Análisis (Summary)
   const calcPercentTotalAnalisis = Object.values(mapConfig).reduce((s, c) => s + c.percent, 0);
   const calcToleranceTotalAnalisis = Object.values(mapConfig).reduce((s, c) => s + c.tolerance, 0);
   const calcPenaltyTotalAnalisis = calcPercentTotalAnalisis > calcToleranceTotalAnalisis
@@ -311,28 +348,174 @@ export default function ReceptionToPrint() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row, idx) => (
-            <TableRow key={row.name}>
-              <TableCell sx={{ py: 0.5, borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0" }}>
-                {mapConfig[row.name]?.name ?? row.name}
-              </TableCell>
-              <TableCell sx={{ py: 0.5, borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0" }} align="right">
-                {typeof row.percent === "number" ? (
-                  <>{row.percent.toLocaleString("es-CL")}<span> %</span></>
-                ) : row.percent}
-              </TableCell>
-              <TableCell sx={{ py: 0.5, borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0" }} align="right">
-                {typeof row.tolerance === "number" ? (
-                  <>{row.tolerance.toLocaleString("es-CL")}<span> %</span></>
-                ) : row.tolerance}
-              </TableCell>
-              <TableCell sx={{ py: 0.5, borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0" }} align="right">
-                {typeof row.penalty === "number" ? (
-                  <>{row.penalty.toLocaleString("es-CL")}<span> kg</span></>
-                ) : row.penalty}
-              </TableCell>
-            </TableRow>
-          ))}
+          {/* Verificar si hay parámetros de grupo de tolerancia y añadir un separador */}
+          {(() => {
+            // Encontrar el índice del primer parámetro del grupo de tolerancia
+            const firstGroupToleranceIndex = rows.findIndex(
+              (row, idx) => row.groupTolerance && (idx === 0 || !rows[idx - 1].groupTolerance)
+            );
+            
+            if (firstGroupToleranceIndex !== -1) {
+              // Crear un array con los elementos antes del separador
+              const beforeSeparator = rows.slice(0, firstGroupToleranceIndex).map((row, idx) => {
+                let backgroundColor = "white";
+                if (row.name === "Total granos") {
+                  backgroundColor = "#eeeeee";
+                } else if (row.name === "Total Análisis") {
+                  backgroundColor = "#e0e0e0";
+                }
+                
+                return (
+                  <TableRow key={`before-${row.name}`} sx={{ backgroundColor }}>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: "1px solid #e0e0e0"
+                    }}>
+                      {mapConfig[row.name]?.name ?? row.name}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.percent === "number" ? (
+                        <>{row.percent.toLocaleString("es-CL")}<span> %</span></>
+                      ) : row.percent}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.tolerance === "number" ? (
+                        <>{row.tolerance.toLocaleString("es-CL")}<span> %</span></>
+                      ) : row.tolerance}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.penalty === "number" ? (
+                        <>{row.penalty.toLocaleString("es-CL")}<span> kg</span></>
+                      ) : row.penalty}
+                    </TableCell>
+                  </TableRow>
+                );
+              });
+              
+              // Agregar el separador (una fila vacía con borde superior)
+              const separator = (
+                <TableRow key="separator">
+                  <TableCell colSpan={4} style={{ 
+                    padding: 0, 
+                    height: 2, 
+                    borderTop: "2px solid #212121", 
+                    backgroundColor: "#f5f5f5" 
+                  }} />
+                </TableRow>
+              );
+              
+              // Crear un array con los elementos después del separador
+              const afterSeparator = rows.slice(firstGroupToleranceIndex).map((row, idx) => {
+                let backgroundColor = "#eeeeee"; // Por defecto para parámetros del grupo
+                if (row.name === "Total Análisis") {
+                  backgroundColor = "#e0e0e0";
+                }
+                
+                return (
+                  <TableRow key={`after-${row.name}`} sx={{ backgroundColor }}>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - firstGroupToleranceIndex - 1 ? "1px solid #212121" : "1px solid #e0e0e0"
+                    }}>
+                      {mapConfig[row.name]?.name ?? row.name}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - firstGroupToleranceIndex - 1 ? "1px solid #212121" : "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.percent === "number" ? (
+                        <>{row.percent.toLocaleString("es-CL")}<span> %</span></>
+                      ) : row.percent}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - firstGroupToleranceIndex - 1 ? "1px solid #212121" : "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.tolerance === "number" ? (
+                        <>{row.tolerance.toLocaleString("es-CL")}<span> %</span></>
+                      ) : row.tolerance}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - firstGroupToleranceIndex - 1 ? "1px solid #212121" : "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.penalty === "number" ? (
+                        <>{row.penalty.toLocaleString("es-CL")}<span> kg</span></>
+                      ) : row.penalty}
+                    </TableCell>
+                  </TableRow>
+                );
+              });
+              
+              // Combinar todo
+              return [...beforeSeparator, separator, ...afterSeparator];
+            } else {
+              // Si no hay grupo de tolerancia, mostrar todas las filas normalmente
+              return rows.map((row, idx) => {
+                let backgroundColor = "white";
+                if (row.name === "Total granos") {
+                  backgroundColor = "#eeeeee";
+                } else if (row.name === "Total Análisis") {
+                  backgroundColor = "#e0e0e0";
+                } else if (row.groupTolerance) {
+                  backgroundColor = "#eeeeee";
+                }
+                
+                return (
+                  <TableRow key={row.name} sx={{ backgroundColor }}>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0"
+                    }}>
+                      {mapConfig[row.name]?.name ?? row.name}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.percent === "number" ? (
+                        <>{row.percent.toLocaleString("es-CL")}<span> %</span></>
+                      ) : row.percent}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.tolerance === "number" ? (
+                        <>{row.tolerance.toLocaleString("es-CL")}<span> %</span></>
+                      ) : row.tolerance}
+                    </TableCell>
+                    <TableCell style={{ 
+                      padding: '4px 0',
+                      borderBottom: idx === rows.length - 1 ? "1px solid #212121" : "1px solid #e0e0e0",
+                      textAlign: 'right'
+                    }}>
+                      {typeof row.penalty === "number" ? (
+                        <>{row.penalty.toLocaleString("es-CL")}<span> kg</span></>
+                      ) : row.penalty}
+                    </TableCell>
+                  </TableRow>
+                );
+              });
+            }
+          })()}
         </TableBody>
       </Table>
 
@@ -369,15 +552,14 @@ export default function ReceptionToPrint() {
 
       {/* Observaciones */}
       <Box display="flex" justifyContent="space-between" mt={2}>
-        <Box width="50%" sx={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", rowGap: "1px", alignItems: "start" }}>
-          <Typography variant="body2" sx={{ fontSize: "12px", textAlign: "left", py: 0 }}>
-            <strong>Observaciones</strong>
+        <Box width="50%">
+          {/* Título de observaciones */}
+          <Typography variant="body2" sx={{ fontSize: "12px", fontWeight: "bold", mb: 1 }}>
+            Observaciones:
           </Typography>
-          <Typography variant="body2" sx={{ fontSize: "12px", textAlign: "center", py: 0 }}>
-            <strong>:</strong>
-          </Typography>
-          <Typography variant="body2" sx={{ fontSize: "12px", textAlign: "left", py: 0 }}>
-            {data.note || "-"}
+          {/* Contenido de observaciones - expandido a lo ancho */}
+          <Typography variant="body2" sx={{ fontSize: "12px", textAlign: "left", lineHeight: 1.4 }}>
+            {data.note || "Sin observaciones"}
           </Typography>
         </Box>
 

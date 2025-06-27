@@ -334,7 +334,7 @@ export default function NewReceptionPage() {
         open={openPrintDialog}
         setOpen={setOpenPrintDialog}
         title="Recepción de Paddy"
-        dialogWidth="lg"
+        dialogWidth="md"
       >
         <ReceptionToPrint />
       </PrintDialog>
