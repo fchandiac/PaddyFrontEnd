@@ -150,20 +150,20 @@ export function useReceptionData(
     
     // ParamClusters
     const paramMapping = [
-      { available: data.template.availableHumedad, cluster: liveClusters.Humedad, name: 'Humedad', groupTolerance: data.template.groupToleranceHumedad },
-      { available: data.template.availableGranosVerdes, cluster: liveClusters.GranosVerdes, name: 'GranosVerdes', groupTolerance: data.template.groupToleranceGranosVerdes },
-      { available: data.template.availableImpurezas, cluster: liveClusters.Impurezas, name: 'Impurezas', groupTolerance: data.template.groupToleranceImpurezas },
-      { available: data.template.availableVano, cluster: liveClusters.Vano, name: 'Vano', groupTolerance: data.template.groupToleranceVano },
-      { available: data.template.availableHualcacho, cluster: liveClusters.Hualcacho, name: 'Hualcacho', groupTolerance: data.template.groupToleranceHualcacho },
-      { available: data.template.availableGranosManchados, cluster: liveClusters.GranosManchados, name: 'GranosManchados', groupTolerance: data.template.groupToleranceGranosManchados },
-      { available: data.template.availableGranosPelados, cluster: liveClusters.GranosPelados, name: 'GranosPelados', groupTolerance: data.template.groupToleranceGranosPelados },
-      { available: data.template.availableGranosYesosos, cluster: liveClusters.GranosYesosos, name: 'GranosYesosos', groupTolerance: data.template.groupToleranceGranosYesosos },
+      { available: data.template.availableHumedad, cluster: liveClusters.Humedad, name: 'Humedad', groupTolerance: data.template.groupToleranceHumedad, showTolerance: data.template.showToleranceHumedad },
+      { available: data.template.availableGranosVerdes, cluster: liveClusters.GranosVerdes, name: 'GranosVerdes', groupTolerance: data.template.groupToleranceGranosVerdes, showTolerance: data.template.showToleranceGranosVerdes },
+      { available: data.template.availableImpurezas, cluster: liveClusters.Impurezas, name: 'Impurezas', groupTolerance: data.template.groupToleranceImpurezas, showTolerance: data.template.showToleranceImpurezas },
+      { available: data.template.availableVano, cluster: liveClusters.Vano, name: 'Vano', groupTolerance: data.template.groupToleranceVano, showTolerance: data.template.showToleranceVano },
+      { available: data.template.availableHualcacho, cluster: liveClusters.Hualcacho, name: 'Hualcacho', groupTolerance: data.template.groupToleranceHualcacho, showTolerance: data.template.showToleranceHualcacho },
+      { available: data.template.availableGranosManchados, cluster: liveClusters.GranosManchados, name: 'GranosManchados', groupTolerance: data.template.groupToleranceGranosManchados, showTolerance: data.template.showToleranceGranosManchados },
+      { available: data.template.availableGranosPelados, cluster: liveClusters.GranosPelados, name: 'GranosPelados', groupTolerance: data.template.groupToleranceGranosPelados, showTolerance: data.template.showToleranceGranosPelados },
+      { available: data.template.availableGranosYesosos, cluster: liveClusters.GranosYesosos, name: 'GranosYesosos', groupTolerance: data.template.groupToleranceGranosYesosos, showTolerance: data.template.showToleranceGranosYesosos },
     ];
-    paramMapping.forEach(({ available, cluster, name, groupTolerance }) => {
-      console.log(`🔥 Setting ${name} visibility to:`, available);
+    paramMapping.forEach(({ available, cluster, name, groupTolerance, showTolerance }) => {
+      console.log(`🔥 Setting ${name} visibility to:`, available, 'showTolerance:', showTolerance);
       cluster.range.show = !!available;
       cluster.percent.show = !!available;
-      cluster.tolerance.show = !!available;
+      cluster.tolerance.show = !!(available && showTolerance);
       cluster.penalty.show = !!available;
       
       // Actualizar flag de toleranceGroup en el clúster
