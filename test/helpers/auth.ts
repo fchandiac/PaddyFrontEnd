@@ -1,12 +1,58 @@
 // Función para autenticar antes de las pruebas
 import { TEST_CREDENTIALS } from '../data/credentials';
+import fs from 'fs';
+
+// Función para esperar a que el splash screen desaparezca
+async function waitForSplashScreenToDisappear() {
+  console.log('Esperando a que el splash screen desaparezca...');
+  
+  // Esperar a que el splash screen desaparezca (8.5 segundos + margen de seguridad)
+  const SPLASH_SCREEN_TIMEOUT = 10000; // 10 segundos 
+  
+  // Asegurarse de que el directorio errorShots existe
+  if (!fs.existsSync('./errorShots')) {
+    fs.mkdirSync('./errorShots', { recursive: true });
+  }
+  
+  // Capturar el estado inicial para verificar
+  await browser.saveScreenshot('./errorShots/splash-screen.png');
+  
+  // Establecer un timeout para evitar esperar indefinidamente
+  const startTime = Date.now();
+  
+  // Esperar hasta que aparezcan los elementos del login o se agote el tiempo
+  await browser.waitUntil(
+    async () => {
+      try {
+        // Intentar encontrar elementos del formulario de login
+        const emailInput = await $('input[name="email"]');
+        return await emailInput.isExisting();
+      } catch (error) {
+        return false;
+      }
+    },
+    {
+      timeout: SPLASH_SCREEN_TIMEOUT,
+      timeoutMsg: 'El splash screen no desapareció dentro del tiempo esperado',
+      interval: 500, // Comprobar cada 500ms
+    }
+  );
+  
+  console.log(`Splash screen desaparecido después de ${Date.now() - startTime}ms`);
+  await browser.saveScreenshot('./errorShots/after-splash-screen.png');
+}
 
 export async function authenticateForTests(browser: WebdriverIO.Browser) {
   // Navegar a la página de inicio de sesión
   await browser.url('/');
   
-  // Esperar a que la página se cargue
-  await browser.pause(3000);
+  // Asegurarse de que el directorio errorShots existe
+  if (!fs.existsSync('./errorShots')) {
+    fs.mkdirSync('./errorShots', { recursive: true });
+  }
+  
+  // Esperar a que el splash screen desaparezca
+  await waitForSplashScreenToDisappear();
   
   // Tomar captura de pantalla para depuración
   await browser.saveScreenshot('./errorShots/auth-before-login.png');
@@ -59,8 +105,8 @@ export async function authenticateForTests(browser: WebdriverIO.Browser) {
     console.log('Error al obtener texto de la página:', e);
   }
   
-  if (url.includes('/login') || url === browser.options.baseUrl + '/') {
-    console.log('Autenticación fallida. Permanecimos en la página de inicio de sesión.');
+  if (!url.includes('/paddy')) {
+    console.log('Autenticación fallida. No fuimos redirigidos a una página protegida.');
     throw new Error('La autenticación falló. Verifica las credenciales de prueba.');
   }
   

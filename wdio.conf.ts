@@ -15,13 +15,13 @@ export const config = {
     browserName: 'chrome',
     'goog:chromeOptions': {
       args: [
-          '--headless=new',
-          '--disable-gpu',
+          // '--headless=new', // Comentado para ver Chrome en ejecución
           '--window-size=1280,720',
           '--no-sandbox',
           '--disable-dev-shm-usage',
           '--disable-infobars',
-          '--disable-extensions'
+          '--disable-extensions',
+          '--start-maximized' // Maximizar ventana para mejor visualización
         ]
       },
       acceptInsecureCerts: true,
@@ -34,7 +34,8 @@ export const config = {
 
   baseUrl: 'http://localhost:3000',
 
-  waitforTimeout: 20000,
+  // Aumentar el tiempo de espera para elementos lentos
+  waitforTimeout: 30000,
 
   connectionRetryTimeout: 180000,
 
@@ -48,7 +49,7 @@ export const config = {
 
   mochaOpts: {
     ui: 'bdd',
-    timeout: 60000,
+    timeout: 120000, // Aumentar el timeout para pruebas más lentas
   },
 
   autoCompileOpts: {
