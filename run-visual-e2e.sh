@@ -11,15 +11,17 @@
 # Opciones disponibles:
 # ---------------------
 # -s, --slow       Ejecuta las pruebas en modo lento (pausas más largas)
+# -m, --medium     Ejecuta las pruebas en modo intermedio (pausas moderadas)
 # -a, --auth       Ejecuta solo las pruebas de autenticación
 # -h, --help       Muestra esta ayuda
 #
 # Ejemplos de uso:
 # ---------------
 # ./run-visual-e2e.sh            # Ejecuta todas las pruebas en modo visual normal
+# ./run-visual-e2e.sh --medium   # Ejecuta todas las pruebas en modo visual intermedio
 # ./run-visual-e2e.sh --slow     # Ejecuta todas las pruebas en modo visual lento
 # ./run-visual-e2e.sh --auth     # Ejecuta solo las pruebas de autenticación
-# ./run-visual-e2e.sh -a -s      # Ejecuta las pruebas de autenticación en modo lento
+# ./run-visual-e2e.sh -a -m      # Ejecuta las pruebas de autenticación en modo intermedio
 
 # Colores para mensajes
 GREEN='\033[0;32m'
@@ -30,24 +32,28 @@ NC='\033[0m' # No Color
 
 # Configuración predeterminada
 RUN_SLOW=0
+RUN_MEDIUM=0
 AUTH_ONLY=0
 
 # Procesar argumentos
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    -s|--slow) RUN_SLOW=1; shift ;;
+    -s|--slow) RUN_SLOW=1; RUN_MEDIUM=0; shift ;;
+    -m|--medium) RUN_MEDIUM=1; RUN_SLOW=0; shift ;;
     -a|--auth) AUTH_ONLY=1; shift ;;
     -h|--help)
       echo -e "${BLUE}Uso: $0 [opciones]${NC}"
       echo -e "${YELLOW}Opciones:${NC}"
       echo -e "  -s, --slow       Ejecuta las pruebas en modo lento (pausas más largas)"
+      echo -e "  -m, --medium     Ejecuta las pruebas en modo intermedio (pausas moderadas)"
       echo -e "  -a, --auth       Ejecuta solo las pruebas de autenticación"
       echo -e "  -h, --help       Muestra esta ayuda"
       echo -e "\n${YELLOW}Ejemplos:${NC}"
       echo -e "  $0                  # Ejecuta todas las pruebas en modo visual normal"
+      echo -e "  $0 --medium         # Ejecuta todas las pruebas en modo visual intermedio"
       echo -e "  $0 --slow           # Ejecuta todas las pruebas en modo visual lento"
       echo -e "  $0 --auth           # Ejecuta solo las pruebas de autenticación"
-      echo -e "  $0 -a -s            # Ejecuta las pruebas de autenticación en modo lento"
+      echo -e "  $0 -a -m            # Ejecuta las pruebas de autenticación en modo intermedio"
       exit 0
       ;;
     *) echo "Opción desconocida: $1"; exit 1 ;;
@@ -74,10 +80,13 @@ export TEST_MODE=VISUAL
 # Configurar pausas según el modo
 if [ $RUN_SLOW -eq 1 ]; then
   export TEST_SLOW_MOTION=1000
-  echo -e "${YELLOW}Modo lento activado - Se añadirán pausas entre acciones${NC}"
+  echo -e "${YELLOW}Modo lento activado - Se añadirán pausas largas entre acciones (1000ms)${NC}"
+elif [ $RUN_MEDIUM -eq 1 ]; then
+  export TEST_SLOW_MOTION=500
+  echo -e "${YELLOW}Modo intermedio activado - Se añadirán pausas moderadas entre acciones (500ms)${NC}"
 else
   export TEST_SLOW_MOTION=200
-  echo -e "${BLUE}Modo normal - Pausas mínimas entre acciones${NC}"
+  echo -e "${BLUE}Modo normal - Pausas mínimas entre acciones (200ms)${NC}"
 fi
 
 # Determinar qué pruebas ejecutar
