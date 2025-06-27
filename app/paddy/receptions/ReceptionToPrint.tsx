@@ -343,9 +343,9 @@ export default function ReceptionToPrint() {
         <TableHead>
           <TableRow>
             <TableCell className={styles.tableHeader}>Parámetro</TableCell>
-            <TableCell className={styles.tableHeader} align="right">Porcentaje</TableCell>
-            <TableCell className={styles.tableHeader} align="right">Tolerancia</TableCell>
-            <TableCell className={styles.tableHeader} align="right">Descuento neto</TableCell>
+            <TableCell className={styles.tableHeader}>Porcentaje</TableCell>
+            <TableCell className={styles.tableHeader}>Tolerancia</TableCell>
+            <TableCell className={styles.tableHeader}>Descuento neto</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -379,24 +379,21 @@ export default function ReceptionToPrint() {
                   {mapConfig[row.name]?.name ?? row.name}
                 </TableCell>
                 <TableCell 
-                  className={`${idx === rows.length - 1 ? styles.tableLastRowCell : styles.tableCell} 
-                            ${styles.textRight}`}
+                  className={`${idx === rows.length - 1 ? styles.tableLastRowCell : styles.tableCell}`}
                 >
                   {typeof row.percent === "number" ? (
                     <>{row.percent.toLocaleString("es-CL")}<span> %</span></>
                   ) : row.percent}
                 </TableCell>
                 <TableCell 
-                  className={`${idx === rows.length - 1 ? styles.tableLastRowCell : styles.tableCell} 
-                            ${styles.textRight}`}
+                  className={`${idx === rows.length - 1 ? styles.tableLastRowCell : styles.tableCell}`}
                 >
                   {typeof row.tolerance === "number" ? (
                     <>{row.tolerance.toLocaleString("es-CL")}<span> %</span></>
                   ) : row.tolerance}
                 </TableCell>
                 <TableCell 
-                  className={`${idx === rows.length - 1 ? styles.tableLastRowCell : styles.tableCell} 
-                            ${styles.textRight}`}
+                  className={`${idx === rows.length - 1 ? styles.tableLastRowCell : styles.tableCell}`}
                 >
                   {typeof row.penalty === "number" ? (
                     <>{row.penalty.toLocaleString("es-CL")}<span> kg</span></>
