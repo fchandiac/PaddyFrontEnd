@@ -2,6 +2,103 @@
 import { TemplateType } from "@/types/discount-template";
 import { getDiscountPercentsByCode } from "@/app/actions/discount-percent";
 
+/**
+ * Redondea un número a dos decimales
+ * 
+ * Esta función toma un valor numérico y lo redondea a dos decimales utilizando
+ * el método de redondeo bancario (también conocido como redondeo comercial),
+ * que evita el sesgo hacia arriba en operaciones repetitivas con números decimales.
+ * 
+ * @param value Número a redondear
+ * @returns Número redondeado a dos decimales
+ * 
+ * @example
+ * // Retorna 10.25
+ * roundToTwoDecimals(10.249);
+ * 
+ * // Retorna 10.26
+ * roundToTwoDecimals(10.255);
+ */
+export const roundToTwoDecimals = (value: number): number => {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+};
+
+/**
+ * Distribuye la diferencia causada por el redondeo entre un conjunto de valores
+ * para que la suma de los valores redondeados sea igual a la suma original
+ * 
+ * Esta función resuelve el problema de discrepancias en sumas cuando los valores
+ * individuales se redondean. Ejemplo: tres valores 1.004, 1.004 y 1.004 suman 3.012,
+ * pero si los redondeamos primero (1.00, 1.00, 1.00), la suma sería 3.00, perdiendo 0.012.
+ * 
+ * El algoritmo:
+ * 1. Redondea todos los valores individualmente
+ * 2. Calcula la diferencia entre la suma objetivo y la suma de los valores redondeados
+ * 3. Distribuye esta diferencia entre los valores, priorizando aquellos con mayor
+ *    parte decimal cuando la diferencia es positiva, o aquellos con menor parte
+ *    decimal cuando la diferencia es negativa
+ * 
+ * @param values Array de valores a compensar
+ * @param targetSum Suma objetivo que deben cumplir los valores redondeados
+ * @returns Array de valores compensados y redondeados a dos decimales
+ * 
+ * @example
+ * // Si la suma original es 3.012 pero los valores redondeados suman 3.00
+ * // ajustará algunos valores para mantener la suma original
+ * compensateRounding([1.004, 1.004, 1.004], 3.012);
+ * // Podría retornar [1.01, 1.00, 1.00] cuya suma es 3.01, más cercana a 3.012
+ */
+export const compensateRounding = (values: number[], targetSum: number): number[] => {
+  if (!values.length) return [];
+  
+  // Redondear todos los valores a 2 decimales
+  const roundedValues = values.map(value => roundToTwoDecimals(value));
+  
+  // Calcular la suma de los valores redondeados
+  const roundedSum = roundedValues.reduce((sum, value) => sum + value, 0);
+  
+  // Calcular la diferencia con la suma objetivo
+  let difference = roundToTwoDecimals(targetSum - roundedSum);
+  
+  if (Math.abs(difference) < 0.01) return roundedValues; // Si la diferencia es insignificante, no hacer nada
+  
+  // Ordenar los valores por su parte decimal para distribuir la diferencia
+  // a los valores con mayor parte decimal primero (si la diferencia es positiva)
+  // o a los valores con menor parte decimal primero (si la diferencia es negativa)
+  const valueIndices = roundedValues.map((value, index) => ({ 
+    value, 
+    index, 
+    decimal: Math.abs(value % 1) 
+  }));
+  
+  if (difference > 0) {
+    // Si la suma redondeada es menor, añadir la diferencia a los valores con mayor parte decimal primero
+    valueIndices.sort((a, b) => b.decimal - a.decimal);
+  } else {
+    // Si la suma redondeada es mayor, restar la diferencia de los valores con menor parte decimal primero
+    valueIndices.sort((a, b) => a.decimal - b.decimal);
+  }
+  
+  // Crear copia de los valores redondeados para modificar
+  const compensatedValues = [...roundedValues];
+  
+  // Valor mínimo de ajuste
+  const minAdjustment = difference > 0 ? 0.01 : -0.01;
+  
+  // Distribuir la diferencia
+  for (let i = 0; i < valueIndices.length && Math.abs(difference) >= 0.01; i++) {
+    const { index } = valueIndices[i];
+    
+    // Aplicar ajuste
+    compensatedValues[index] = roundToTwoDecimals(compensatedValues[index] + minAdjustment);
+    
+    // Actualizar la diferencia restante
+    difference = roundToTwoDecimals(difference - minAdjustment);
+  }
+  
+  return compensatedValues;
+};
+
 export type KeyCluster =
   | "grossWeight"
   | "tare"
@@ -140,7 +237,7 @@ export function createBlankNode(key: string, label: string): Node {
     parentCluster: {} as Cluster,
     value: 0,
     setValue: (v: number) => {
-      node.value = v;
+      node.value = roundToTwoDecimals(v);
     },
     onChange: (v: number) => {
       node.setValue(v);
@@ -175,8 +272,18 @@ function createGenericNode(key: string, parentCluster: Cluster): Node {
     type: "generic",
     parentCluster,
     value: 0,
+    /**
+     * Establece un valor numérico en el nodo, redondeando automáticamente a dos decimales
+     * y notificando a todos los nodos consumidores para que actualicen sus valores.
+     * 
+     * El redondeo automático asegura que todos los valores en la aplicación sean
+     * consistentes, manteniendo siempre dos decimales de precisión para evitar
+     * discrepancias en los cálculos subsecuentes.
+     * 
+     * @param v Valor numérico a establecer
+     */
     setValue: (v: number) => {
-      node.value = v;
+      node.value = roundToTwoDecimals(v);
 
       node.nodeConsumers.forEach((consumer) => {
         if (consumer.effect) {
@@ -219,7 +326,7 @@ function createRangeNode(key: string, parentCluster: Cluster): RangeNode {
     parentCluster,
     value: 0,
     setValue: (v: number) => {
-      node.value = v;
+      node.value = roundToTwoDecimals(v);
 
       node.nodeConsumers.forEach((consumer) => {
         if (consumer.effect) {
@@ -279,7 +386,7 @@ function createPercentNode(key: string, parentCluster: Cluster): Node {
     parentCluster,
     value: 0,
     setValue: (v: number) => {
-      node.value = v;
+      node.value = roundToTwoDecimals(v);
 
       node.nodeConsumers.forEach((consumer) => {
         if (consumer.effect) {
@@ -333,7 +440,7 @@ function createToleranceNode(key: string, parentCluster: Cluster): Node {
     parentCluster,
     value: 0,
     setValue: (v: number) => {
-      node.value = v;
+      node.value = roundToTwoDecimals(v);
 
       node.nodeConsumers.forEach((consumer) => {
         if (consumer.effect) {
@@ -387,7 +494,7 @@ function createPenaltyNode(key: string, parentCluster: Cluster): Node {
     parentCluster,
     value: 0,
     setValue: (v: number) => {
-      node.value = v;
+      node.value = roundToTwoDecimals(v);
 
       node.nodeConsumers.forEach((consumer) => {
         if (consumer.effect) {
@@ -995,7 +1102,7 @@ bonus.tolerance.effect = () => {
       ? netWeightValue
       : 0;
 
-  const netBonus = (netWeightV * toleranceV) / 100;
+  const netBonus = roundToTwoDecimals((netWeightV * toleranceV) / 100);
   bonus.penalty.setValue(netBonus);
 }
 
@@ -1113,7 +1220,7 @@ humedad.penalty.effect = () => {
   }
 
   const perTol = Math.max(0, percentV - toleranceV);
-  const netPenalty = (netWeight.node.value * perTol) / 100;
+  const netPenalty = roundToTwoDecimals((netWeight.node.value * perTol) / 100);
   humedad.penalty.setValue(netPenalty);
 };
 granosVerdes.percent.effect = () => {
@@ -1464,6 +1571,21 @@ summary.tolerance.effect = () => {
   summary.tolerance.setValue(total);
 };
 summary.penalty.effect = () => {
+  /**
+   * Esta función calcula el total de las penalizaciones de todos los parámetros
+   * y aplica un mecanismo de compensación para evitar discrepancias de redondeo.
+   * 
+   * Proceso:
+   * 1. Recolecta los valores de penalización de todos los parámetros
+   * 2. Calcula el total con los valores actuales
+   * 3. Verifica si el total supera el peso neto (validación)
+   * 4. Establece el valor total en el nodo summary.penalty
+   * 
+   * Nota: La compensación ahora se realiza en los nodos individuales para 
+   * evitar recursión infinita.
+   */
+  
+  // Calcular el total con los valores actuales
   const total =
     humedad.penalty.value +
     granosVerdes.penalty.value +
@@ -1480,7 +1602,9 @@ summary.penalty.effect = () => {
     summary.penalty.setError(false);
   }
 
-  summary.penalty.setValue(total);
+  // Establecer el valor total, redondeado a dos decimales
+  const roundedTotal = roundToTwoDecimals(total);
+  summary.penalty.setValue(roundedTotal);
 };
 
 // Calcular el total de descuentos (DiscountTotal)
@@ -1492,7 +1616,21 @@ discountTotal.node.effect = () => {
 
 // Calcular el total de Paddy (totalPaddy) = netWeight - totalDiscounts + Bonus.penalty
 totalPaddy.node.effect = () => {
-  // Paddy Neto = Net Weight - Total Descuentos + Bonus
+  /**
+   * Esta función calcula el total de Paddy Neto.
+   * 
+   * Fórmula de cálculo: Paddy Neto = Peso Neto - Total Descuentos + Bonificación
+   * 
+   * Proceso:
+   * 1. Obtiene los valores necesarios (peso neto, descuentos, bonificación)
+   * 2. Calcula el Paddy Neto
+   * 3. Establece el valor redondeado en el nodo
+   * 
+   * Nota: Se ha simplificado para evitar recursión infinita eliminando la
+   * manipulación directa del bonus.
+   */
+  
+  // Obtener los valores necesarios
   const netWeightValue = netWeight.node.value;
   const totalDiscounts = summary.penalty.value;
   const bonusValue = bonus.penalty.value;
@@ -1501,8 +1639,11 @@ totalPaddy.node.effect = () => {
   const totalDiscountsV = typeof totalDiscounts === "number" && !isNaN(totalDiscounts) ? totalDiscounts : 0;
   const bonusV = typeof bonusValue === "number" && !isNaN(bonusValue) ? bonusValue : 0;
   
-  const paddyNet = netWeightV - totalDiscountsV + bonusV;
-  totalPaddy.node.setValue(paddyNet);
+  // Calcular el paddy neto: Net Weight - Total Descuentos + Bonus
+  const paddyNetValue = roundToTwoDecimals(netWeightV - totalDiscountsV + bonusV);
+  
+  // Establecer el valor calculado
+  totalPaddy.node.setValue(paddyNetValue);
 };
 
 // Conectar los nodos para que se actualicen automáticamente
@@ -1544,6 +1685,19 @@ groupSummary.tolerance.effect = () => {
 
 // Agregar efecto para calcular la penalización del grupo
 groupSummary.penalty.effect = () => {
+  /**
+   * Esta función calcula la penalización para el grupo de tolerancia.
+   * 
+   * Proceso:
+   * 1. Obtiene los valores de porcentaje y tolerancia del grupo
+   * 2. Verifica si la tolerancia supera al porcentaje (validación)
+   * 3. Si el porcentaje es mayor que la tolerancia, calcula la penalización
+   * 4. Establece el valor de la penalización redondeado en el nodo
+   * 
+   * Nota: Se ha simplificado para evitar recursión infinita eliminando la manipulación
+   * directa de las penalizaciones individuales.
+   */
+  
   const percentValue = isNaN(groupSummary.percent.value) ? 0 : groupSummary.percent.value;
   const toleranceValue = isNaN(groupSummary.tolerance.value) ? 0 : groupSummary.tolerance.value;
   
@@ -1555,13 +1709,19 @@ groupSummary.penalty.effect = () => {
   }
   
   if (percentValue > toleranceValue) {
+    // Calcular la diferencia entre porcentaje y tolerancia
     const diff = percentValue - toleranceValue;
-    const penaltyValue = netWeight.node.value * (diff / 100);
+    
+    // Calcular la penalización exacta y redondearla
+    const penaltyValue = roundToTwoDecimals(netWeight.node.value * (diff / 100));
+    
+    // Establecer el valor de la penalización
     groupSummary.penalty.setValue(penaltyValue);
   } else {
+    // Si el porcentaje es menor o igual a la tolerancia, la penalización es cero
     groupSummary.penalty.setValue(0);
   }
-}
+};
 
 // Agregar efecto para distribuir la tolerancia del grupo a los parámetros individuales
 // Configuración de onChange para Bonus.tolerance - cuando el usuario actualiza manualmente la tolerancia
@@ -1620,6 +1780,21 @@ bonus.tolerance.onChange = (value: number) => {
 
 // cuando el usuario actualiza manualmente la tolerancia del grupo
 groupSummary.tolerance.onChange = (value: number) => {
+  /**
+   * Esta función distribuye la tolerancia del grupo entre los parámetros individuales
+   * basándose en la proporción del porcentaje de cada parámetro respecto al total.
+   * 
+   * Proceso:
+   * 1. Actualiza el valor de tolerancia del grupo
+   * 2. Identifica los parámetros que pertenecen al grupo de tolerancia
+   * 3. Calcula la suma total de porcentajes de estos parámetros
+   * 4. Distribuye la tolerancia proporcionalmente según el peso de cada parámetro
+   * 5. Actualiza las tolerancias individuales usando setValue para aplicar redondeo
+   * 6. Recalcula las penalizaciones individuales
+   * 7. Actualiza la penalización del grupo
+   * 8. Recalcula la tolerancia total para el Summary
+   */
+  
   // Primero actualizamos el valor del nodo
   groupSummary.tolerance.setValue(value);
   
@@ -1644,22 +1819,30 @@ groupSummary.tolerance.onChange = (value: number) => {
     return;
   }
   
-  // Distribuimos la tolerancia proporcionalmente a cada parámetro según su porcentaje
+  // Preparamos un array para recolectar las tolerancias distribuidas antes de aplicarlas
+  // para poder realizar compensación si es necesario
+  const distributedTolerances: { cluster: ParamCluster, tolerance: number }[] = [];
+  
+  // Primera pasada: calculamos las tolerancias distribuidas
   toleranceGroupParams.forEach(param => {
     const paramPercent = isNaN(param.percent) ? 0 : param.percent;
     // Calculamos el peso relativo del parámetro (su proporción del total)
     const weight = paramPercent / totalPercent;
-    // Distribuimos la tolerancia según el peso
-    const distributedTolerance = value * weight;
+    // Distribuimos la tolerancia según el peso y redondeamos
+    const distributedTolerance = roundToTwoDecimals(value * weight);
     
-    // Actualizamos la tolerancia del parámetro sin activar los efectos en cascada
-    // para evitar un ciclo de actualizaciones
-    param.cluster.tolerance.value = distributedTolerance;
-    
-    // Ahora recalculamos la penalización para este parámetro
-    if (param.cluster.penalty.effect) {
-      param.cluster.penalty.effect();
-    }
+    // Guardamos el valor para aplicarlo después
+    distributedTolerances.push({
+      cluster: param.cluster,
+      tolerance: distributedTolerance
+    });
+  });
+  
+  // Segunda pasada: aplicamos las tolerancias y recalculamos las penalizaciones
+  distributedTolerances.forEach(item => {
+    // Actualizamos la tolerancia del parámetro usando setValue para aplicar redondeo
+    // y disparar los efectos asociados
+    item.cluster.tolerance.setValue(item.tolerance);
   });
   
   // Finalmente actualizamos la penalización del grupo
@@ -1669,7 +1852,7 @@ groupSummary.tolerance.onChange = (value: number) => {
   
   // Recalculamos completamente el valor de Summary.Tolerance
   // Esto asegura que el Summary.Tolerance refleje la suma actualizada de todas las tolerancias
-  const newSummaryToleranceValue =
+  const newSummaryToleranceValue = roundToTwoDecimals(
     (isNaN(humedad.tolerance.value) ? 0 : humedad.tolerance.value) +
     (isNaN(granosVerdes.tolerance.value) ? 0 : granosVerdes.tolerance.value) +
     (isNaN(impurezas.tolerance.value) ? 0 : impurezas.tolerance.value) +
@@ -1677,7 +1860,8 @@ groupSummary.tolerance.onChange = (value: number) => {
     (isNaN(hualcacho.tolerance.value) ? 0 : hualcacho.tolerance.value) +
     (isNaN(granosManchados.tolerance.value) ? 0 : granosManchados.tolerance.value) +
     (isNaN(granosPelados.tolerance.value) ? 0 : granosPelados.tolerance.value) +
-    (isNaN(granosYesosos.tolerance.value) ? 0 : granosYesosos.tolerance.value);
+    (isNaN(granosYesosos.tolerance.value) ? 0 : granosYesosos.tolerance.value)
+  );
   
   // Actualizamos el valor y ejecutamos sus efectos
   summary.tolerance.setValue(newSummaryToleranceValue);

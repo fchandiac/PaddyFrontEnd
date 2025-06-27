@@ -12,6 +12,7 @@ import {
   Divider,
 } from "@mui/material";
 import styles from "./ReceptionToPrint.module.css";
+import { roundToTwoDecimals, formatToTwoDecimals } from "@/utils/numberFormat";
 
 const parameterOrder = [
   "Humedad",
@@ -136,6 +137,11 @@ export default function ReceptionToPrint() {
     },
   };
 
+  // Función para redondear valores a 2 decimales
+  const roundToTwoDecimals = (value: number): number => {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  };
+
   // Build initial rows with proper order matching GrainAnalysis
   const rows: Array<{
     name: string;
@@ -152,11 +158,11 @@ export default function ReceptionToPrint() {
     const tol = cfg.showTolerance || (cfg.groupTolerance && template.useToleranceGroup)
       ? cfg.tolerance : 0;
     const pen = cfg.percent > tol
-      ? +(((cfg.percent - tol) * netWeight) / 100).toFixed(2) : 0;
+      ? roundToTwoDecimals(((cfg.percent - tol) * netWeight) / 100) : 0;
     rows.push({
       name,
-      percent: cfg.percent,
-      tolerance: cfg.showTolerance ? cfg.tolerance : "",
+      percent: roundToTwoDecimals(cfg.percent),
+      tolerance: cfg.showTolerance ? roundToTwoDecimals(cfg.tolerance) : "",
       penalty: pen,
       groupTolerance: cfg.groupTolerance,
     });
@@ -169,11 +175,11 @@ export default function ReceptionToPrint() {
     const tol = cfg.showTolerance || (cfg.groupTolerance && template.useToleranceGroup)
       ? cfg.tolerance : 0;
     const pen = cfg.percent > tol
-      ? +(((cfg.percent - tol) * netWeight) / 100).toFixed(2) : 0;
+      ? roundToTwoDecimals(((cfg.percent - tol) * netWeight) / 100) : 0;
     rows.push({
       name,
-      percent: cfg.percent,
-      tolerance: cfg.showTolerance ? cfg.tolerance : "",
+      percent: roundToTwoDecimals(cfg.percent),
+      tolerance: cfg.showTolerance ? roundToTwoDecimals(cfg.tolerance) : "",
       penalty: pen,
       groupTolerance: cfg.groupTolerance,
     });
@@ -185,9 +191,9 @@ export default function ReceptionToPrint() {
   );
   
   if (hasGroupToleranceParams) {
-    const groupSummaryPercent = liveClusters.groupSummary.percent.value;
-    const groupSummaryTolerance = liveClusters.groupSummary.tolerance.value;
-    const groupSummaryPenalty = liveClusters.groupSummary.penalty.value;
+    const groupSummaryPercent = roundToTwoDecimals(liveClusters.groupSummary.percent.value);
+    const groupSummaryTolerance = roundToTwoDecimals(liveClusters.groupSummary.tolerance.value);
+    const groupSummaryPenalty = roundToTwoDecimals(liveClusters.groupSummary.penalty.value);
     
     rows.push({
       name: "Total granos",
@@ -199,10 +205,10 @@ export default function ReceptionToPrint() {
   }
 
   // Fourth: Total Análisis (Summary)
-  const calcPercentTotalAnalisis = Object.values(mapConfig).reduce((s, c) => s + c.percent, 0);
-  const calcToleranceTotalAnalisis = Object.values(mapConfig).reduce((s, c) => s + c.tolerance, 0);
+  const calcPercentTotalAnalisis = roundToTwoDecimals(Object.values(mapConfig).reduce((s, c) => s + c.percent, 0));
+  const calcToleranceTotalAnalisis = roundToTwoDecimals(Object.values(mapConfig).reduce((s, c) => s + c.tolerance, 0));
   const calcPenaltyTotalAnalisis = calcPercentTotalAnalisis > calcToleranceTotalAnalisis
-    ? +(((calcPercentTotalAnalisis - calcToleranceTotalAnalisis) * netWeight) / 100).toFixed(2) : 0;
+    ? roundToTwoDecimals(((calcPercentTotalAnalisis - calcToleranceTotalAnalisis) * netWeight) / 100) : 0;
   
   rows.push({
     name: "Total Análisis",
