@@ -1,0 +1,29 @@
+.tableHeader {
+  border-bottom: 1px solid #212121;
+}
+
+.tableCell {
+  padding: 4px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tableLastRowCell {
+  padding: 4px 0;
+  border-bottom: 1px solid #212121;
+}
+
+.whiteBackground {
+  background-color: white;
+}
+
+.groupBackground {
+  background-color: #eeeeee;
+}
+
+.summaryBackground {
+  background-color: #e0e0e0;
+}
+
+.textRight {
+  text-align: right;
+}
