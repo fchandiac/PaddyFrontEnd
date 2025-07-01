@@ -60,7 +60,8 @@ export default function ReceptionToPrint() {
     groupToleranceGranosManchados: false,
   };
 
-  const netWeight = data.netWeight;
+  const netWeight = liveClusters.netWeight && liveClusters.netWeight.node ? 
+    liveClusters.netWeight.node.value : data.netWeight;
 
   // Map config for each base parameter
   const mapConfig: Record<string, {
@@ -73,64 +74,64 @@ export default function ReceptionToPrint() {
   }> = {
     Humedad: {
       name: "Humedad",
-      percent: data.percentHumedad,
-      tolerance: data.toleranceHumedad,
+      percent: liveClusters.Humedad.percent ? liveClusters.Humedad.percent.value : data.percentHumedad,
+      tolerance: liveClusters.Humedad.tolerance ? liveClusters.Humedad.tolerance.value : data.toleranceHumedad,
       showTolerance: template.showToleranceHumedad,
       available: template.availableHumedad,
       groupTolerance: template.groupToleranceHumedad,
     },
     GranosVerdes: {
       name: "Granos Verdes",
-      percent: data.percentGranosVerdes,
-      tolerance: data.toleranceGranosVerdes,
+      percent: liveClusters.GranosVerdes.percent ? liveClusters.GranosVerdes.percent.value : data.percentGranosVerdes,
+      tolerance: liveClusters.GranosVerdes.tolerance ? liveClusters.GranosVerdes.tolerance.value : data.toleranceGranosVerdes,
       showTolerance: template.showToleranceGranosVerdes,
       available: template.availableGranosVerdes,
       groupTolerance: template.groupToleranceGranosVerdes,
     },
     Impurezas: {
       name: "Impurezas",
-      percent: data.percentImpurezas,
-      tolerance: data.toleranceImpurezas,
+      percent: liveClusters.Impurezas.percent ? liveClusters.Impurezas.percent.value : data.percentImpurezas,
+      tolerance: liveClusters.Impurezas.tolerance ? liveClusters.Impurezas.tolerance.value : data.toleranceImpurezas,
       showTolerance: template.showToleranceImpurezas,
       available: template.availableImpurezas,
       groupTolerance: template.groupToleranceImpurezas,
     },
     Vano: {
       name: "Vano",
-      percent: data.percentVano,
-      tolerance: data.toleranceVano,
+      percent: liveClusters.Vano.percent ? liveClusters.Vano.percent.value : data.percentVano,
+      tolerance: liveClusters.Vano.tolerance ? liveClusters.Vano.tolerance.value : data.toleranceVano,
       showTolerance: template.showToleranceVano,
       available: template.availableVano,
       groupTolerance: template.groupToleranceVano,
     },
     Hualcacho: {
       name: "Hualcacho",
-      percent: data.percentHualcacho,
-      tolerance: data.toleranceHualcacho,
+      percent: liveClusters.Hualcacho.percent ? liveClusters.Hualcacho.percent.value : data.percentHualcacho,
+      tolerance: liveClusters.Hualcacho.tolerance ? liveClusters.Hualcacho.tolerance.value : data.toleranceHualcacho,
       showTolerance: template.showToleranceHualcacho,
       available: template.availableHualcacho,
       groupTolerance: template.groupToleranceHualcacho,
     },
     GranosPelados: {
       name: "Granos Pelados",
-      percent: data.percentGranosPelados,
-      tolerance: data.toleranceGranosPelados,
+      percent: liveClusters.GranosPelados.percent ? liveClusters.GranosPelados.percent.value : data.percentGranosPelados,
+      tolerance: liveClusters.GranosPelados.tolerance ? liveClusters.GranosPelados.tolerance.value : data.toleranceGranosPelados,
       showTolerance: template.showToleranceGranosPelados,
       available: template.availableGranosPelados,
       groupTolerance: template.groupToleranceGranosPelados,
     },
     GranosYesosos: {
       name: "Granos Yesosos",
-      percent: data.percentGranosYesosos,
-      tolerance: data.toleranceGranosYesosos,
+      percent: liveClusters.GranosYesosos.percent ? liveClusters.GranosYesosos.percent.value : data.percentGranosYesosos,
+      tolerance: liveClusters.GranosYesosos.tolerance ? liveClusters.GranosYesosos.tolerance.value : data.toleranceGranosYesosos,
       showTolerance: template.showToleranceGranosYesosos,
       available: template.availableGranosYesosos,
       groupTolerance: template.groupToleranceGranosYesosos,
     },
     GranosManchados: {
       name: "Granos Manchados",
-      percent: data.percentGranosManchados,
-      tolerance: data.toleranceGranosManchados,
+      percent: liveClusters.GranosManchados.percent ? liveClusters.GranosManchados.percent.value : data.percentGranosManchados,
+      tolerance: liveClusters.GranosManchados.tolerance ? liveClusters.GranosManchados.tolerance.value : data.toleranceGranosManchados,
       showTolerance: template.showToleranceGranosManchados,
       available: template.availableGranosManchados,
       groupTolerance: template.groupToleranceGranosManchados,
@@ -210,11 +211,15 @@ export default function ReceptionToPrint() {
   const calcPenaltyTotalAnalisis = calcPercentTotalAnalisis > calcToleranceTotalAnalisis
     ? roundToTwoDecimals(((calcPercentTotalAnalisis - calcToleranceTotalAnalisis) * netWeight) / 100) : 0;
   
+  const summaryPercent = liveClusters.Summary.percent ? liveClusters.Summary.percent.value : 0;
+  const summaryTolerance = liveClusters.Summary.tolerance ? liveClusters.Summary.tolerance.value : 0;
+  const summaryPenalty = liveClusters.Summary.penalty ? liveClusters.Summary.penalty.value : 0;
+  
   rows.push({
     name: "Total Análisis",
-    percent: calcPercentTotalAnalisis,
-    tolerance: template.useToleranceGroup ? calcToleranceTotalAnalisis : "",
-    penalty: calcPenaltyTotalAnalisis,
+    percent: summaryPercent || calcPercentTotalAnalisis,
+    tolerance: template.useToleranceGroup ? (summaryTolerance || calcToleranceTotalAnalisis) : "",
+    penalty: summaryPenalty || calcPenaltyTotalAnalisis,
     groupTolerance: false,
   });
 
@@ -312,9 +317,9 @@ export default function ReceptionToPrint() {
 
         <Box width="35%" sx={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", rowGap: "1px" }}>
           {[
-            { label: "Peso bruto", value: `${Number(data.grossWeight || 0).toLocaleString("es-CL")} kg` },
-            { label: "Tara camión", value: `${Number(data.tare || 0).toLocaleString("es-CL")} kg` },
-            { label: "Peso neto", value: `${Number(data.netWeight || 0).toLocaleString("es-CL")} kg` },
+            { label: "Peso bruto", value: `${Number(liveClusters.grossWeight.node ? liveClusters.grossWeight.node.value : data.grossWeight || 0).toLocaleString("es-CL")} kg` },
+            { label: "Tara camión", value: `${Number(liveClusters.tare.node ? liveClusters.tare.node.value : data.tare || 0).toLocaleString("es-CL")} kg` },
+            { label: "Peso neto", value: `${Number(liveClusters.netWeight.node ? liveClusters.netWeight.node.value : data.netWeight || 0).toLocaleString("es-CL")} kg` },
           ].map(({ label, value }) => (
             <React.Fragment key={label}>
               <Typography variant="body2" sx={{ textAlign: "left", fontSize: "12px", py: 0 }}>
@@ -414,13 +419,23 @@ export default function ReceptionToPrint() {
       {/* Resumen final */}
       <Box mt={2} sx={{ width: "35%", display: "grid", gridTemplateColumns: "1fr auto 1fr", rowGap: "1px", alignItems: "center", ml: "auto" }}>
         {(() => {
+          const discountTotal = liveClusters.DiscountTotal && liveClusters.DiscountTotal.node 
+            ? liveClusters.DiscountTotal.node.value 
+            : calcPenaltyTotalAnalisis;
+            
+          const bonusValue = liveClusters.Bonus && liveClusters.Bonus.penalty 
+            ? liveClusters.Bonus.penalty.value 
+            : calcPenaltyBonificacion;
+            
+          const paddyNetValue = liveClusters.totalPaddy && liveClusters.totalPaddy.node 
+            ? liveClusters.totalPaddy.node.value 
+            : (data.netWeight - discountTotal + (bonusValue > 0 ? bonusValue : 0));
+            
           const items: { label: string; value: number }[] = [
-            { label: "Total descuentos", value: calcPenaltyTotalAnalisis },
-            { label: "Bonificación", value: calcPenaltyBonificacion },
+            { label: "Total descuentos", value: discountTotal },
+            { label: "Bonificación", value: bonusValue },
+            { label: "Paddy neto", value: paddyNetValue }
           ];
-          const bonif = calcPenaltyBonificacion > 0 ? calcPenaltyBonificacion : 0;
-          const paddyNet = data.netWeight - calcPenaltyTotalAnalisis + bonif;
-          items.push({ label: "Paddy neto", value: paddyNet });
 
           return items.map(({ label, value }) => (
             <React.Fragment key={label}>
