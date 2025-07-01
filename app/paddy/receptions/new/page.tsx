@@ -107,7 +107,8 @@ export default function NewReceptionPage() {
       const payload: CreateReceptionPayload = {
         producerId: data.producerId,
         riceTypeId: data.riceTypeId,
-        discountTemplateId: data.template?.id || null,
+        // Eliminamos el campo discountTemplateId que está causando el error
+        // discountTemplateId: data.template?.id || null,
         price: ensureNumber(data.price),
         guide: data.guide || "",
         licensePlate: data.licensePlate || "",

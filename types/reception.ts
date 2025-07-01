@@ -72,7 +72,7 @@ export interface Reception {
 export interface CreateReceptionPayload {
   producerId: number;
   riceTypeId: number;
-  discountTemplateId?: number;
+  // Eliminado: discountTemplateId?: number;
   price: number;
   guide: string;
   licensePlate: string;
