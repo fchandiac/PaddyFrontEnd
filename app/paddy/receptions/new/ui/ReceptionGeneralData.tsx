@@ -18,27 +18,11 @@ import { CreateProducerForm } from "@/app/paddy/producers/producers/ui/CreatePro
 // Create a ref to access the component from outside
 export const producerInputRef = { current: null as HTMLInputElement | null };
 
-export function focusOnProducer() {
+export function focusOnProducer(): void {
   if (producerInputRef.current) {
     producerInputRef.current.focus();
     // También intenta seleccionar el texto si es posible
     if (producerInputRef.current.select) {
-      producerInputRef.current.select();
-    }
-    console.log("Productor enfocado correctamente");
-  } else {
-    console.log("No se pudo enfocar el productor: producerInputRef.current es null");
-    // Intento alternativo usando setTimeout
-    setTimeout(() => {
-      if (producerInputRef.current) {
-        producerInputRef.current.focus();
-        console.log("Productor enfocado con retraso");
-      } else {
-        console.log("No se pudo enfocar el productor incluso con retraso");
-      }
-    }, 500);
-  }
-}
       producerInputRef.current.select();
     }
     console.log("Productor enfocado correctamente");
@@ -73,7 +57,7 @@ export default function ReceptionGeneralData() {
   const [riceTypeHighlighted, setRiceTypeHighlighted] = useState<any>(null);
   
   // Refs para manejar el foco entre campos
-  const producerRef = useRef<HTMLInputElement>(null);
+  const producerRef = useRef<HTMLInputElement | null>(null);
   const riceTypeRef = useRef<HTMLInputElement>(null);
   const priceRef = useRef<HTMLInputElement>(null);
   const guideRef = useRef<HTMLInputElement>(null);
@@ -301,8 +285,10 @@ export default function ReceptionGeneralData() {
                 {...params}
                 inputRef={(el) => {
                   // Asignar ambas referencias al mismo elemento
-                  producerRef.current = el;
-                  producerInputRef.current = el;
+                  if (el) {
+                    producerRef.current = el;
+                    producerInputRef.current = el;
+                  }
                 }}
                 label="Productor"
                 fullWidth
@@ -469,7 +455,7 @@ export default function ReceptionGeneralData() {
                   }) 
                 : ''
             }
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const rawValue = e.target.value;
               // Eliminar caracteres no numéricos
               const numericValue = rawValue.replace(/[^\d]/g, '');
@@ -477,7 +463,7 @@ export default function ReceptionGeneralData() {
                 const parsedValue = parseInt(numericValue, 10);
                 setPrice(parsedValue);
                 // Update context with the new price
-                setField "price", parsedValue);
+                setField("price", parsedValue);
               } else {
                 setPrice(0);
                 // Update context with 0 price
@@ -487,8 +473,8 @@ export default function ReceptionGeneralData() {
             InputProps={{
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
             }}
-            onFocus={(e) => (e.target as HTMLInputElement).select()}
-            onKeyDown={(event) => {
+            onFocus={(e: React.FocusEvent<HTMLInputElement>) => (e.target as HTMLInputElement).select()}
+            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
               if (event.key === 'Enter') {
                 event.preventDefault();
                 handleEnterNavigation(guideRef);
@@ -505,8 +491,8 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={data.guide || ''}
-            onChange={(e) => setField "guide", e.target.value)}
-            onKeyDown={(event) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField("guide", e.target.value)}
+            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
               if (event.key === 'Enter') {
                 event.preventDefault();
                 handleEnterNavigation(licenseRef);
@@ -525,8 +511,8 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={data.licensePlate}
-            onChange={(e) => setField "licensePlate", e.target.value)}
-            onKeyDown={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField("licensePlate", e.target.value)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 handleEnterNavigation(grossWeightRef);
@@ -545,19 +531,19 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={liveClusters.grossWeight.node.value}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               liveClusters.grossWeight.node.onChange(parseFloat(e.target.value));
             }}
             InputProps={{
               endAdornment: <InputAdornment position="end">kg</InputAdornment>,
             }}
-            onKeyDown={(e) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 handleEnterNavigation(tareRef);
               }
             }}
-            onFocus={(e) => (e.target as HTMLInputElement).select()}
+            onFocus={(e: React.FocusEvent<HTMLInputElement>) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
 
@@ -570,19 +556,19 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={liveClusters.tare.node.value}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               liveClusters.tare.node.onChange(parseFloat(e.target.value));
             }}
             InputProps={{
               endAdornment: <InputAdornment position="end">kg</InputAdornment>,
             }}
-            onKeyDown={(e) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 handleEnterNavigation(observationsRef);
               }
             }}
-            onFocus={(e) => (e.target as HTMLInputElement).select()}
+            onFocus={(e: React.FocusEvent<HTMLInputElement>) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
 
@@ -600,7 +586,7 @@ export default function ReceptionGeneralData() {
               endAdornment: <InputAdornment position="end">kg</InputAdornment>,
               sx: { "& input": { textAlign: "right" } },
             }}
-            onFocus={(e) => (e.target as HTMLInputElement).select()}
+            onFocus={(e: React.FocusEvent<HTMLInputElement>) => (e.target as HTMLInputElement).select()}
           />
         </Grid>
 
@@ -614,8 +600,8 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={data.note}
-            onChange={(e) => setField "note", e.target.value)}
-            onFocus={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField("note", e.target.value)}
+            onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
               // Seleccionar todo el texto cuando se recibe el foco
               setTimeout(() => {
                 (e.target as HTMLInputElement).select();
