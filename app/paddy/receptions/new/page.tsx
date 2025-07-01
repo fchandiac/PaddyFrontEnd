@@ -95,52 +95,59 @@ export default function NewReceptionPage() {
 
     try {
       setLoadingSave(true);
+      
+      // Asegurarse que los valores numéricos sean realmente números y no strings o undefined
+      const ensureNumber = (value: any): number => {
+        if (value === undefined || value === null) return 0;
+        const num = Number(value);
+        return isNaN(num) ? 0 : num;
+      };
 
       // Construir el payload para la API
       const payload: CreateReceptionPayload = {
         producerId: data.producerId,
         riceTypeId: data.riceTypeId,
-        discountTemplateId: data.template?.id,
-        price: data.price || 0,
+        discountTemplateId: data.template?.id || null,
+        price: ensureNumber(data.price),
         guide: data.guide || "",
         licensePlate: data.licensePlate || "",
         
-        // Pesos
-        grossWeight: liveClusters.grossWeight.node ? liveClusters.grossWeight.node.value : 0,
-        tare: liveClusters.tare.node ? liveClusters.tare.node.value : 0,
-        netWeight: liveClusters.netWeight.node ? liveClusters.netWeight.node.value : 0,
+        // Pesos - asegurarse que sean números
+        grossWeight: ensureNumber(liveClusters.grossWeight.node?.value),
+        tare: ensureNumber(liveClusters.tare.node?.value),
+        netWeight: ensureNumber(liveClusters.netWeight.node?.value),
         
-        // Parámetros
-        percentHumedad: liveClusters.Humedad.percent ? liveClusters.Humedad.percent.value : 0,
-        toleranceHumedad: liveClusters.Humedad.tolerance ? liveClusters.Humedad.tolerance.value : 0,
+        // Parámetros - asegurarse que sean números
+        percentHumedad: ensureNumber(liveClusters.Humedad.percent?.value),
+        toleranceHumedad: ensureNumber(liveClusters.Humedad.tolerance?.value),
         
-        percentGranosVerdes: liveClusters.GranosVerdes.percent ? liveClusters.GranosVerdes.percent.value : 0,
-        toleranceGranosVerdes: liveClusters.GranosVerdes.tolerance ? liveClusters.GranosVerdes.tolerance.value : 0,
+        percentGranosVerdes: ensureNumber(liveClusters.GranosVerdes.percent?.value),
+        toleranceGranosVerdes: ensureNumber(liveClusters.GranosVerdes.tolerance?.value),
         
-        percentImpurezas: liveClusters.Impurezas.percent ? liveClusters.Impurezas.percent.value : 0,
-        toleranceImpurezas: liveClusters.Impurezas.tolerance ? liveClusters.Impurezas.tolerance.value : 0,
+        percentImpurezas: ensureNumber(liveClusters.Impurezas.percent?.value),
+        toleranceImpurezas: ensureNumber(liveClusters.Impurezas.tolerance?.value),
         
-        percentVano: liveClusters.Vano.percent ? liveClusters.Vano.percent.value : 0,
-        toleranceVano: liveClusters.Vano.tolerance ? liveClusters.Vano.tolerance.value : 0,
+        percentVano: ensureNumber(liveClusters.Vano.percent?.value),
+        toleranceVano: ensureNumber(liveClusters.Vano.tolerance?.value),
         
-        percentHualcacho: liveClusters.Hualcacho.percent ? liveClusters.Hualcacho.percent.value : 0,
-        toleranceHualcacho: liveClusters.Hualcacho.tolerance ? liveClusters.Hualcacho.tolerance.value : 0,
+        percentHualcacho: ensureNumber(liveClusters.Hualcacho.percent?.value),
+        toleranceHualcacho: ensureNumber(liveClusters.Hualcacho.tolerance?.value),
         
-        percentGranosManchados: liveClusters.GranosManchados.percent ? liveClusters.GranosManchados.percent.value : 0,
-        toleranceGranosManchados: liveClusters.GranosManchados.tolerance ? liveClusters.GranosManchados.tolerance.value : 0,
+        percentGranosManchados: ensureNumber(liveClusters.GranosManchados.percent?.value),
+        toleranceGranosManchados: ensureNumber(liveClusters.GranosManchados.tolerance?.value),
         
-        percentGranosPelados: liveClusters.GranosPelados.percent ? liveClusters.GranosPelados.percent.value : 0,
-        toleranceGranosPelados: liveClusters.GranosPelados.tolerance ? liveClusters.GranosPelados.tolerance.value : 0,
+        percentGranosPelados: ensureNumber(liveClusters.GranosPelados.percent?.value),
+        toleranceGranosPelados: ensureNumber(liveClusters.GranosPelados.tolerance?.value),
         
-        percentGranosYesosos: liveClusters.GranosYesosos.percent ? liveClusters.GranosYesosos.percent.value : 0,
-        toleranceGranosYesosos: liveClusters.GranosYesosos.tolerance ? liveClusters.GranosYesosos.tolerance.value : 0,
+        percentGranosYesosos: ensureNumber(liveClusters.GranosYesosos.percent?.value),
+        toleranceGranosYesosos: ensureNumber(liveClusters.GranosYesosos.tolerance?.value),
         
         // Bonificación y secado
-        toleranceBonificacion: liveClusters.Bonus.tolerance ? liveClusters.Bonus.tolerance.value : 0,
-        percentSecado: liveClusters.Dry.percent ? liveClusters.Dry.percent.value : 0,
+        toleranceBonificacion: ensureNumber(liveClusters.Bonus.tolerance?.value),
+        percentSecado: ensureNumber(liveClusters.Dry.percent?.value),
         
         // Total paddy neto
-        totalToPay: liveClusters.totalPaddy.node ? liveClusters.totalPaddy.node.value : 0,
+        totalToPay: ensureNumber(liveClusters.totalPaddy.node?.value),
         
         // Nota/observación
         note: data.note || "",
@@ -149,8 +156,13 @@ export default function NewReceptionPage() {
         status: "pending"
       };
 
+      // Mostrar el payload en la consola para depuración
+      console.log("Payload enviado al backend:", JSON.stringify(payload, null, 2));
+
       // Llamar a la API para crear la recepción
       const result = await createReception(payload);
+      
+      console.log("Respuesta del backend:", result);
       
       showAlert("Recepción guardada correctamente", "success");
       
@@ -159,7 +171,7 @@ export default function NewReceptionPage() {
       
     } catch (error) {
       console.error("Error al guardar la recepción:", error);
-      showAlert("Error al guardar la recepción. Intente nuevamente.", "error");
+      showAlert(`Error al guardar la recepción: ${error instanceof Error ? error.message : 'Error desconocido'}`, "error");
     } finally {
       setLoadingSave(false);
     }

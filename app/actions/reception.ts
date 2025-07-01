@@ -30,13 +30,41 @@ export async function getReceptionByIdToLoad(id: number): Promise<FindReceptionB
 }
 
 export async function createReception(data: CreateReceptionPayload): Promise<Reception> {
-  const res = await fetch(`${backendUrl}/receptions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error('Error al crear recepción');
-  return res.json();
+  try {
+    // Validar que la URL del backend esté definida
+    if (!backendUrl) {
+      throw new Error('URL del backend no configurada. Verifique sus variables de entorno.');
+    }
+    
+    // Realizar la petición al backend
+    const res = await fetch(`${backendUrl}/receptions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    
+    // Si la respuesta no es exitosa, intentar obtener un mensaje de error detallado
+    if (!res.ok) {
+      let errorMessage = 'Error al crear recepción';
+      
+      // Intentar obtener el mensaje de error del cuerpo de la respuesta
+      try {
+        const errorData = await res.json();
+        errorMessage = errorData.message || errorData.error || JSON.stringify(errorData);
+      } catch (e) {
+        // Si no podemos parsear la respuesta como JSON, usar el status text
+        errorMessage = `${errorMessage}: ${res.statusText} (${res.status})`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+    
+    // Parsear y retornar la respuesta exitosa
+    return res.json();
+  } catch (error) {
+    console.error('Error en createReception:', error);
+    throw error; // Re-lanzar el error para que pueda ser manejado por el componente
+  }
 }
 
 
