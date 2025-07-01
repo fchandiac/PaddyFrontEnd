@@ -215,32 +215,36 @@ export default function ReceptionGeneralData() {
             onHighlightChange={(_, option) => {
               setHighlightedOption(option);
             }}
-            renderOption={(props, option) => (
-              <Box component="li" {...props}>
-                {option.id === "__add_new__" ? (
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 1, 
-                    color: 'primary.main', 
-                    fontWeight: 500,
-                    py: 1,
-                    borderTop: '1px solid #e0e0e0',
-                    width: '100%'
-                  }}>
-                    <span>➕</span>
-                    <span>Agregar nuevo productor</span>
-                  </Box>
-                ) : (
-                  <Box sx={{ width: '100%' }}>
-                    <Box sx={{ fontWeight: 500 }}>{option.name}</Box>
-                    <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                      {option.rut} {option.businessName && `• ${option.businessName}`}
+            renderOption={(props, option) => {
+              // Extract key from props to avoid React warning
+              const { key, ...otherProps } = props;
+              return (
+                <Box key={key} component="li" {...otherProps}>
+                  {option.id === "__add_new__" ? (
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1, 
+                      color: 'primary.main', 
+                      fontWeight: 500,
+                      py: 1,
+                      borderTop: '1px solid #e0e0e0',
+                      width: '100%'
+                    }}>
+                      <span>➕</span>
+                      <span>Agregar nuevo productor</span>
                     </Box>
-                  </Box>
-                )}
-              </Box>
-            )}
+                  ) : (
+                    <Box sx={{ width: '100%' }}>
+                      <Box sx={{ fontWeight: 500 }}>{option.name}</Box>
+                      <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                        {option.rut} {option.businessName && `• ${option.businessName}`}
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+              );
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
