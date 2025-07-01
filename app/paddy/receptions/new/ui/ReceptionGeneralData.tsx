@@ -15,6 +15,15 @@ import { getAllRiceTypes } from "@/app/actions/rice-type";
 import { useReceptionContext } from "@/context/ReceptionDataContext";
 import { CreateProducerForm } from "@/app/paddy/producers/producers/ui/CreateProducerForm";
 
+// Create a ref to access the component from outside
+export const producerInputRef = { current: null as HTMLInputElement | null };
+
+export function focusOnProducer() {
+  if (producerInputRef.current) {
+    producerInputRef.current.focus();
+  }
+}
+
 export default function ReceptionGeneralData() {
   const { data, liveClusters, setField } = useReceptionContext();
 
@@ -74,16 +83,26 @@ export default function ReceptionGeneralData() {
     fetchRiceTypes();
   }, []);
 
+  // Función para foco en el productor - exportada para uso externo
+  const focusOnProducer = () => {
+    if (producerRef.current) {
+      producerRef.current.focus();
+    }
+  };
+
   // Enfocar automáticamente el campo del productor cuando se carga la página
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (producerRef.current) {
-        producerRef.current.focus();
-      }
+      focusOnProducer();
     }, 300); // Pequeño delay para asegurar que el componente esté completamente renderizado
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Sincronizar el precio con el contexto
+  useEffect(() => {
+    setPrice(data.price || 0);
+  }, [data.price]);
 
   // Desactivar foco en botones internos de autocomplete (solo Tab, no Enter)
   useEffect(() => {
@@ -421,8 +440,12 @@ export default function ReceptionGeneralData() {
               if (numericValue) {
                 const parsedValue = parseInt(numericValue, 10);
                 setPrice(parsedValue);
+                // Update context with the new price
+                setField("price", parsedValue);
               } else {
                 setPrice(0);
+                // Update context with 0 price
+                setField("price", 0);
               }
             }}
             InputProps={{

@@ -384,9 +384,13 @@ export function useReceptionData(
     if (liveClusters.Summary.percent) liveClusters.Summary.percent.value = 0;
     if (liveClusters.Summary.tolerance) liveClusters.Summary.tolerance.value = 0;
     if (liveClusters.Summary.penalty) liveClusters.Summary.penalty.value = 0;
+    if (liveClusters.groupSummary.percent) liveClusters.groupSummary.percent.value = 0;
+    if (liveClusters.groupSummary.tolerance) liveClusters.groupSummary.tolerance.value = 0;
+    if (liveClusters.groupSummary.penalty) liveClusters.groupSummary.penalty.value = 0;
     
-    // Reset total paddy
+    // Reset total paddy and other calculations
     if (liveClusters.totalPaddy.node) liveClusters.totalPaddy.node.value = 0;
+    if (liveClusters.DiscountTotal.node) liveClusters.DiscountTotal.node.value = 0;
     
     // Force update
     setVersion(v => v + 1);
