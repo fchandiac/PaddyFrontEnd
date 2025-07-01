@@ -11,7 +11,7 @@ interface ReceptionPrintWrapperProps {
 }
 
 export default function ReceptionPrintWrapper({ receptionId }: ReceptionPrintWrapperProps) {
-  const { setField, setTemplate } = useReceptionContext();
+  const { setField, setTemplate, liveClusters } = useReceptionContext();
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -54,9 +54,16 @@ export default function ReceptionPrintWrapper({ receptionId }: ReceptionPrintWra
           if (reception.riceType) {
             setField('riceType', reception.riceType);
             setField('riceTypeName', reception.riceType.name || '');
-            setField('riceTypeDescription', reception.riceType.description || '');
-            setField('riceTypePrice', reception.riceType.price?.toString() || '');
-            setField('riceTypeEnable', reception.riceType.enable || false);
+            // Check if extended riceType properties exist before accessing them
+            if ('description' in reception.riceType) {
+              setField('riceTypeDescription', (reception.riceType as any).description || '');
+            }
+            if ('price' in reception.riceType) {
+              setField('riceTypePrice', ((reception.riceType as any).price)?.toString() || '');
+            }
+            if ('enable' in reception.riceType) {
+              setField('riceTypeEnable', (reception.riceType as any).enable || false);
+            }
           }
           
           // Set grain analysis parameters
@@ -93,20 +100,24 @@ export default function ReceptionPrintWrapper({ receptionId }: ReceptionPrintWra
           
           // Update liveClusters if needed
           if (liveClusters) {
-            // Update weights
-            if (liveClusters.grossWeight?.node) liveClusters.grossWeight.node.value = parseFloat(reception.grossWeight?.toString() || '0');
-            if (liveClusters.tare?.node) liveClusters.tare.node.value = parseFloat(reception.tare?.toString() || '0');
-            if (liveClusters.netWeight?.node) liveClusters.netWeight.node.value = parseFloat(reception.netWeight?.toString() || '0');
-            
-            // Update parameters
-            if (liveClusters.Humedad?.percent) liveClusters.Humedad.percent.value = reception.percentHumedad || 0;
-            if (liveClusters.Humedad?.tolerance) liveClusters.Humedad.tolerance.value = reception.toleranceHumedad || 0;
-            
-            if (liveClusters.GranosVerdes?.percent) liveClusters.GranosVerdes.percent.value = reception.percentGranosVerdes || 0;
-            if (liveClusters.GranosVerdes?.tolerance) liveClusters.GranosVerdes.tolerance.value = reception.toleranceGranosVerdes || 0;
-            
-            // Force update
-            if (liveClusters.totalPaddy?.node) liveClusters.totalPaddy.node.value = reception.totalToPay || 0;
+            try {
+              // Update weights
+              if (liveClusters.grossWeight?.node) liveClusters.grossWeight.node.value = parseFloat(reception.grossWeight?.toString() || '0');
+              if (liveClusters.tare?.node) liveClusters.tare.node.value = parseFloat(reception.tare?.toString() || '0');
+              if (liveClusters.netWeight?.node) liveClusters.netWeight.node.value = parseFloat(reception.netWeight?.toString() || '0');
+              
+              // Update parameters
+              if (liveClusters.Humedad?.percent) liveClusters.Humedad.percent.value = reception.percentHumedad || 0;
+              if (liveClusters.Humedad?.tolerance) liveClusters.Humedad.tolerance.value = reception.toleranceHumedad || 0;
+              
+              if (liveClusters.GranosVerdes?.percent) liveClusters.GranosVerdes.percent.value = reception.percentGranosVerdes || 0;
+              if (liveClusters.GranosVerdes?.tolerance) liveClusters.GranosVerdes.tolerance.value = reception.toleranceGranosVerdes || 0;
+              
+              // Force update
+              if (liveClusters.totalPaddy?.node) liveClusters.totalPaddy.node.value = reception.totalToPay || 0;
+            } catch (err) {
+              console.error('Error updating liveClusters:', err);
+            }
           }
         }
       } catch (error) {
