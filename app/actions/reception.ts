@@ -128,7 +128,34 @@ export const getReceptionResumen = async () => {
     }
 
     const data = await res.json();
-    return data;
+    
+    // Transform data to ensure all needed fields are properly formatted
+    const transformedData = data.map((item: any) => ({
+      ...item,
+      // Ensure these fields are properly converted to numbers
+      price: typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0),
+      grossWeight: typeof item.grossWeight === 'string' ? parseFloat(item.grossWeight) : (item.grossWeight || 0),
+      netWeight: typeof item.netWeight === 'string' ? parseFloat(item.netWeight) : (item.netWeight || 0),
+      totalConDescuentos: typeof item.totalDiscounts === 'number' ? item.totalDiscounts : (
+        typeof item.totalDiscounts === 'string' ? parseFloat(item.totalDiscounts) : 0
+      ),
+      paddyNeto: typeof item.totalPaddy === 'number' ? item.totalPaddy : (
+        typeof item.totalPaddy === 'string' ? parseFloat(item.totalPaddy) : (
+          typeof item.totalToPay === 'number' ? item.totalToPay : (
+            typeof item.totalToPay === 'string' ? parseFloat(item.totalToPay) : 0
+          )
+        )
+      ),
+      // Add producer and riceType fields if they're just IDs
+      producer: typeof item.producer === 'object' ? item.producer.name : (
+        typeof item.producerName === 'string' ? item.producerName : 'Sin productor'
+      ),
+      riceType: typeof item.riceType === 'object' ? item.riceType.name : (
+        typeof item.riceTypeName === 'string' ? item.riceTypeName : 'Sin tipo'
+      )
+    }));
+    
+    return transformedData;
   } catch (error) {
     console.error("❌ Error en getReceptionResumen:", error);
     return [];

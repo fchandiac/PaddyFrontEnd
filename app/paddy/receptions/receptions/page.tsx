@@ -44,8 +44,30 @@ export default function ReceptionListPage() {
 
   const columns = [
     { field: "id", headerName: "Nº", width: 80 },
-    { field: "riceType", headerName: "Tipo de arroz", flex: 1 },
-    { field: "producer", headerName: "Productor", flex: 1.5 },
+    { 
+      field: "riceType", 
+      headerName: "Tipo de arroz", 
+      flex: 1,
+      valueGetter: (params: any) => {
+        // Handle both object and string formats
+        if (typeof params.value === 'object' && params.value !== null) {
+          return params.value.name;
+        }
+        return params.value;
+      }
+    },
+    { 
+      field: "producer", 
+      headerName: "Productor", 
+      flex: 1.5,
+      valueGetter: (params: any) => {
+        // Handle both object and string formats
+        if (typeof params.value === 'object' && params.value !== null) {
+          return params.value.name;
+        }
+        return params.value;
+      }
+    },
     { field: "guide", headerName: "Guía", flex: 1 },
     { field: "licensePlate", headerName: "Patente", flex: 1 },
     {
@@ -55,7 +77,8 @@ export default function ReceptionListPage() {
       flex: 1,
       valueFormatter: (params: any) => {
         if (!params || params.value === undefined || params.value === null) return '';
-        return params.value.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
+        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        return numValue.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
       },
     },
     {
@@ -65,7 +88,8 @@ export default function ReceptionListPage() {
       width: 120,
       valueFormatter: (params: any) => {
         if (!params || params.value === undefined || params.value === null) return '';
-        return params.value.toLocaleString("es-CL", { minimumFractionDigits: 2 });
+        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
     {
@@ -75,7 +99,8 @@ export default function ReceptionListPage() {
       width: 120,
       valueFormatter: (params: any) => {
         if (!params || params.value === undefined || params.value === null) return '';
-        return params.value.toLocaleString("es-CL", { minimumFractionDigits: 2 });
+        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
     {
@@ -85,7 +110,8 @@ export default function ReceptionListPage() {
       width: 140,
       valueFormatter: (params: any) => {
         if (!params || params.value === undefined || params.value === null) return '';
-        return params.value.toLocaleString("es-CL", { minimumFractionDigits: 2 });
+        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
     {
@@ -95,7 +121,8 @@ export default function ReceptionListPage() {
       width: 130,
       valueFormatter: (params: any) => {
         if (!params || params.value === undefined || params.value === null) return '';
-        return params.value.toLocaleString("es-CL", { minimumFractionDigits: 2 });
+        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
     {
