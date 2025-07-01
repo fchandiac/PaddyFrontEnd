@@ -561,7 +561,6 @@ export default function GrainAnalysis() {
   ).filter((cluster) => {
     // Si no hay template, mostrar todos los clusters
     if (!data?.template) {
-      console.log(`🔥 No template - showing cluster ${cluster.key}`);
       return true;
     }
     
@@ -578,7 +577,6 @@ export default function GrainAnalysis() {
     };
     
     const isAvailable = availabilityMap[cluster.key] !== false;
-    console.log(`🔥 Filtering cluster ${cluster.key}, available:`, isAvailable);
     return isAvailable;
   });
 

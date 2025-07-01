@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Box,
   Grid,
@@ -78,12 +79,15 @@ export default function Page() {
           <Grid container spacing={2} columns={2} sx={{ width: "100%" }}>
             {/* Logo */}
             <Grid item xs={2} sx={{ mb: 4 }}>
-              <Box
-                component="img"
-                src="/logo.svg"
-                alt="Logo"
-                sx={{ width: 180, display: "block", mx: "auto" }}
-              />
+              <Box sx={{ width: 180, display: "block", mx: "auto" }}>
+                <Image
+                  src="/logo.svg"
+                  alt="Logo"
+                  width={180}
+                  height={120}
+                  priority={true}
+                />
+              </Box>
             </Grid>
 
             {/* Email */}

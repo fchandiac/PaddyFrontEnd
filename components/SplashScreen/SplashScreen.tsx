@@ -104,6 +104,7 @@ export default function SplashScreen({ onComplete, duration = 8000 }: SplashScre
                 alt="Aparicio y García"
                 width={140}
                 height={140}
+                priority={true}
                 style={{
                   filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))',
                 }}

@@ -110,11 +110,7 @@ export function useReceptionData(
 
   // Sincroniza la visibilidad de los nodos con los flags availableX del template
   useEffect(() => {
-    console.log('🔥 useEffect triggered - sincronizando visibilidad');
-    console.log('🔥 Current data.template:', data?.template);
-    
     if (!data?.template) {
-      console.log('🔥 No template loaded - showing all fields');
       // Si no hay plantilla, mostrar todos los campos
       const allParamClusters = [
         liveClusters.Humedad,
@@ -135,7 +131,6 @@ export function useReceptionData(
       liveClusters.Bonus.tolerance.show = true;
       liveClusters.Bonus.penalty.show = true;
       liveClusters.Dry.percent.show = true;
-      console.log('🔥 All fields set to visible');
       
       // Restaurar colores predeterminados del GroupSummary cuando no hay plantilla
       liveClusters.groupSummary.percent.backgroundColor = "inherit";
@@ -144,9 +139,6 @@ export function useReceptionData(
       
       return;
     }
-    
-    console.log('🔥 Template loaded:', data.template.name);
-    console.log('🔥 Template data:', data.template);
     
     // ParamClusters
     const paramMapping = [
@@ -160,7 +152,6 @@ export function useReceptionData(
       { available: data.template.availableGranosYesosos, cluster: liveClusters.GranosYesosos, name: 'GranosYesosos', groupTolerance: data.template.groupToleranceGranosYesosos, showTolerance: data.template.showToleranceGranosYesosos },
     ];
     paramMapping.forEach(({ available, cluster, name, groupTolerance, showTolerance }) => {
-      console.log(`🔥 Setting ${name} visibility to:`, available, 'showTolerance:', showTolerance);
       cluster.range.show = !!available;
       cluster.percent.show = !!available;
       cluster.tolerance.show = !!(available && showTolerance);
@@ -172,7 +163,6 @@ export function useReceptionData(
       
       // Establecer color de fondo para elementos que pertenecen al grupo de tolerancia
       if (data.template.useToleranceGroup && groupTolerance && available) {
-        console.log(`🔥 Setting ${name} group tolerance background color`);
         // Color morado pastel claro para elementos del grupo de tolerancia
         cluster.range.backgroundColor = "#eceff1"; // Morado pastel claro para range también
         cluster.tolerance.backgroundColor = "#eceff1"; // Morado pastel claro
@@ -195,7 +185,6 @@ export function useReceptionData(
       }
     });
     // BonusCluster
-    console.log('🔥 Setting Bonus visibility to:', data.template.availableBonus);
     liveClusters.Bonus.tolerance.show = !!data.template.availableBonus;
     liveClusters.Bonus.penalty.show = !!data.template.availableBonus;
     
@@ -205,7 +194,6 @@ export function useReceptionData(
     );
     
     if (data.template.useToleranceGroup && hasGroupToleranceParams) {
-      console.log('🔥 Setting GroupSummary background color for tolerance group');
       liveClusters.groupSummary.toleranceGroup = true; // Marcar como parte del grupo de tolerancia
       liveClusters.groupSummary.percent.backgroundColor = "#eceff1";
       liveClusters.groupSummary.tolerance.backgroundColor = "#eceff1";
@@ -218,11 +206,9 @@ export function useReceptionData(
     }
     
     // DryCluster
-    console.log('🔥 Setting Dry visibility to:', data.template.availableDry);
     liveClusters.Dry.percent.show = !!data.template.availableDry;
     
     // Después de actualizar todos los parámetros, forzar recálculo del porcentaje en groupSummary
-    console.log('🔥 Forcing recalculation of groupSummary values');
     if (liveClusters.groupSummary.percent.effect) {
       liveClusters.groupSummary.percent.effect();
     }
@@ -244,8 +230,6 @@ export function useReceptionData(
       setVersion((v) => v + 1); // Actualizar versión para forzar re-render
       originalToleranceOnChange(value);
     };
-    
-    console.log('🔥 Template visibility sync completed');
   }, [data?.template, liveClusters]);
 
   const setTemplateField = useCallback(
@@ -270,32 +254,14 @@ export function useReceptionData(
 
   // Modifica setTemplate para aplicar correctamente la plantilla
   const setTemplate = useCallback((template: TemplateType) => {
-    console.log('🔥 setTemplate called with:', template);
-    console.log('🔥 Template name:', template.name);
-    console.log('🔥 Template available fields:', {
-      Humedad: template.availableHumedad,
-      GranosVerdes: template.availableGranosVerdes,
-      Impurezas: template.availableImpurezas,
-      Vano: template.availableVano,
-      Hualcacho: template.availableHualcacho,
-      GranosManchados: template.availableGranosManchados,
-      GranosPelados: template.availableGranosPelados,
-      GranosYesosos: template.availableGranosYesosos,
-      Bonus: template.availableBonus,
-      Dry: template.availableDry,
-    });
-    
     setData((prev) => ({
       ...prev,
       template,
     }));
-    console.log('🔥 Template set in data state');
   }, []);
 
   const updateToleranceGroupMode = useCallback(
     (useToleranceGroup: boolean) => {
-      console.log('🔥 Updating tolerance group mode to:', useToleranceGroup);
-      
       setData((prev) => ({
         ...prev,
         template: {
