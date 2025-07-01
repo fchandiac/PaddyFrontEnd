@@ -21,6 +21,38 @@ export const producerInputRef = { current: null as HTMLInputElement | null };
 export function focusOnProducer() {
   if (producerInputRef.current) {
     producerInputRef.current.focus();
+    // También intenta seleccionar el texto si es posible
+    if (producerInputRef.current.select) {
+      producerInputRef.current.select();
+    }
+    console.log("Productor enfocado correctamente");
+  } else {
+    console.log("No se pudo enfocar el productor: producerInputRef.current es null");
+    // Intento alternativo usando setTimeout
+    setTimeout(() => {
+      if (producerInputRef.current) {
+        producerInputRef.current.focus();
+        console.log("Productor enfocado con retraso");
+      } else {
+        console.log("No se pudo enfocar el productor incluso con retraso");
+      }
+    }, 500);
+  }
+}
+      producerInputRef.current.select();
+    }
+    console.log("Productor enfocado correctamente");
+  } else {
+    console.log("No se pudo enfocar el productor: producerInputRef.current es null");
+    // Intento alternativo usando setTimeout
+    setTimeout(() => {
+      if (producerInputRef.current) {
+        producerInputRef.current.focus();
+        console.log("Productor enfocado con retraso");
+      } else {
+        console.log("No se pudo enfocar el productor incluso con retraso");
+      }
+    }, 500);
   }
 }
 
@@ -267,7 +299,11 @@ export default function ReceptionGeneralData() {
             renderInput={(params) => (
               <TextField
                 {...params}
-                inputRef={producerRef}
+                inputRef={(el) => {
+                  // Asignar ambas referencias al mismo elemento
+                  producerRef.current = el;
+                  producerInputRef.current = el;
+                }}
                 label="Productor"
                 fullWidth
                 size="small"
@@ -441,7 +477,7 @@ export default function ReceptionGeneralData() {
                 const parsedValue = parseInt(numericValue, 10);
                 setPrice(parsedValue);
                 // Update context with the new price
-                setField("price", parsedValue);
+                setField "price", parsedValue);
               } else {
                 setPrice(0);
                 // Update context with 0 price
@@ -469,7 +505,7 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={data.guide || ''}
-            onChange={(e) => setField("guide", e.target.value)}
+            onChange={(e) => setField "guide", e.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();
@@ -489,7 +525,7 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={data.licensePlate}
-            onChange={(e) => setField("licensePlate", e.target.value)}
+            onChange={(e) => setField "licensePlate", e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -578,7 +614,7 @@ export default function ReceptionGeneralData() {
             fullWidth
             size="small"
             value={data.note}
-            onChange={(e) => setField("note", e.target.value)}
+            onChange={(e) => setField "note", e.target.value)}
             onFocus={(e) => {
               // Seleccionar todo el texto cuando se recibe el foco
               setTimeout(() => {

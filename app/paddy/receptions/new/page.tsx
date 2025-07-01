@@ -435,8 +435,8 @@ export default function NewReceptionPage() {
         title="Recepción de Paddy"
         dialogWidth="md"
         onClose={() => {
-          // Focus on producer field when dialog is closed
-          setTimeout(focusOnProducer, 100);
+          // Focus on producer field when dialog is closed with increased timeout
+          setTimeout(focusOnProducer, 300);
         }}
       >
         <ReceptionToPrint />
