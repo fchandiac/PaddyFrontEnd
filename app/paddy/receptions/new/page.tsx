@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Grid,
   Box,
@@ -16,7 +16,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 import PrintIcon from "@mui/icons-material/Print";
 import { useAlertContext } from "@/context/AlertContext";
 import { createReception } from "@/app/actions/reception";
-import ReceptionGeneralData from "./ui/ReceptionGeneralData";
+import ReceptionGeneralData, { focusOnProducer } from "./ui/ReceptionGeneralData";
 import GrainAnalysis from "./ui/GrainAnalysis";
 import { useReceptionContext } from "@/context/ReceptionDataContext";
 import { CreateReceptionPayload } from "@/types/reception";
@@ -32,7 +32,7 @@ import ReceptionToPrint from "../ReceptionToPrint";
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
-  const { data, liveClusters, setTemplate } = useReceptionContext();
+  const { data, liveClusters, setTemplate, resetData } = useReceptionContext();
   const { user } = useUserContext();
   const { handleKeyDown } = useKeyboardNavigation();
 
@@ -167,8 +167,14 @@ export default function NewReceptionPage() {
       
       showAlert("Recepción guardada correctamente", "success");
       
-      // Abrir el diálogo de impresión en lugar de redirigir
+      // Guardar temporalmente los datos para imprimir
+      const savedReceptionId = result.id;
+      
+      // Abrir el diálogo de impresión
       setOpenPrintDialog(true);
+      
+      // Limpiar todos los datos y clusters para una nueva recepción
+      resetData();
       
     } catch (error) {
       console.error("Error al guardar la recepción:", error);
@@ -433,6 +439,10 @@ export default function NewReceptionPage() {
         setOpen={setOpenPrintDialog}
         title="Recepción de Paddy"
         dialogWidth="md"
+        onClose={() => {
+          // Focus on producer field when dialog is closed
+          setTimeout(focusOnProducer, 100);
+        }}
       >
         <ReceptionToPrint />
       </PrintDialog>

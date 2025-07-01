@@ -342,6 +342,53 @@ export function useReceptionData(
     [liveClusters, data.template]
   );
 
+  const resetData = useCallback(() => {
+    // Reset data to default values
+    setData(defaultReceptionData);
+    
+    // Reset all liveClusters values
+    // Weights
+    if (liveClusters.grossWeight.node) liveClusters.grossWeight.node.value = 0;
+    if (liveClusters.tare.node) liveClusters.tare.node.value = 0;
+    if (liveClusters.netWeight.node) liveClusters.netWeight.node.value = 0;
+    
+    // Parameters
+    const paramClusters = [
+      liveClusters.Humedad,
+      liveClusters.GranosVerdes,
+      liveClusters.Impurezas,
+      liveClusters.Vano,
+      liveClusters.Hualcacho,
+      liveClusters.GranosManchados,
+      liveClusters.GranosPelados,
+      liveClusters.GranosYesosos,
+    ];
+    
+    // Reset percent, tolerance, penalty for all parameters
+    paramClusters.forEach(cluster => {
+      if (cluster.range) cluster.range.value = 0;
+      if (cluster.percent) cluster.percent.value = 0;
+      if (cluster.tolerance) cluster.tolerance.value = 0;
+      if (cluster.penalty) cluster.penalty.value = 0;
+    });
+    
+    // Reset bonus and dry
+    if (liveClusters.Bonus.tolerance) liveClusters.Bonus.tolerance.value = 0;
+    if (liveClusters.Bonus.penalty) liveClusters.Bonus.penalty.value = 0;
+    if (liveClusters.Dry.percent) liveClusters.Dry.percent.value = 0;
+    
+    // Reset group summary
+    if (liveClusters.Summary.percent) liveClusters.Summary.percent.value = 0;
+    if (liveClusters.Summary.tolerance) liveClusters.Summary.tolerance.value = 0;
+    if (liveClusters.Summary.penalty) liveClusters.Summary.penalty.value = 0;
+    
+    // Reset total paddy
+    if (liveClusters.totalPaddy.node) liveClusters.totalPaddy.node.value = 0;
+    
+    // Force update
+    setVersion(v => v + 1);
+  }, [liveClusters]);
+
   return {
     data,
     setField,
@@ -349,5 +396,6 @@ export function useReceptionData(
     setTemplate,
     liveClusters,
     updateToleranceGroupMode,
+    resetData,
   };
 }
