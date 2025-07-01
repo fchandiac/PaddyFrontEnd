@@ -25,6 +25,11 @@ export default function PrintDialog({
     documentTitle: title,
   });
 
+  const handleGoToList = () => {
+    setOpen(false);
+    window.location.href = "/paddy/receptions/receptions";
+  };
+
   return (
     <Dialog
       open={open}
@@ -55,6 +60,13 @@ export default function PrintDialog({
             sx={{ mr: 1 }}
           >
             Imprimir
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={handleGoToList}
+            sx={{ ml: 1 }}
+          >
+            Ver Lista
           </Button>
         </Box>
       </Box>

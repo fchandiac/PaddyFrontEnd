@@ -167,8 +167,8 @@ export default function NewReceptionPage() {
       
       showAlert("Recepción guardada correctamente", "success");
       
-      // Redirigir a la página de recepciones después de guardar
-      window.location.href = "/paddy/receptions/receptions";
+      // Abrir el diálogo de impresión en lugar de redirigir
+      setOpenPrintDialog(true);
       
     } catch (error) {
       console.error("Error al guardar la recepción:", error);
