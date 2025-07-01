@@ -157,13 +157,8 @@ export default function NewReceptionPage() {
         status: "pending"
       };
 
-      // Mostrar el payload en la consola para depuración
-      console.log("Payload enviado al backend:", JSON.stringify(payload, null, 2));
-
       // Llamar a la API para crear la recepción
       const result = await createReception(payload);
-      
-      console.log("Respuesta del backend:", result);
       
       showAlert("Recepción guardada correctamente", "success");
       

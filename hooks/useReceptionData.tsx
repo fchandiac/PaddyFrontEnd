@@ -343,8 +343,11 @@ export function useReceptionData(
   );
 
   const resetData = useCallback(() => {
-    // Reset data to default values
-    setData(defaultReceptionData);
+    // Reset data to default values but preserve the template
+    setData((prevData) => ({
+      ...defaultReceptionData,
+      template: prevData.template, // Preserve the template using functional state update
+    }));
     
     // Reset all liveClusters values
     // Weights
