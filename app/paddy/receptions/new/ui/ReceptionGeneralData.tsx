@@ -28,13 +28,23 @@ export function focusOnProducer(): void {
     console.log("Productor enfocado correctamente");
   } else {
     console.log("No se pudo enfocar el productor: producerInputRef.current es null");
-    // Intento alternativo usando setTimeout
+    // Intento alternativo usando setTimeout y querySelector
     setTimeout(() => {
       if (producerInputRef.current) {
         producerInputRef.current.focus();
         console.log("Productor enfocado con retraso");
       } else {
-        console.log("No se pudo enfocar el productor incluso con retraso");
+        // Último intento usando querySelector como fallback
+        const producerInput = document.querySelector('input[aria-label="Productor"]') as HTMLInputElement;
+        if (producerInput) {
+          producerInput.focus();
+          if (producerInput.select) {
+            producerInput.select();
+          }
+          console.log("Productor enfocado usando querySelector");
+        } else {
+          console.log("No se pudo enfocar el productor incluso con querySelector");
+        }
       }
     }, 500);
   }

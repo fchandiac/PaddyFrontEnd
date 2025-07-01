@@ -436,7 +436,7 @@ export default function NewReceptionPage() {
         dialogWidth="md"
         onClose={() => {
           // Focus on producer field when dialog is closed with increased timeout
-          setTimeout(focusOnProducer, 300);
+          setTimeout(focusOnProducer, 500);
         }}
       >
         <ReceptionToPrint />
