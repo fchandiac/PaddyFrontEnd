@@ -76,8 +76,93 @@ export default function NewReceptionPage() {
   }, [setTemplate]);
 
   const handleSave = async () => {
-    console.log("data", data);
-    // guardar recepción...
+    // Verificar si hay errores de validación antes de guardar
+    if (hasValidationErrors()) {
+      showAlert("Por favor, corrija los errores antes de guardar", "error");
+      return;
+    }
+
+    // Verificar datos obligatorios
+    if (!data.producerId) {
+      showAlert("Seleccione un productor", "error");
+      return;
+    }
+
+    if (!data.riceTypeId) {
+      showAlert("Seleccione un tipo de arroz", "error");
+      return;
+    }
+
+    try {
+      setLoadingSave(true);
+
+      // Construir el payload para la API
+      const payload: CreateReceptionPayload = {
+        producerId: data.producerId,
+        riceTypeId: data.riceTypeId,
+        discountTemplateId: data.template?.id,
+        price: data.price || 0,
+        guide: data.guide || "",
+        licensePlate: data.licensePlate || "",
+        
+        // Pesos
+        grossWeight: liveClusters.grossWeight.node ? liveClusters.grossWeight.node.value : 0,
+        tare: liveClusters.tare.node ? liveClusters.tare.node.value : 0,
+        netWeight: liveClusters.netWeight.node ? liveClusters.netWeight.node.value : 0,
+        
+        // Parámetros
+        percentHumedad: liveClusters.Humedad.percent ? liveClusters.Humedad.percent.value : 0,
+        toleranceHumedad: liveClusters.Humedad.tolerance ? liveClusters.Humedad.tolerance.value : 0,
+        
+        percentGranosVerdes: liveClusters.GranosVerdes.percent ? liveClusters.GranosVerdes.percent.value : 0,
+        toleranceGranosVerdes: liveClusters.GranosVerdes.tolerance ? liveClusters.GranosVerdes.tolerance.value : 0,
+        
+        percentImpurezas: liveClusters.Impurezas.percent ? liveClusters.Impurezas.percent.value : 0,
+        toleranceImpurezas: liveClusters.Impurezas.tolerance ? liveClusters.Impurezas.tolerance.value : 0,
+        
+        percentVano: liveClusters.Vano.percent ? liveClusters.Vano.percent.value : 0,
+        toleranceVano: liveClusters.Vano.tolerance ? liveClusters.Vano.tolerance.value : 0,
+        
+        percentHualcacho: liveClusters.Hualcacho.percent ? liveClusters.Hualcacho.percent.value : 0,
+        toleranceHualcacho: liveClusters.Hualcacho.tolerance ? liveClusters.Hualcacho.tolerance.value : 0,
+        
+        percentGranosManchados: liveClusters.GranosManchados.percent ? liveClusters.GranosManchados.percent.value : 0,
+        toleranceGranosManchados: liveClusters.GranosManchados.tolerance ? liveClusters.GranosManchados.tolerance.value : 0,
+        
+        percentGranosPelados: liveClusters.GranosPelados.percent ? liveClusters.GranosPelados.percent.value : 0,
+        toleranceGranosPelados: liveClusters.GranosPelados.tolerance ? liveClusters.GranosPelados.tolerance.value : 0,
+        
+        percentGranosYesosos: liveClusters.GranosYesosos.percent ? liveClusters.GranosYesosos.percent.value : 0,
+        toleranceGranosYesosos: liveClusters.GranosYesosos.tolerance ? liveClusters.GranosYesosos.tolerance.value : 0,
+        
+        // Bonificación y secado
+        toleranceBonificacion: liveClusters.Bonus.tolerance ? liveClusters.Bonus.tolerance.value : 0,
+        percentSecado: liveClusters.Dry.percent ? liveClusters.Dry.percent.value : 0,
+        
+        // Total paddy neto
+        totalToPay: liveClusters.totalPaddy.node ? liveClusters.totalPaddy.node.value : 0,
+        
+        // Nota/observación
+        note: data.note || "",
+        
+        // Estado predeterminado
+        status: "pending"
+      };
+
+      // Llamar a la API para crear la recepción
+      const result = await createReception(payload);
+      
+      showAlert("Recepción guardada correctamente", "success");
+      
+      // Redirigir a la página de recepciones después de guardar
+      window.location.href = "/paddy/receptions/receptions";
+      
+    } catch (error) {
+      console.error("Error al guardar la recepción:", error);
+      showAlert("Error al guardar la recepción. Intente nuevamente.", "error");
+    } finally {
+      setLoadingSave(false);
+    }
   };
 
   const handlePrint = () => {
@@ -254,8 +339,8 @@ export default function NewReceptionPage() {
               <Button
                 fullWidth
                 variant="contained"
-                // onClick={handleSave}
-                // disabled={loadingSave}
+                onClick={handleSave}
+                disabled={loadingSave || hasValidationErrors()}
               >
                 {loadingSave ? (
                   <CircularProgress size={24} />
