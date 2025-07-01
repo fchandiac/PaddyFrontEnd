@@ -10,6 +10,7 @@ export interface Reception {
   id: number;
   producerId: number;
   riceTypeId: number;
+  templateId?: number; // Added to match backend entity
   price: number;
   guide: string;
   licensePlate: string;
@@ -72,7 +73,7 @@ export interface Reception {
 export interface CreateReceptionPayload {
   producerId: number;
   riceTypeId: number;
-  // Eliminado: discountTemplateId?: number;
+  templateId?: number; // Added to match backend entity
   price: number;
   guide: string;
   licensePlate: string;
@@ -418,7 +419,7 @@ export interface FindReceptionByIdType {
 export type UpdateReceptionPayload = {
   producerId?: number;
   riceTypeId?: number;
-  discountTemplateId?: number;
+  templateId?: number; // Updated to match backend entity
   price?: number;
   guide?: string;
   licensePlate?: string;
@@ -492,7 +493,7 @@ export interface DataReceptionContextType {
   licensePlate: string;
   note: string;
   status: "pending" | "settled" | "canceled";
-  discountTemplateId: number;
+  templateId?: number; // Updated to match backend entity
   createdAt: string;
   updatedAt: string;
   useToleranceGroup: boolean;
@@ -598,7 +599,7 @@ export const defaultReceptionData: DataReceptionContextType = {
   licensePlate: "",
   note: "Sin observaciones.",
   status: "pending",
-  discountTemplateId: 0,
+  templateId: 0,
   createdAt: "",
   updatedAt: "",
   useToleranceGroup: false,
