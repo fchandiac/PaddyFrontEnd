@@ -10,7 +10,7 @@ export interface Reception {
   id: number;
   producerId: number;
   riceTypeId: number;
-  templateId?: number; // Added to match backend entity
+  templateId?: number;
   price: number;
   guide: string;
   licensePlate: string;
@@ -44,8 +44,10 @@ export interface Reception {
   toleranceBonificacion: number;
   percentSecado: number;
 
-  // 💰 Total a pagar
-  totalToPay: number;
+  // Descuentos y pagos
+  totalDiscount: number;
+  bonus: number;
+  paddyNet: number;
 
   // Observación
   note: string;
@@ -53,6 +55,9 @@ export interface Reception {
   status: ReceptionStatus;
   createdAt: string;
   updatedAt: string;
+  
+  // Historial de cambios
+  historyLog?: ReceptionHistory;
 
   // Relaciones opcionales (si backend las incluye)
   producer?: {
@@ -73,7 +78,7 @@ export interface Reception {
 export interface CreateReceptionPayload {
   producerId: number;
   riceTypeId: number;
-  templateId?: number; // Added to match backend entity
+  templateId?: number;
   price: number;
   guide: string;
   licensePlate: string;
@@ -108,7 +113,9 @@ export interface CreateReceptionPayload {
   toleranceBonificacion: number;
   percentSecado: number;
 
-  totalToPay: number; // ✅ nuevo campo requerido
+  totalDiscount: number;
+  bonus: number;
+  paddyNet: number;
 
   note: string;
 
@@ -419,7 +426,7 @@ export interface FindReceptionByIdType {
 export type UpdateReceptionPayload = {
   producerId?: number;
   riceTypeId?: number;
-  templateId?: number; // Updated to match backend entity
+  templateId?: number;
   price?: number;
   guide?: string;
   licensePlate?: string;
@@ -440,12 +447,62 @@ export type UpdateReceptionPayload = {
   toleranceGranosPelados?: number;
   percentGranosYesosos?: number;
   toleranceGranosYesosos?: number;
+  percentVano?: number;
+  toleranceVano?: number;
   toleranceBonificacion?: number;
   percentSecado?: number;
-  totalToPay?: number;
-  status?: "pending" | "settled" | "canceled";
+  totalDiscount?: number;
+  bonus?: number;
+  paddyNet?: number;
+  status?: ReceptionStatus;
   note?: string;
 };
+
+// Tipo para el historial de cambios
+export interface ReceptionHistoryEntry {
+  timestamp: string;
+  price?: number;
+  grossWeight?: number;
+  tare?: number;
+  netWeight?: number;
+
+  // Análisis de granos
+  percentHumedad?: number;
+  toleranceHumedad?: number;
+  percentGranosVerdes?: number;
+  toleranceGranosVerdes?: number;
+  percentImpurezas?: number;
+  toleranceImpurezas?: number;
+  percentGranosManchados?: number;
+  toleranceGranosManchados?: number;
+  percentHualcacho?: number;
+  toleranceHualcacho?: number;
+  percentGranosPelados?: number;
+  toleranceGranosPelados?: number;
+  percentGranosYesosos?: number;
+  toleranceGranosYesosos?: number;
+  percentVano?: number;
+  toleranceVano?: number;
+
+  // Bonificación y secado
+  toleranceBonificacion?: number;
+  percentSecado?: number;
+
+  // Cálculos derivados
+  totalDiscount?: number;
+  bonus?: number;
+  paddyNet?: number;
+
+  // Estado y nota
+  status?: ReceptionStatus;
+  note?: string;
+
+  // Metadatos del cambio
+  changedBy?: string;
+  reason?: string;
+}
+
+export type ReceptionHistory = ReceptionHistoryEntry[];
 
 // Keys for each defect parameter
 export const paramKeys = [
@@ -466,8 +523,6 @@ export interface ParamTableEntry {
   tolerance: number;
   penalty: number;
 }
-
-
 
 export interface DataReceptionContextType {
   id: number;
@@ -571,10 +626,7 @@ export interface DataReceptionContextType {
     enable: boolean;
   };
   template: TemplateType;
-
- 
 }
-
 
 export const defaultReceptionData: DataReceptionContextType = {
   id: 0,
@@ -745,5 +797,22 @@ export const defaultReceptionData: DataReceptionContextType = {
     updatedAt: "",
     deletedAt: null,
     producer: undefined,
-  } 
+  },
+};
+
+// Interfaz simplificada para la lista de recepciones
+export interface ReceptionListItem {
+  id: number;
+  producer: string;
+  riceType: string;
+  price: number;
+  grossWeight: number;
+  tare: number;
+  netWeight: number;
+  guide: string;
+  licensePlate: string;
+  createdAt: string;
+  totalConDescuentos: number;
+  paddyNeto: number;
+  status?: ReceptionStatus;
 }

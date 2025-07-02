@@ -6,7 +6,8 @@ import {
   Reception,
   FindReceptionByIdType,
   ReceptionListItem,
-  ReceptionStatus
+  ReceptionStatus,
+  ReceptionHistory
 } from "@/types/reception";
 import { createRecord } from "./record"; // importa desde donde esté
 import { auth } from "../../auth";
@@ -28,6 +29,7 @@ function transformReceptionData(item: any): ReceptionListItem {
     riceType: item.riceType?.name || 'Sin tipo',
     price: safeNumber(item.price),
     grossWeight: safeNumber(item.grossWeight),
+    tare: safeNumber(item.tare),
     netWeight: safeNumber(item.netWeight),
     guide: item.guide || '',
     licensePlate: item.licensePlate || '',
@@ -126,9 +128,18 @@ export async function createReception(data: CreateReceptionPayload): Promise<Rec
 
 export async function updateReception(
   id: number,
-  data: UpdateReceptionPayload
+  data: UpdateReceptionPayload,
+  reason?: string,
+  changedBy?: string
 ): Promise<Reception> {
-  const res = await fetch(`${backendUrl}/receptions/${id}`, {
+  // Crear parámetros de consulta para razón de cambio
+  const queryParams = new URLSearchParams();
+  if (reason) queryParams.append('reason', reason);
+  if (changedBy) queryParams.append('changedBy', changedBy);
+  
+  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  
+  const res = await fetch(`${backendUrl}/receptions/${id}${queryString}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -206,3 +217,29 @@ export const getReceptionResumen = async (): Promise<ReceptionListItem[]> => {
     return [];
   }
 };
+
+export async function getReceptionHistory(id: number): Promise<{
+  id: number;
+  currentData: Partial<Reception>;
+  history: ReceptionHistory;
+}> {
+  try {
+    const url = `${backendUrl}/receptions/${id}/history`;
+    
+    const res = await fetch(url, { 
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Error al obtener historial de recepción: ${res.status} ${res.statusText}`);
+    }
+    
+    return res.json();
+  } catch (error) {
+    console.error('Error en getReceptionHistory:', error);
+    throw error;
+  }
+}
