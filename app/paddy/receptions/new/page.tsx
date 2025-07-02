@@ -146,8 +146,10 @@ export default function NewReceptionPage() {
         toleranceBonificacion: ensureNumber(liveClusters.Bonus.tolerance?.value),
         percentSecado: ensureNumber(liveClusters.Dry.percent?.value),
         
-        // Total paddy neto
-        totalToPay: ensureNumber(liveClusters.totalPaddy.node?.value),
+        // Cálculos derivados (en Kg) - requeridos por el backend
+        totalDiscount: ensureNumber(liveClusters.DiscountTotal?.node?.value || 0),
+        bonus: ensureNumber(liveClusters.Bonus?.penalty?.value || 0),
+        paddyNet: ensureNumber(liveClusters.totalPaddy?.node?.value || 0),
         
         // Nota/observación
         note: data.note || "",

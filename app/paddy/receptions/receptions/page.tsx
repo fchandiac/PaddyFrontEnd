@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, Dialog, Typography } from "@mui/material";
+import { Box, Typography, Dialog } from "@mui/material";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Print, Delete, Edit } from "@mui/icons-material";
 import AppDataGrid from "@/components/appDataGrid/AppDataGrid";
-import { getReceptionResumen, deleteReception } from "@/app/actions/reception";
+import { getAllReceptions, deleteReception } from "@/app/actions/reception";
 import PrintDialog from "@/components/PrintDialog/PrintDialog";
 import moment from "moment-timezone";
 import { useAlertContext } from "@/context/AlertContext";
@@ -31,9 +31,12 @@ export default function ReceptionListPage() {
 
   const fetchData = async () => {
     try {
-      const data = await getReceptionResumen();
+      const data = await getAllReceptions();
+      console.log("Datos recibidos en el grid:", data);
+      console.log("Primer elemento:", data[0]);
       setReceptions(data);
     } catch (error) {
+      console.error("Error al cargar recepciones:", error);
       showAlert("Error al cargar las recepciones", "error");
     }
   };
@@ -47,26 +50,12 @@ export default function ReceptionListPage() {
     { 
       field: "riceType", 
       headerName: "Tipo de arroz", 
-      flex: 1,
-      valueGetter: (params: any) => {
-        // Handle both object and string formats
-        if (typeof params.value === 'object' && params.value !== null) {
-          return params.value.name;
-        }
-        return params.value;
-      }
+      flex: 1 
     },
     { 
       field: "producer", 
       headerName: "Productor", 
-      flex: 1.5,
-      valueGetter: (params: any) => {
-        // Handle both object and string formats
-        if (typeof params.value === 'object' && params.value !== null) {
-          return params.value.name;
-        }
-        return params.value;
-      }
+      flex: 1.5 
     },
     { field: "guide", headerName: "Guía", flex: 1 },
     { field: "licensePlate", headerName: "Patente", flex: 1 },
@@ -76,8 +65,10 @@ export default function ReceptionListPage() {
       type: "number",
       flex: 1,
       valueFormatter: (params: any) => {
-        if (!params || params.value === undefined || params.value === null) return '';
-        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        const value = params?.value ?? params;
+        if (value === undefined || value === null || value === '') return '$0';
+        const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+        if (isNaN(numValue)) return '$0';
         return numValue.toLocaleString("es-CL", { style: "currency", currency: "CLP" });
       },
     },
@@ -87,8 +78,10 @@ export default function ReceptionListPage() {
       type: "number",
       width: 120,
       valueFormatter: (params: any) => {
-        if (!params || params.value === undefined || params.value === null) return '';
-        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        const value = params?.value ?? params;
+        if (value === undefined || value === null || value === '') return '0.00';
+        const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+        if (isNaN(numValue)) return '0.00';
         return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
@@ -98,30 +91,36 @@ export default function ReceptionListPage() {
       type: "number",
       width: 120,
       valueFormatter: (params: any) => {
-        if (!params || params.value === undefined || params.value === null) return '';
-        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        const value = params?.value ?? params;
+        if (value === undefined || value === null || value === '') return '0.00';
+        const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+        if (isNaN(numValue)) return '0.00';
         return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
     {
       field: "totalConDescuentos",
-      headerName: "Total c/ desc.",
+      headerName: "Descuentos (kg)",
       type: "number",
       width: 140,
       valueFormatter: (params: any) => {
-        if (!params || params.value === undefined || params.value === null) return '';
-        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        const value = params?.value ?? params;
+        if (value === undefined || value === null || value === '') return '0.00';
+        const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+        if (isNaN(numValue)) return '0.00';
         return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
     {
       field: "paddyNeto",
-      headerName: "Paddy Neto",
+      headerName: "Paddy Neto (kg)",
       type: "number",
-      width: 130,
+      width: 140,
       valueFormatter: (params: any) => {
-        if (!params || params.value === undefined || params.value === null) return '';
-        const numValue = typeof params.value === 'string' ? parseFloat(params.value) : params.value;
+        const value = params?.value ?? params;
+        if (value === undefined || value === null || value === '') return '0.00';
+        const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+        if (isNaN(numValue)) return '0.00';
         return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
       },
     },
@@ -131,8 +130,13 @@ export default function ReceptionListPage() {
       type: "dateTime",
       width: 180,
       valueFormatter: (params: any) => {
-        if (!params || !params.value) return '';
-        return moment(params.value).tz("America/Santiago").format("DD-MM-YYYY HH:mm");
+        const value = params?.value ?? params;
+        if (!value) return 'Sin fecha';
+        try {
+          return moment(value).tz("America/Santiago").format("DD-MM-YYYY HH:mm");
+        } catch (error) {
+          return 'Fecha inválida';
+        }
       },
     },
     {
