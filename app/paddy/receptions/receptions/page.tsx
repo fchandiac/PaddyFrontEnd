@@ -24,6 +24,12 @@ export default function ReceptionListPage() {
   const fetchData = useCallback(async () => {
     try {
       const data = await getAllReceptions();
+      console.log("Datos recibidos en el grid:", data);
+      // Log detallado para cada fila
+      if (data && data.length > 0) {
+        console.log("Primera recepción completa:", JSON.stringify(data[0], null, 2));
+        console.log("ID de primera recepción:", data[0].id, "Tipo:", typeof data[0].id);
+      }
       setReceptions(data);
     } catch (error) {
       console.error("Error al cargar recepciones:", error);
@@ -47,7 +53,12 @@ export default function ReceptionListPage() {
       field: "id", 
       headerName: "Nº", 
       flex: 0.3, // Números cortos: 1-999
-      type: "number"
+      type: "number",
+      valueFormatter: (params: any) => {
+        const value = params?.value ?? params;
+        if (value === undefined || value === null) return '';
+        return String(value);
+      }
     },
     { 
       field: "riceType", 

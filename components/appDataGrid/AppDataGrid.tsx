@@ -261,7 +261,12 @@ export default function AppDataGrid({
       console.warn(`Fila sin ID detectada en índice ${index}, asignando ID temporal`);
       return { ...row, id: `temp_${Date.now()}_${index}` };
     }
-    return row;
+    // Asegurarse de que el ID sea un número o una cadena válida
+    if (typeof row.id === 'number' || typeof row.id === 'string') {
+      return row;
+    }
+    console.warn(`ID no válido detectado en índice ${index}, tipo: ${typeof row.id}`);
+    return { ...row, id: `temp_${Date.now()}_${index}` };
   });
 
   return (
