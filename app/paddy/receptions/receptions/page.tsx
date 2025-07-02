@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Box, Typography, Dialog } from "@mui/material";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Print, Delete, Edit } from "@mui/icons-material";
@@ -11,6 +11,7 @@ import moment from "moment-timezone";
 import { useAlertContext } from "@/context/AlertContext";
 import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
 import ReceptionPrintWrapper from "./ReceptionPrintWrapper";
+import styles from "./receptions-grid.module.css";
 
 export default function ReceptionListPage() {
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
@@ -19,51 +20,60 @@ export default function ReceptionListPage() {
   const [rowData, setRowData] = useState<any>(null);
   const [receptions, setReceptions] = useState<any[]>([]);
   const { showAlert } = useAlertContext();
-  const isPrintClosed = openPrintDialog === false;
-  const isUpdateClosed = openEditDialog === false;
+
+  const fetchData = useCallback(async () => {
+    try {
+      const data = await getAllReceptions();
+      setReceptions(data);
+    } catch (error) {
+      console.error("Error al cargar recepciones:", error);
+      showAlert("Error al cargar las recepciones", "error");
+    }
+  }, [showAlert]);
 
   useEffect(() => {
     // Refresh data when dialogs close
     if (!openPrintDialog && !openEditDialog) {
       fetchData();
     }
-  }, [isPrintClosed, isUpdateClosed]);
-
-  const fetchData = async () => {
-    try {
-      const data = await getAllReceptions();
-      console.log("Datos recibidos en el grid:", data);
-      console.log("Primer elemento:", data[0]);
-      setReceptions(data);
-    } catch (error) {
-      console.error("Error al cargar recepciones:", error);
-      showAlert("Error al cargar las recepciones", "error");
-    }
-  };
+  }, [openPrintDialog, openEditDialog, fetchData]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const columns = [
-    { field: "id", headerName: "Nº", width: 80 },
+    { 
+      field: "id", 
+      headerName: "Nº", 
+      flex: 0.3, // Números cortos: 1-999
+      type: "number"
+    },
     { 
       field: "riceType", 
       headerName: "Tipo de arroz", 
-      flex: 1 
+      flex: 0.9 // Nombres medianos: "Arroz Grado 1"
     },
     { 
       field: "producer", 
       headerName: "Productor", 
-      flex: 1.5 
+      flex: 1.8 // Nombres largos: "Juan Pérez González"
     },
-    { field: "guide", headerName: "Guía", flex: 1 },
-    { field: "licensePlate", headerName: "Patente", flex: 1 },
+    { 
+      field: "guide", 
+      headerName: "Guía", 
+      flex: 0.8 // Códigos: "G-12345-2025"
+    },
+    { 
+      field: "licensePlate", 
+      headerName: "Patente", 
+      flex: 0.7 // Patentes: "AB-1234"
+    },
     {
       field: "price",
       headerName: "Precio",
       type: "number",
-      flex: 1,
+      flex: 0.68, // Precios: "$25.000" (reducido en 15%)
       valueFormatter: (params: any) => {
         const value = params?.value ?? params;
         if (value === undefined || value === null || value === '') return '$0';
@@ -76,7 +86,20 @@ export default function ReceptionListPage() {
       field: "grossWeight",
       headerName: "Bruto (kg)",
       type: "number",
-      width: 120,
+      flex: 0.75, // Pesos: "1.234,56"
+      valueFormatter: (params: any) => {
+        const value = params?.value ?? params;
+        if (value === undefined || value === null || value === '') return '0.00';
+        const numValue = typeof value === 'string' ? parseFloat(value) : Number(value);
+        if (isNaN(numValue)) return '0.00';
+        return numValue.toLocaleString("es-CL", { minimumFractionDigits: 2 });
+      },
+    },
+    {
+      field: "tare",
+      headerName: "Tara (kg)",
+      type: "number",
+      flex: 0.72, // Tara más pequeña: "50,00" (reducido en 10%)
       valueFormatter: (params: any) => {
         const value = params?.value ?? params;
         if (value === undefined || value === null || value === '') return '0.00';
@@ -89,7 +112,7 @@ export default function ReceptionListPage() {
       field: "netWeight",
       headerName: "Neto (kg)",
       type: "number",
-      width: 120,
+      flex: 0.81, // Peso neto: "1.184,56" (reducido en 10%)
       valueFormatter: (params: any) => {
         const value = params?.value ?? params;
         if (value === undefined || value === null || value === '') return '0.00';
@@ -102,7 +125,7 @@ export default function ReceptionListPage() {
       field: "totalConDescuentos",
       headerName: "Descuentos (kg)",
       type: "number",
-      width: 140,
+      flex: 1.0, // Descuentos: "123,45"
       valueFormatter: (params: any) => {
         const value = params?.value ?? params;
         if (value === undefined || value === null || value === '') return '0.00';
@@ -115,7 +138,7 @@ export default function ReceptionListPage() {
       field: "paddyNeto",
       headerName: "Paddy Neto (kg)",
       type: "number",
-      width: 140,
+      flex: 0.94, // Paddy neto: "1.061,11" (reducido en 15%)
       valueFormatter: (params: any) => {
         const value = params?.value ?? params;
         if (value === undefined || value === null || value === '') return '0.00';
@@ -128,7 +151,7 @@ export default function ReceptionListPage() {
       field: "createdAt",
       headerName: "Fecha",
       type: "dateTime",
-      width: 180,
+      flex: 1.1, // Fechas: "02-07-2025 14:30" (reducido en 15%)
       valueFormatter: (params: any) => {
         const value = params?.value ?? params;
         if (!value) return 'Sin fecha';
@@ -143,7 +166,7 @@ export default function ReceptionListPage() {
       field: "actions",
       type: "actions",
       headerName: "",
-      width: 100,
+      flex: 0.8, // Botones de acción (aumentado)
       getActions: (params: any) => [
         <GridActionsCellItem
           key="print"
@@ -185,6 +208,7 @@ export default function ReceptionListPage() {
           columns={columns}
           height={"80vh"}
           refresh={fetchData}
+          className={styles.receptionsGrid}
         />
       </Box>
 

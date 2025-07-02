@@ -1,0 +1,108 @@
+/* Estilos específicos para el grid de recepciones */
+
+/* Grid general más compacto */
+.receptionsGrid {
+  font-size: 0.75rem !important;
+}
+
+/* Headers del grid */
+.receptionsGrid :global(.MuiDataGrid-columnHeader) {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  padding: 6px 8px !important;
+  height: 38px !important;
+}
+
+.receptionsGrid :global(.MuiDataGrid-columnHeaderTitle) {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+/* Celdas del grid */
+.receptionsGrid :global(.MuiDataGrid-cell) {
+  font-size: 0.75rem !important;
+  padding: 4px 8px !important;
+  line-height: 1.2 !important;
+  height: 34px !important;
+}
+
+/* Filas más compactas */
+.receptionsGrid :global(.MuiDataGrid-row) {
+  height: 34px !important;
+}
+
+/* Celdas numéricas específicas */
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="id"]),
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="price"]),
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="grossWeight"]),
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="tare"]),
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="netWeight"]),
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="totalConDescuentos"]),
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="paddyNeto"]) {
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+  text-align: right !important;
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+/* Celda de fecha más compacta */
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="createdAt"]) {
+  font-size: 0.7rem !important;
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+/* Botones de acción más pequeños */
+.receptionsGrid :global(.MuiDataGrid-actionsCell) {
+  padding: 2px 4px !important;
+}
+
+.receptionsGrid :global(.MuiDataGrid-actionsCell .MuiIconButton-root) {
+  padding: 3px !important;
+  font-size: 0.9rem !important;
+}
+
+.receptionsGrid :global(.MuiDataGrid-actionsCell .MuiSvgIcon-root) {
+  font-size: 1rem !important;
+}
+
+/* Centrar texto para campos específicos */
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="id"]),
+.receptionsGrid :global(.MuiDataGrid-cell[data-field="licensePlate"]) {
+  text-align: center !important;
+}
+
+/* Variables CSS para altura consistente */
+.receptionsGrid :global(.MuiDataGrid-root) {
+  --DataGrid-rowHeight: 34px;
+  --DataGrid-headerHeight: 38px;
+}
+
+/* Mejorar legibilidad con colores alternados */
+.receptionsGrid :global(.MuiDataGrid-row:nth-of-type(even)) {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+.receptionsGrid :global(.MuiDataGrid-row:hover) {
+  background-color: rgba(25, 118, 210, 0.04) !important;
+}
+
+/* Toolbar más compacto */
+.receptionsGrid :global(.MuiDataGrid-toolbarContainer) {
+  padding: 8px 16px !important;
+  min-height: auto !important;
+}
+
+/* Footer más compacto */
+.receptionsGrid :global(.MuiDataGrid-footerContainer) {
+  min-height: 40px !important;
+  padding: 4px 16px !important;
+}
+
+.receptionsGrid :global(.MuiTablePagination-root) {
+  font-size: 0.7rem !important;
+}
+
+.receptionsGrid :global(.MuiTablePagination-selectLabel),
+.receptionsGrid :global(.MuiTablePagination-displayedRows) {
+  font-size: 0.65rem !important;
+}

@@ -197,6 +197,7 @@ interface AppDataGridProps {
   refresh?: () => void;
   setGridApiRef?: (apiRef: any) => void;
   height?: string;
+  className?: string; // Clase CSS opcional
 }
 
 export default function AppDataGrid({
@@ -207,6 +208,7 @@ export default function AppDataGrid({
   refresh,
   setGridApiRef = () => {},
   height = "auto",
+  className = "", // Clase CSS opcional
 }: AppDataGridProps) {
   const [openDialog, setOpenDialog] = useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
@@ -224,20 +226,48 @@ export default function AppDataGrid({
       if (col.type === "number" && !col.valueFormatter) {
         return {
           ...col,
-          valueFormatter: (params: any) =>
-            typeof params.value === "number"
-              ? params.value.toString()
-              : params.value,
+          valueFormatter: (params: any) => {
+            if (params.value === undefined || params.value === null) {
+              return '';
+            }
+            
+            // Convertir a número si es string o asegurarse que es número
+            const numValue = typeof params.value === 'string' 
+              ? parseFloat(params.value) 
+              : (typeof params.value === 'number' ? params.value : 0);
+              
+            // Verificar si es un número válido
+            if (isNaN(numValue)) {
+              return params.value || '';
+            }
+            
+            // Formatear con separador de miles
+            return numValue.toLocaleString("es-CL");
+          },
         };
       }
       return col;
     });
   };
 
+  // Log the data to debug (reducido)
+  console.log("AppDataGrid rows:", rows?.length || 0, "elementos");
+
   const formattedColumns = formatColumns(columns);
+  
+  // Verificar que todas las filas tengan ID
+  const rowsWithIds = rows.map((row, index) => {
+    if (row.id === undefined || row.id === null) {
+      console.warn(`Fila sin ID detectada en índice ${index}, asignando ID temporal`);
+      return { ...row, id: `temp_${Date.now()}_${index}` };
+    }
+    return row;
+  });
+
   return (
     <>
       <DataGrid
+        className={className}
         sx={{
           height: height,
           backgroundColor: "white",
@@ -264,11 +294,17 @@ export default function AppDataGrid({
             // },
           },
         }}
-        rows={rows}
+        rows={rowsWithIds}
         columns={formattedColumns}
         localeText={esESGrid}
         density="compact"
-        getRowHeight={() => "auto"}
+        getRowId={(row) => {
+          if (row.id === undefined || row.id === null) {
+            console.warn("Fila sin ID detectada:", row);
+            return `fallback_${Date.now()}_${Math.random()}`;
+          }
+          return String(row.id);
+        }}
         slots={{
           toolbar: () => (
             <CustomToolbar
