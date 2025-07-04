@@ -11,6 +11,7 @@ import moment from "moment-timezone";
 import { useAlertContext } from "@/context/AlertContext";
 import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
 import ReceptionPrintWrapper from "./ReceptionPrintWrapper";
+import EditReception from "./ui/EditReception";
 import styles from "./receptions-grid.module.css";
 
 export default function ReceptionListPage() {
@@ -194,6 +195,7 @@ export default function ReceptionListPage() {
           label="Editar"
           onClick={() => {
             setRowData(params.row);
+            console.log("Datos de la fila seleccionada:", params.row);
             setOpenEditDialog(true);
           }}
         />,
@@ -260,8 +262,14 @@ export default function ReceptionListPage() {
         maxWidth="xl"
       >
         <Box sx={{ p: 2 }}>
-          {/* Aquí se implementará el componente de edición en el futuro */}
-          <Typography variant="h6">Editar Recepción Nº{rowData?.id}</Typography>
+          <EditReception
+            receptionId={rowData?.id}
+            onClose={() => {
+              setOpenEditDialog(false);
+              setRowData(null);
+            }}
+            afterUpdate={fetchData}
+          />
         </Box>
       </Dialog>
     </>
