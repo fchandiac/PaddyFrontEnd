@@ -323,7 +323,7 @@ export default function AuditLogsPage() {
       }}>
         {/* Panel de filtros - Columna izquierda */}
         <Grid item xs={12} sm={3} md={2}>
-          <Paper elevation={2} sx={{ 
+          <Paper elevation={0} sx={{ 
             p: 2, 
             height: { xs: 'auto', sm: '100%' }, 
             overflow: 'auto',
