@@ -430,6 +430,14 @@ function EditReceptionContent({
                   label="Productor"
                   value={reception.producer?.name || "Sin productor"}
                   disabled
+                  sx={{
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: "rgba(0, 0, 0, 0.7)",
+                    },
+                    "& .MuiInputLabel-root.Mui-disabled": {
+                      color: "rgba(0, 0, 0, 0.6)",
+                    }
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -439,6 +447,14 @@ function EditReceptionContent({
                   label="Tipo de arroz"
                   value={reception.riceType?.name || "Sin tipo"}
                   disabled
+                  sx={{
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: "rgba(0, 0, 0, 0.7)",
+                    },
+                    "& .MuiInputLabel-root.Mui-disabled": {
+                      color: "rgba(0, 0, 0, 0.6)",
+                    }
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -448,6 +464,14 @@ function EditReceptionContent({
                   label="Guía"
                   value={reception.guide}
                   disabled
+                  sx={{
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: "rgba(0, 0, 0, 0.7)",
+                    },
+                    "& .MuiInputLabel-root.Mui-disabled": {
+                      color: "rgba(0, 0, 0, 0.6)",
+                    }
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -457,6 +481,14 @@ function EditReceptionContent({
                   label="Patente"
                   value={reception.licensePlate}
                   disabled
+                  sx={{
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: "rgba(0, 0, 0, 0.7)",
+                    },
+                    "& .MuiInputLabel-root.Mui-disabled": {
+                      color: "rgba(0, 0, 0, 0.6)",
+                    }
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -466,6 +498,14 @@ function EditReceptionContent({
                   label="Fecha"
                   value={new Date(reception.createdAt).toLocaleString()}
                   disabled
+                  sx={{
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: "rgba(0, 0, 0, 0.7)",
+                    },
+                    "& .MuiInputLabel-root.Mui-disabled": {
+                      color: "rgba(0, 0, 0, 0.6)",
+                    }
+                  }}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
