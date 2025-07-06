@@ -9,6 +9,7 @@ import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Delete, Edit } from "@mui/icons-material";
 import { useAlertContext } from "@/context/AlertContext";
+import { useUser } from "@/hooks/useUser";
 import { CreateRiceTypeForm } from "./ui/CreateRiceTypeForm";
 import { UpdateRiceTypeForm } from "./ui/UpdateRiceTypeForm";
 import moment from "moment-timezone";
@@ -19,6 +20,7 @@ export default function RiceTypePage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showAlert } = useAlertContext();
+  const { user } = useUser();
 
   const fetchRiceTypes = async () => {
     try {
@@ -113,7 +115,7 @@ export default function RiceTypePage() {
         submit={async () => {
           if (rowData) {
             try {
-              await deleteRiceType(rowData.id);
+              await deleteRiceType(rowData.id, user?.id);
               showAlert("Tipo de arroz eliminado correctamente", "success");
               fetchRiceTypes();
             } catch (error) {

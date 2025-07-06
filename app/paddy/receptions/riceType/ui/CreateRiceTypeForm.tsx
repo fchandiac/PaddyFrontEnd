@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BaseForm } from "@/components/appForm/CreateBaseForm";
 import { createRiceType } from "@/app/actions/rice-type";
 import { useAlertContext } from "@/context/AlertContext";
+import { useUser } from "@/hooks/useUser";
 
 const initialForm = {
   name: "",
@@ -17,13 +18,18 @@ export const CreateRiceTypeForm = ({ afterSubmit }: { afterSubmit: () => void })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const { showAlert } = useAlertContext();
+  const { user } = useUser();
 
   const save = async () => {
     setIsSubmitting(true);
     setErrors([]);
 
     try {
-      const result = await createRiceType(formData);
+      const dataWithUser = {
+        ...formData,
+        userId: user?.id,
+      };
+      const result = await createRiceType(dataWithUser);
 
       if (result?.error) {
         setErrors(Array.isArray(result.message) ? result.message : [result.error]);

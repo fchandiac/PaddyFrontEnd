@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BaseUpdateForm } from "@/components/appForm/UpdateBaseForm";
 import { updateRiceType } from "@/app/actions/rice-type";
 import { useAlertContext } from "@/context/AlertContext";
+import { useUser } from "@/hooks/useUser";
 import { RiceType } from "@/types/rice-type";
 
 interface UpdateRiceTypeFormProps {
@@ -18,13 +19,18 @@ export const UpdateRiceTypeForm: React.FC<UpdateRiceTypeFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const { showAlert } = useAlertContext();
+  const { user } = useUser();
 
   const handleUpdate = async (values: Record<string, any>) => {
     setIsSubmitting(true);
     setErrors([]);
 
     try {
-      const result = await updateRiceType(initialData.id, values);
+      const dataWithUser = {
+        ...values,
+        userId: user?.id,
+      };
+      const result = await updateRiceType(initialData.id, dataWithUser);
 
       if (result?.error) {
         setErrors([result.error]);

@@ -13,7 +13,7 @@ export async function getAllRiceTypes(): Promise<any[]> {
 }
 
 // 🟢 Crear tipo de arroz
-export async function createRiceType(data: CreateRiceTypeDto): Promise<any> {
+export async function createRiceType(data: CreateRiceTypeDto & { userId?: number }): Promise<any> {
   const res = await fetch(`${backendUrl}/rice-types`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -26,7 +26,7 @@ export async function createRiceType(data: CreateRiceTypeDto): Promise<any> {
 }
 
 // 🟢 Actualizar tipo de arroz
-export async function updateRiceType(id: number, data: UpdateRiceTypeDto): Promise<any> {
+export async function updateRiceType(id: number, data: UpdateRiceTypeDto & { userId?: number }): Promise<any> {
   const res = await fetch(`${backendUrl}/rice-types/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -39,9 +39,12 @@ export async function updateRiceType(id: number, data: UpdateRiceTypeDto): Promi
 }
 
 // 🟢 Eliminar tipo de arroz
-export async function deleteRiceType(id: number): Promise<void> {
+export async function deleteRiceType(id: number, userId?: number): Promise<void> {
+  const requestBody = userId ? { userId } : {};
   const res = await fetch(`${backendUrl}/rice-types/${id}`, {
     method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestBody),
   });
 
   if (!res.ok) {
