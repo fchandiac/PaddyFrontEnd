@@ -8,7 +8,6 @@ import {
   Grid,
   TextField,
   InputAdornment,
-  Divider,
 } from "@mui/material";
 
 export default function SummaryData() {
@@ -28,7 +27,7 @@ export default function SummaryData() {
   };
   
   return (
-    <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
       <Typography variant="subtitle1" gutterBottom>
         Resumen de Recepción
       </Typography>
@@ -54,8 +53,6 @@ export default function SummaryData() {
           />
         </Grid>
       </Grid>
-      
-      <Divider sx={{ my: 1 }} />
       
       {/* Pesos - Sin título */}
       <Grid container spacing={1}>
@@ -103,8 +100,6 @@ export default function SummaryData() {
           />
         </Grid>
       </Grid>
-      
-      <Divider sx={{ my: 1 }} />
       
       {/* Resultados de cálculos - Sin título */}
       <Box sx={{ mb: 2 }}>
@@ -160,33 +155,6 @@ export default function SummaryData() {
           </Grid>
         </Grid>
       </Box>
-      
-      {/* Total a Pagar - Al final del resumen */}
-      <Divider sx={{ my: 1 }} />
-      
-      <Grid container spacing={1}>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            size="small"
-            label="Total a Pagar"
-            value={liveClusters.totalPaddy.node.value * data.price}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-              readOnly: true,
-            }}
-            sx={{ 
-              mb: 1,
-              "& .MuiInputBase-root": {
-                fontWeight: "bold",
-                "& input": {
-                  fontWeight: "bold",
-                }
-              }
-            }}
-          />
-        </Grid>
-      </Grid>
     </Paper>
   );
 }

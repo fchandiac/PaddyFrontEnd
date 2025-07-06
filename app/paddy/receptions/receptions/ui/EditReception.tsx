@@ -418,7 +418,7 @@ function EditReceptionContent({
       <Grid container spacing={3}>
         {/* Información general - No editable */}
         <Grid item xs={12}>
-          <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+          <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Información General
             </Typography>
@@ -494,7 +494,7 @@ function EditReceptionContent({
         
         {/* Nota */}
         <Grid item xs={12}>
-          <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+          <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Nota
             </Typography>
@@ -510,7 +510,7 @@ function EditReceptionContent({
         
         {/* Motivo del cambio */}
         <Grid item xs={12}>
-          <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+          <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Motivo del cambio
             </Typography>
