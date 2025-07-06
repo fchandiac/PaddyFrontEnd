@@ -467,7 +467,7 @@ export default function GrainAnalysisForm() {
 
   if (isLoading) {
     return (
-      <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Typography variant="subtitle1" gutterBottom>
           Análisis de Granos
         </Typography>
@@ -477,7 +477,7 @@ export default function GrainAnalysisForm() {
   }
 
   return (
-    <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
       <Typography variant="subtitle1" gutterBottom>
         Análisis de Granos
       </Typography>
