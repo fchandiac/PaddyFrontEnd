@@ -318,8 +318,8 @@ export default function AuditLogsPage() {
       </Typography>
       
       <Grid container spacing={2} sx={{ 
-        height: { xs: 'auto', sm: '75vh' },
-        minHeight: { xs: '80vh', sm: '75vh' }
+        height: { xs: 'auto', sm: '80vh' },
+        minHeight: { xs: '80vh', sm: '80vh' }
       }}>
         {/* Panel de filtros - Columna izquierda */}
         <Grid item xs={12} sm={3} md={2}>
