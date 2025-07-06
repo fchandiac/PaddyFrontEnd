@@ -514,12 +514,6 @@ export default function AuditLogsPage() {
                   flex: 1,
                   minWidth: 200
                 },
-                { 
-                  field: "success", 
-                  headerName: "Estado", 
-                  width: 100,
-                  renderCell: (params: any) => renderSuccessChip(params.value)
-                },
                 {
                   field: "createdAt",
                   headerName: "Fecha",
