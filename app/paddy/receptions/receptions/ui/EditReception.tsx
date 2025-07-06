@@ -523,17 +523,6 @@ function EditReceptionContent({
             />
           </Paper>
         </Grid>
-        
-        {/* Descuentos */}
-        <Grid item xs={12}>
-          <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-              Descuentos
-            </Typography>
-            <Typography>Total Descuentos (kg): {reception?.totalDiscount || 0}</Typography>
-            <Typography>Porcentaje de Descuentos: {((reception?.totalDiscount / reception?.grossWeight) * 100).toFixed(2) || 0}%</Typography>
-          </Paper>
-        </Grid>
       </Grid>
       
       <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
