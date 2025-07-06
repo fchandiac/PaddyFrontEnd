@@ -482,7 +482,7 @@ export default function AuditLogsPage() {
                   field: "id", 
                   headerName: "ID", 
                   width: 80,
-                  valueFormatter: (params: any) => `#${params}`
+                  valueFormatter: (params: any) => params
                 },
                 { 
                   field: "action", 
@@ -500,7 +500,7 @@ export default function AuditLogsPage() {
                   field: "entityId", 
                   headerName: "ID Entidad", 
                   width: 100,
-                  valueFormatter: (params: any) => params ? `#${params}` : '-'
+                  valueFormatter: (params: any) => params || '-'
                 },
                 { 
                   field: "user", 
@@ -526,7 +526,7 @@ export default function AuditLogsPage() {
                 },
                 {
                   field: "actions",
-                  headerName: "Acciones",
+                  headerName: "",
                   width: 100,
                   renderCell: (params: any) => renderDetailsButton(params.row),
                   sortable: false,
