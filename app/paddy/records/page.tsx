@@ -472,10 +472,9 @@ export default function AuditLogsPage() {
 
         {/* Grid de datos - Columna principal */}
         <Grid item xs={12} sm={9} md={10}>
-          <Paper variant="outlined" elevation={0} sx={{ 
+          <Paper elevation={0} sx={{ 
             height: { xs: '60vh', sm: '100%' },
-            minHeight: '400px',
-            borderColor: 'rgba(0, 0, 0, 0.23)', // Color de borde igual a TextField
+            minHeight: '400px'
           }}>
             <AppDataGrid
               rows={auditLogs}
