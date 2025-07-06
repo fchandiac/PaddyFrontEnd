@@ -26,9 +26,6 @@ import {
   Chip,
   Tooltip,
   IconButton,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -41,7 +38,6 @@ import {
 import { 
   Refresh as RefreshIcon,
   FilterList as FilterIcon,
-  ExpandMore as ExpandMoreIcon,
   Info as InfoIcon,
   Close as CloseIcon
 } from "@mui/icons-material";
@@ -316,173 +312,242 @@ export default function AuditLogsPage() {
   );
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
         Registros de Auditoría
       </Typography>
       
-      {/* Filtros */}
-      <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">
-              <FilterIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              Filtros
+      <Grid container spacing={2} sx={{ 
+        height: { xs: 'auto', sm: '75vh' },
+        minHeight: { xs: '80vh', sm: '75vh' }
+      }}>
+        {/* Panel de filtros - Columna izquierda */}
+        <Grid item xs={12} sm={3} md={2}>
+          <Paper elevation={2} sx={{ 
+            p: 2, 
+            height: { xs: 'auto', sm: '100%' }, 
+            overflow: 'auto',
+            minHeight: { xs: '200px', sm: '100%' }
+          }}>
+            <Typography variant="h6" gutterBottom sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1,
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              pb: 1,
+              mb: 2
+            }}>
+              <FilterIcon color="primary" />
+              Filtros Avanzados
             </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Acción</InputLabel>
-                  <Select
-                    value={filters.action || ''}
-                    onChange={(e) => handleFilterChange('action', e.target.value || undefined)}
-                    label="Acción"
-                  >
-                    <MenuItem value="">Todas</MenuItem>
-                    {Object.entries(AUDIT_ACTION_LABELS).map(([key, label]) => (
-                      <MenuItem key={key} value={key}>{label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} md={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Entidad</InputLabel>
-                  <Select
-                    value={filters.entityType || ''}
-                    onChange={(e) => handleFilterChange('entityType', e.target.value || undefined)}
-                    label="Entidad"
-                  >
-                    <MenuItem value="">Todas</MenuItem>
-                    {Object.entries(AUDIT_ENTITY_LABELS).map(([key, label]) => (
-                      <MenuItem key={key} value={key}>{label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} md={2}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Fecha desde"
-                  type="date"
-                  value={filters.startDate || ''}
-                  onChange={(e) => handleFilterChange('startDate', e.target.value || undefined)}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              
-              <Grid item xs={12} md={2}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Fecha hasta"
-                  type="date"
-                  value={filters.endDate || ''}
-                  onChange={(e) => handleFilterChange('endDate', e.target.value || undefined)}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              
-              <Grid item xs={12} md={2}>
-                <Box display="flex" gap={1}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={clearFilters}
-                  >
-                    Limpiar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={fetchAuditLogs}
-                    startIcon={<RefreshIcon />}
-                  >
-                    Actualizar
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      </Paper>
+            
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {/* Filtro por acción */}
+              <FormControl fullWidth size="small">
+                <InputLabel>Acción</InputLabel>
+                <Select
+                  value={filters.action || ''}
+                  label="Acción"
+                  onChange={(e) => handleFilterChange('action', e.target.value || undefined)}
+                >
+                  <MenuItem value="">Todas</MenuItem>
+                  {Object.entries(AUDIT_ACTION_LABELS).map(([key, label]) => (
+                    <MenuItem key={key} value={key}>
+                      {label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-      {/* Grid de datos */}
-      <Box sx={{ height: '70vh' }}>
-        <AppDataGrid
-          rows={auditLogs}
-          title="Registros de Auditoría"
-          height="70vh"
-          columns={[
-            { 
-              field: "id", 
-              headerName: "ID", 
-              width: 80,
-              valueFormatter: (params: any) => `#${params}`
-            },
-            { 
-              field: "action", 
-              headerName: "Acción", 
-              width: 120,
-              renderCell: (params: any) => renderActionChip(params.value)
-            },
-            { 
-              field: "entityType", 
-              headerName: "Entidad", 
-              width: 130,
-              valueFormatter: (params: any) => AUDIT_ENTITY_LABELS[params as AuditEntityType] || params
-            },
-            { 
-              field: "entityId", 
-              headerName: "ID Entidad", 
-              width: 100,
-              valueFormatter: (params: any) => params ? `#${params}` : '-'
-            },
-            { 
-              field: "user", 
-              headerName: "Usuario", 
-              width: 150,
-              valueGetter: (params: any) => params?.name || 'Sistema'
-            },
-            { 
-              field: "description", 
-              headerName: "Descripción", 
-              flex: 1,
-              minWidth: 200
-            },
-            { 
-              field: "success", 
-              headerName: "Estado", 
-              width: 100,
-              renderCell: (params: any) => renderSuccessChip(params.value)
-            },
-            {
-              field: "createdAt",
-              headerName: "Fecha",
-              width: 150,
-              valueFormatter: (params: any) => {
-                return moment(params)
-                  .subtract(4, "hours")
-                  .format("DD-MM-YYYY HH:mm");
-              },
-            },
-            {
-              field: "actions",
-              headerName: "Acciones",
-              width: 100,
-              renderCell: (params: any) => renderDetailsButton(params.row),
-              sortable: false,
-              filterable: false,
-            },
-          ]}
-          refresh={fetchAuditLogs}
-        />
-      </Box>
+              {/* Filtro por entidad */}
+              <FormControl fullWidth size="small">
+                <InputLabel>Entidad</InputLabel>
+                <Select
+                  value={filters.entityType || ''}
+                  label="Entidad"
+                  onChange={(e) => handleFilterChange('entityType', e.target.value || undefined)}
+                >
+                  <MenuItem value="">Todas</MenuItem>
+                  {Object.entries(AUDIT_ENTITY_LABELS).map(([key, label]) => (
+                    <MenuItem key={key} value={key}>
+                      {label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Filtro por usuario */}
+              <TextField
+                fullWidth
+                size="small"
+                label="ID Usuario"
+                type="number"
+                value={filters.userId || ''}
+                onChange={(e) => handleFilterChange('userId', e.target.value ? parseInt(e.target.value) : undefined)}
+              />
+
+              {/* Filtro por éxito */}
+              <FormControl fullWidth size="small">
+                <InputLabel>Estado</InputLabel>
+                <Select
+                  value={filters.success !== undefined ? filters.success.toString() : ''}
+                  label="Estado"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    handleFilterChange('success', value === '' ? undefined : value === 'true');
+                  }}
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="true">Exitoso</MenuItem>
+                  <MenuItem value="false">Fallido</MenuItem>
+                </Select>
+              </FormControl>
+
+              <Divider />
+
+              {/* Filtros de fecha */}
+              <Typography variant="subtitle2" color="textSecondary">
+                Rango de Fechas
+              </Typography>
+              
+              <TextField
+                fullWidth
+                size="small"
+                label="Fecha Inicial"
+                type="datetime-local"
+                value={filters.startDate ? new Date(filters.startDate).toISOString().slice(0, 16) : ''}
+                onChange={(e) => handleFilterChange('startDate', e.target.value ? new Date(e.target.value) : undefined)}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              <TextField
+                fullWidth
+                size="small"
+                label="Fecha Final"
+                type="datetime-local"
+                value={filters.endDate ? new Date(filters.endDate).toISOString().slice(0, 16) : ''}
+                onChange={(e) => handleFilterChange('endDate', e.target.value ? new Date(e.target.value) : undefined)}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              <Divider />
+
+              {/* Botones de acción */}
+              <Box display="flex" flexDirection="column" gap={1} sx={{ mt: 1 }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={fetchAuditLogs}
+                  startIcon={<FilterIcon />}
+                  fullWidth
+                  color="primary"
+                  disabled={loading}
+                >
+                  {loading ? 'Aplicando...' : 'Aplicar Filtros'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={clearFilters}
+                  startIcon={<RefreshIcon />}
+                  fullWidth
+                  color="secondary"
+                >
+                  Limpiar Filtros
+                </Button>
+              </Box>
+
+              {/* Información adicional */}
+              <Box sx={{ mt: 2, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
+                <Typography variant="caption" color="textSecondary" display="block">
+                  Total: {auditLogs.length} registros
+                </Typography>
+                <Typography variant="caption" color="textSecondary" display="block">
+                  {loading ? 'Cargando...' : 'Datos actualizados'}
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Grid de datos - Columna principal */}
+        <Grid item xs={12} sm={9} md={10}>
+          <Paper elevation={1} sx={{ 
+            height: { xs: '60vh', sm: '100%' },
+            minHeight: '400px'
+          }}>
+            <AppDataGrid
+              rows={auditLogs}
+              title=""
+              height="100%"
+              columns={[
+                { 
+                  field: "id", 
+                  headerName: "ID", 
+                  width: 80,
+                  valueFormatter: (params: any) => `#${params}`
+                },
+                { 
+                  field: "action", 
+                  headerName: "Acción", 
+                  width: 120,
+                  renderCell: (params: any) => renderActionChip(params.value)
+                },
+                { 
+                  field: "entityType", 
+                  headerName: "Entidad", 
+                  width: 130,
+                  valueFormatter: (params: any) => AUDIT_ENTITY_LABELS[params as AuditEntityType] || params
+                },
+                { 
+                  field: "entityId", 
+                  headerName: "ID Entidad", 
+                  width: 100,
+                  valueFormatter: (params: any) => params ? `#${params}` : '-'
+                },
+                { 
+                  field: "user", 
+                  headerName: "Usuario", 
+                  width: 150,
+                  valueGetter: (params: any) => params?.name || 'Sistema'
+                },
+                { 
+                  field: "description", 
+                  headerName: "Descripción", 
+                  flex: 1,
+                  minWidth: 200
+                },
+                { 
+                  field: "success", 
+                  headerName: "Estado", 
+                  width: 100,
+                  renderCell: (params: any) => renderSuccessChip(params.value)
+                },
+                {
+                  field: "createdAt",
+                  headerName: "Fecha",
+                  width: 150,
+                  valueFormatter: (params: any) => {
+                    return moment(params)
+                      .subtract(4, "hours")
+                      .format("DD-MM-YYYY HH:mm");
+                  },
+                },
+                {
+                  field: "actions",
+                  headerName: "Acciones",
+                  width: 100,
+                  renderCell: (params: any) => renderDetailsButton(params.row),
+                  sortable: false,
+                  filterable: false,
+                },
+              ]}
+              refresh={fetchAuditLogs}
+            />
+          </Paper>
+        </Grid>
+      </Grid>
       
       {/* Modal de detalles */}
       {renderDetailsModal()}
