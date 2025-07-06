@@ -415,8 +415,8 @@ export default function AuditLogsPage() {
                 fullWidth
                 size="small"
                 label="Fecha Inicial"
-                type="datetime-local"
-                value={filters.startDate ? new Date(filters.startDate).toISOString().slice(0, 16) : ''}
+                type="date"
+                value={filters.startDate ? new Date(filters.startDate).toISOString().slice(0, 10) : ''}
                 onChange={(e) => handleFilterChange('startDate', e.target.value ? new Date(e.target.value) : undefined)}
                 InputLabelProps={{ shrink: true }}
               />
@@ -425,8 +425,8 @@ export default function AuditLogsPage() {
                 fullWidth
                 size="small"
                 label="Fecha Final"
-                type="datetime-local"
-                value={filters.endDate ? new Date(filters.endDate).toISOString().slice(0, 16) : ''}
+                type="date"
+                value={filters.endDate ? new Date(filters.endDate).toISOString().slice(0, 10) : ''}
                 onChange={(e) => handleFilterChange('endDate', e.target.value ? new Date(e.target.value) : undefined)}
                 InputLabelProps={{ shrink: true }}
               />
