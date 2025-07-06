@@ -33,11 +33,31 @@ export default function SummaryData() {
         Resumen de Recepción
       </Typography>
       
-      {/* Pesos */}
-      <Typography variant="subtitle2" color="primary" gutterBottom sx={{ mt: 2 }}>
-        Pesos
-      </Typography>
+      {/* Precio - Movido arriba */}
+      <Grid container spacing={1}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            size="small"
+            label="Precio"
+            value={data.price}
+            onChange={(e) => {
+              const newValue = parseFloat(e.target.value) || 0;
+              setField('price', newValue);
+            }}
+            onFocus={(e) => (e.target as HTMLInputElement).select()}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+              endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+            }}
+            sx={{ mb: 2 }}
+          />
+        </Grid>
+      </Grid>
       
+      <Divider sx={{ my: 1 }} />
+      
+      {/* Pesos - Sin título */}
       <Grid container spacing={1}>
         <Grid item xs={6}>
           <TextField
@@ -86,11 +106,7 @@ export default function SummaryData() {
       
       <Divider sx={{ my: 1 }} />
       
-      {/* Resultados de cálculos */}
-      <Typography variant="subtitle2" color="primary" gutterBottom sx={{ mt: 2 }}>
-        Resultados
-      </Typography>
-      
+      {/* Resultados de cálculos - Sin título */}
       <Box sx={{ mb: 2 }}>
         <Grid container spacing={1}>
           <Grid item xs={12}>
@@ -145,33 +161,10 @@ export default function SummaryData() {
         </Grid>
       </Box>
       
+      {/* Total a Pagar - Al final del resumen */}
       <Divider sx={{ my: 1 }} />
       
-      {/* Datos económicos */}
-      <Typography variant="subtitle2" color="primary" gutterBottom sx={{ mt: 2 }}>
-        Datos Económicos
-      </Typography>
-      
       <Grid container spacing={1}>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            size="small"
-            label="Precio"
-            value={data.price}
-            onChange={(e) => {
-              const newValue = parseFloat(e.target.value) || 0;
-              setField('price', newValue);
-            }}
-            onFocus={(e) => (e.target as HTMLInputElement).select()}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-              endAdornment: <InputAdornment position="end">kg</InputAdornment>,
-            }}
-            sx={{ mb: 1 }}
-          />
-        </Grid>
-        
         <Grid item xs={12}>
           <TextField
             fullWidth
@@ -191,31 +184,6 @@ export default function SummaryData() {
                 }
               }
             }}
-          />
-        </Grid>
-      </Grid>
-
-      {/* Descuentos */}
-      <Typography variant="subtitle2" color="primary" gutterBottom sx={{ mt: 2 }}>
-        Descuentos
-      </Typography>
-      <Grid container spacing={1}>
-        <Grid item xs={6}>
-          <TextField
-            fullWidth
-            size="small"
-            label="Total Descuentos (kg)"
-            value={formatWeight(data.totalDiscounts || 0)}
-            InputProps={{ readOnly: true }}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <TextField
-            fullWidth
-            size="small"
-            label="Porcentaje Descuentos"
-            value={`${((data.totalDiscounts / data.grossWeight) * 100).toFixed(2) || 0}%`}
-            InputProps={{ readOnly: true }}
           />
         </Grid>
       </Grid>
