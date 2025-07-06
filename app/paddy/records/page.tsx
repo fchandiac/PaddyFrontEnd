@@ -58,6 +58,7 @@ import moment from "moment-timezone";
 export default function AuditLogsPage() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<Array<{id: number, name: string, email: string}>>([]);
   
   // Modal de detalles
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -81,9 +82,35 @@ export default function AuditLogsPage() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      // Obtener usuarios únicos de los logs de auditoría
+      const result = await getAuditLogs({ limit: 10000 });
+      const uniqueUsers = new Map();
+      
+      result.data?.forEach((log: AuditLog) => {
+        if (log.user && log.userId) {
+          uniqueUsers.set(log.userId, {
+            id: log.userId,
+            name: log.user.name,
+            email: log.user.email
+          });
+        }
+      });
+      
+      setUsers(Array.from(uniqueUsers.values()));
+    } catch (error) {
+      console.error("Error al obtener usuarios:", error);
+    }
+  };
+
   useEffect(() => {
     fetchAuditLogs();
   }, [filters]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleFilterChange = (field: keyof AuditFilterDto, value: any) => {
     setFilters(prev => ({
@@ -374,33 +401,21 @@ export default function AuditLogsPage() {
               </FormControl>
 
               {/* Filtro por usuario */}
-              <TextField
-                fullWidth
-                size="small"
-                label="ID Usuario"
-                type="number"
-                value={filters.userId || ''}
-                onChange={(e) => handleFilterChange('userId', e.target.value ? parseInt(e.target.value) : undefined)}
-              />
-
-              {/* Filtro por éxito */}
               <FormControl fullWidth size="small">
-                <InputLabel>Estado</InputLabel>
+                <InputLabel>Usuario</InputLabel>
                 <Select
-                  value={filters.success !== undefined ? filters.success.toString() : ''}
-                  label="Estado"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    handleFilterChange('success', value === '' ? undefined : value === 'true');
-                  }}
+                  value={filters.userId || ''}
+                  label="Usuario"
+                  onChange={(e) => handleFilterChange('userId', e.target.value || undefined)}
                 >
                   <MenuItem value="">Todos</MenuItem>
-                  <MenuItem value="true">Exitoso</MenuItem>
-                  <MenuItem value="false">Fallido</MenuItem>
+                  {users.map((user) => (
+                    <MenuItem key={user.id} value={user.id}>
+                      {user.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
-
-              <Divider />
 
               {/* Filtros de fecha */}
               <Typography variant="subtitle2" color="textSecondary">
@@ -427,8 +442,6 @@ export default function AuditLogsPage() {
                 InputLabelProps={{ shrink: true }}
               />
 
-              <Divider />
-
               {/* Botones de acción */}
               <Box display="flex" flexDirection="column" gap={1} sx={{ mt: 1 }}>
                 <Button
@@ -453,25 +466,16 @@ export default function AuditLogsPage() {
                   Limpiar Filtros
                 </Button>
               </Box>
-
-              {/* Información adicional */}
-              <Box sx={{ mt: 2, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
-                <Typography variant="caption" color="textSecondary" display="block">
-                  Total: {auditLogs.length} registros
-                </Typography>
-                <Typography variant="caption" color="textSecondary" display="block">
-                  {loading ? 'Cargando...' : 'Datos actualizados'}
-                </Typography>
-              </Box>
             </Box>
           </Paper>
         </Grid>
 
         {/* Grid de datos - Columna principal */}
         <Grid item xs={12} sm={9} md={10}>
-          <Paper elevation={1} sx={{ 
+          <Paper variant="outlined" elevation={0} sx={{ 
             height: { xs: '60vh', sm: '100%' },
-            minHeight: '400px'
+            minHeight: '400px',
+            borderColor: 'rgba(0, 0, 0, 0.23)', // Color de borde igual a TextField
           }}>
             <AppDataGrid
               rows={auditLogs}
