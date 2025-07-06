@@ -482,44 +482,6 @@ export default function GrainAnalysisForm() {
         Análisis de Granos
       </Typography>
       
-      {/* Encabezados de columnas */}
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          mb: 1, 
-          borderBottom: '1px solid #e0e0e0',
-          pb: 1
-        }}
-      >
-        <Box sx={{ width: 156, mr: 1 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight="bold">
-            Parámetro
-          </Typography>
-        </Box>
-        <Box sx={{ width: 110, mr: 1 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight="bold">
-            Rango
-          </Typography>
-        </Box>
-        <Box sx={{ width: 110, mr: 1 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight="bold">
-            Porcentaje
-          </Typography>
-        </Box>
-        <Box sx={{ width: 110, mr: 1 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight="bold">
-            Tolerancia
-          </Typography>
-        </Box>
-        <Box sx={{ width: 40 }} />
-        <Box sx={{ width: 110 }}>
-          <Typography variant="caption" color="text.secondary" fontWeight="bold">
-            Descuento
-          </Typography>
-        </Box>
-      </Box>
-
       {/* Renderizar primero los parámetros que NO pertenecen al grupo de tolerancia */}
       {nonGroupToleranceParams.map((cluster) => (
         <GrainRow
