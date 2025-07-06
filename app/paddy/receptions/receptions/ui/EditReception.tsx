@@ -426,6 +426,7 @@ function EditReceptionContent({
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
+                  size="small"
                   label="Productor"
                   value={reception.producer?.name || "Sin productor"}
                   disabled
@@ -434,6 +435,7 @@ function EditReceptionContent({
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
+                  size="small"
                   label="Tipo de arroz"
                   value={reception.riceType?.name || "Sin tipo"}
                   disabled
@@ -442,6 +444,7 @@ function EditReceptionContent({
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
+                  size="small"
                   label="Guía"
                   value={reception.guide}
                   disabled
@@ -450,6 +453,7 @@ function EditReceptionContent({
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
+                  size="small"
                   label="Patente"
                   value={reception.licensePlate}
                   disabled
@@ -458,13 +462,14 @@ function EditReceptionContent({
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
+                  size="small"
                   label="Fecha"
                   value={new Date(reception.createdAt).toLocaleString()}
                   disabled
                 />
               </Grid>
               <Grid item xs={12} md={4}>
-                <FormControl fullWidth>
+                <FormControl fullWidth size="small">
                   <InputLabel id="status-label">Estado</InputLabel>
                   <Select
                     labelId="status-label"
