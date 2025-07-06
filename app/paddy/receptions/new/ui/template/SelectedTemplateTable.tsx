@@ -65,6 +65,11 @@ const SelectedTemplateTable: React.FC<SelectedTemplateTableProps> = ({selectedTe
     if (!selectedTemplate) return;
     console.log('🔥 Cargando configuración de plantilla:', selectedTemplate);
     
+    // ✅ SOLUCIÓN: Actualizar la plantilla completa en lugar de solo campos individuales
+    setTemplate(selectedTemplate);
+    
+    console.log('🔥 Nueva plantilla aplicada:', selectedTemplate.name, 'ID:', selectedTemplate.id);
+    
     // Solo cargar configuración, no valores de parámetros
     
     // Actualizar configuraciones de disponibilidad

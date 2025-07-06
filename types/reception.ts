@@ -72,6 +72,11 @@ export interface Reception {
     id: number;
     name: string;
   };
+
+  template?: {
+    id: number;
+    name: string;
+  };
 }
 
 // Payload para crear una recepción (POST)
