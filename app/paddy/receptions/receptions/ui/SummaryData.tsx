@@ -205,7 +205,7 @@ export default function SummaryData() {
             fullWidth
             size="small"
             label="Total Descuentos (kg)"
-            value={formatWeight(data.totalDiscount || 0)}
+            value={formatWeight(data.totalDiscounts || 0)}
             InputProps={{ readOnly: true }}
           />
         </Grid>
@@ -214,7 +214,7 @@ export default function SummaryData() {
             fullWidth
             size="small"
             label="Porcentaje Descuentos"
-            value={`${((data.totalDiscount / data.grossWeight) * 100).toFixed(2) || 0}%`}
+            value={`${((data.totalDiscounts / data.grossWeight) * 100).toFixed(2) || 0}%`}
             InputProps={{ readOnly: true }}
           />
         </Grid>

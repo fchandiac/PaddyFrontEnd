@@ -95,9 +95,6 @@ export default function ReceptionPrintWrapper({ receptionId }: ReceptionPrintWra
           setField('toleranceBonus', reception.toleranceBonificacion || 0);
           setField('percentDry', reception.percentSecado || 0);
           
-          // Set the total to pay
-          setField('totalToPay', reception.totalToPay || 0);
-          
           // Update liveClusters if needed
           if (liveClusters) {
             try {
@@ -113,8 +110,7 @@ export default function ReceptionPrintWrapper({ receptionId }: ReceptionPrintWra
               if (liveClusters.GranosVerdes?.percent) liveClusters.GranosVerdes.percent.value = reception.percentGranosVerdes || 0;
               if (liveClusters.GranosVerdes?.tolerance) liveClusters.GranosVerdes.tolerance.value = reception.toleranceGranosVerdes || 0;
               
-              // Force update
-              if (liveClusters.totalPaddy?.node) liveClusters.totalPaddy.node.value = reception.totalToPay || 0;
+              // Force update - removed totalToPay reference
             } catch (err) {
               console.error('Error updating liveClusters:', err);
             }

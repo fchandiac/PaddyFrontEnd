@@ -184,6 +184,14 @@ export default function NewReceptionPage() {
     setOpenPrintDialog(true);
   };
 
+  // Effect para manejar el focus cuando se cierra el diálogo de impresión
+  useEffect(() => {
+    if (!openPrintDialog) {
+      // Focus on producer field when dialog is closed with increased timeout
+      setTimeout(focusOnProducer, 500);
+    }
+  }, [openPrintDialog]);
+
   return (
     <>
       <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
@@ -435,10 +443,6 @@ export default function NewReceptionPage() {
         setOpen={setOpenPrintDialog}
         title="Recepción de Paddy"
         dialogWidth="md"
-        onClose={() => {
-          // Focus on producer field when dialog is closed with increased timeout
-          setTimeout(focusOnProducer, 500);
-        }}
       >
         <ReceptionToPrint />
       </PrintDialog>

@@ -612,8 +612,8 @@ export default function GrainAnalysisForm() {
       {/* Sección de Descuentos Totales */}
       <Box sx={{ mt: 2 }}>
         <Typography variant="h6">Descuentos</Typography>
-        <Typography>Total Descuentos (kg): {data.totalDiscount || 0}</Typography>
-        <Typography>Porcentaje de Descuentos: {((data.totalDiscount / data.grossWeight) * 100).toFixed(2) || 0}%</Typography>
+        <Typography>Total Descuentos (kg): {data.totalDiscounts || 0}</Typography>
+        <Typography>Porcentaje de Descuentos: {((data.totalDiscounts / data.grossWeight) * 100).toFixed(2) || 0}%</Typography>
       </Box>
     </Paper>
   );

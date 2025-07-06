@@ -1,13 +1,24 @@
 'use client';
 import React, { createContext, useContext } from "react";
 import { useReceptionData } from "../hooks/useReceptionData";
+import { Reception, DataReceptionContextType } from "@/types/reception";
 
 const ReceptionDataContext = createContext<ReturnType<typeof useReceptionData> | null>(null);
 
-export const ReceptionDataProvider = ({ children }: { children: React.ReactNode }) => {
-  const reception = useReceptionData();
+export const ReceptionDataProvider = ({ children, reception, initialData }: { children: React.ReactNode; reception?: Reception; initialData?: Partial<DataReceptionContextType> }) => {
+  const receptionData = useReceptionData({
+    ...initialData,
+    ...reception,
+    riceType: {
+      id: reception?.riceType?.id || 0,
+      name: reception?.riceType?.name || "",
+      description: "N/A",
+      price: "0",
+      enable: true,
+    },
+  });
   return (
-    <ReceptionDataContext.Provider value={reception}>
+    <ReceptionDataContext.Provider value={receptionData}>
       {children}
     </ReceptionDataContext.Provider>
   );

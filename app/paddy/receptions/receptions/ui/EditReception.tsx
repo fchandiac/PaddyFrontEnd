@@ -77,9 +77,9 @@ export default function EditReception({ receptionId, onClose, afterUpdate }: Edi
         
         riceTypeId: reception.riceTypeId,
         riceTypeName: reception.riceType?.name || '',
-        riceTypeDescription: '',
-        riceTypePrice: '0',
-        riceTypeEnable: false,
+        riceTypeDescription: "N/A",
+        riceTypePrice: "0",
+        riceTypeEnable: true,
         
         price: reception.price,
         guide: reception.guide,
@@ -139,10 +139,10 @@ export default function EditReception({ receptionId, onClose, afterUpdate }: Edi
         
         riceType: {
           id: reception.riceType?.id || 0,
-          name: reception.riceType?.name || "Sin tipo",
-          description: "",
-          price: "0",
-          enable: false
+          name: reception.riceType?.name || "",
+          description: "N/A",
+          price: "0", 
+          enable: true,
         },
         
         // Plantilla por defecto si no existe
