@@ -259,7 +259,7 @@ export default function ReceptionListPage() {
           setRowData(null);
         }}
         fullWidth
-        maxWidth="xl"
+        maxWidth="lg"
       >
         <Box sx={{ p: 2 }}>
           <EditReception
