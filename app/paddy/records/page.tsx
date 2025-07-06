@@ -330,16 +330,12 @@ export default function AuditLogsPage() {
             minHeight: { xs: '200px', sm: '100%' }
           }}>
             <Typography variant="h6" gutterBottom sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1,
               borderBottom: '1px solid',
               borderColor: 'divider',
               pb: 1,
               mb: 2
             }}>
-              <FilterIcon color="primary" />
-              Filtros Avanzados
+              Filtros
             </Typography>
             
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
