@@ -17,6 +17,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Edit, Delete } from "@mui/icons-material";
 import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
 import { useAlertContext } from "@/context/AlertContext";
+import { useUser } from "@/hooks/useUser";
 
 const defectOptions = [
   { id: 1, name: "Humedad" },
@@ -38,6 +39,7 @@ export default function DefectsPage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showAlert } = useAlertContext();
+  const { user } = useUser();
 
   const fetchData = async (code: number) => {
     const result = await getDiscountPercentsByCode(code);
@@ -136,7 +138,7 @@ export default function DefectsPage() {
         }}
         submit={async () => {
           if (rowData) {
-            await deleteDiscountPercent(rowData.id);
+            await deleteDiscountPercent(rowData.id, user?.id);
             showAlert("Rango eliminado correctamente", "success");
             setOpenDeleteDialog(false);
             if (selectedDefect) fetchData(selectedDefect.id);

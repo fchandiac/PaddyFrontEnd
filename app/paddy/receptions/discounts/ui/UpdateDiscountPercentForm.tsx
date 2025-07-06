@@ -3,6 +3,7 @@ import { BaseUpdateForm } from "@/components/appForm/UpdateBaseForm";
 import { useAlertContext } from "@/context/AlertContext";
 import { updateDiscountPercent } from "@/app/actions/discount-percent";
 import { DiscountPercent } from "@/types/discount-percent";
+import { useUser } from "@/hooks/useUser";
 
 interface Props {
   initialData: DiscountPercent;
@@ -16,6 +17,7 @@ export const UpdateDiscountPercentForm: React.FC<Props> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const { showAlert } = useAlertContext();
+  const { user } = useUser(); // Obtener usuario actual
 
   // Memoizamos el initialState para que sólo se regenere
   // cuando cambie initialData.id
@@ -35,7 +37,8 @@ export const UpdateDiscountPercentForm: React.FC<Props> = ({
     setErrors([]);
 
     try {
-      const result = await updateDiscountPercent(initialData.id, values);
+      // Pasar el userId al actualizar el rango de descuento
+      const result = await updateDiscountPercent(initialData.id, values, user?.id);
 
       if (result?.error) {
         setErrors(

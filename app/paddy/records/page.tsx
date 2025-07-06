@@ -45,7 +45,6 @@ import {
   Info as InfoIcon,
   Close as CloseIcon
 } from "@mui/icons-material";
-import { DataGrid } from "@mui/x-data-grid";
 import AppDataGrid from "@/components/appDataGrid";
 import { getAuditLogs } from "@/app/actions/audit";
 import { 
@@ -55,16 +54,14 @@ import {
   AUDIT_ENTITY_LABELS, 
   AUDIT_ACTION_COLORS,
   AuditAction,
-  AuditEntityType
+  AuditEntityType,
+  isValidDisplayValue
 } from "@/types/audit";
 import moment from "moment-timezone";
 
 export default function AuditLogsPage() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(50);
   
   // Modal de detalles
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -72,8 +69,7 @@ export default function AuditLogsPage() {
   
   // Filtros
   const [filters, setFilters] = useState<AuditFilterDto>({
-    page: 1,
-    limit: 50,
+    limit: 1000, // Obtener más registros para paginación local
   });
 
   const fetchAuditLogs = async () => {
@@ -81,7 +77,6 @@ export default function AuditLogsPage() {
       setLoading(true);
       const result = await getAuditLogs(filters);
       setAuditLogs(result.data || []);
-      setTotal(result.total || 0);
       console.log("Logs de auditoría obtenidos:", result);
     } catch (error) {
       console.error("Error al obtener los logs de auditoría:", error);
@@ -98,14 +93,12 @@ export default function AuditLogsPage() {
     setFilters(prev => ({
       ...prev,
       [field]: value,
-      page: 1, // Reset page when filter changes
     }));
   };
 
   const clearFilters = () => {
     setFilters({
-      page: 1,
-      limit: 50,
+      limit: 1000,
     });
   };
 
@@ -227,18 +220,22 @@ export default function AuditLogsPage() {
                   Información Técnica
                 </Typography>
                 <List dense>
-                  <ListItem>
-                    <ListItemText
-                      primary="IP Address"
-                      secondary={selectedLog.ipAddress || 'N/A'}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText
-                      primary="User Agent"
-                      secondary={selectedLog.userAgent || 'N/A'}
-                    />
-                  </ListItem>
+                  {isValidDisplayValue(selectedLog.ipAddress) && (
+                    <ListItem>
+                      <ListItemText
+                        primary="IP Address"
+                        secondary={selectedLog.ipAddress}
+                      />
+                    </ListItem>
+                  )}
+                  {isValidDisplayValue(selectedLog.userAgent) && (
+                    <ListItem>
+                      <ListItemText
+                        primary="User Agent"
+                        secondary={selectedLog.userAgent}
+                      />
+                    </ListItem>
+                  )}
                   {selectedLog.errorMessage && (
                     <ListItem>
                       <ListItemText
@@ -416,10 +413,11 @@ export default function AuditLogsPage() {
       </Paper>
 
       {/* Grid de datos */}
-      <Paper elevation={1} sx={{ height: '70vh' }}>
-        <DataGrid
+      <Box sx={{ height: '70vh' }}>
+        <AppDataGrid
           rows={auditLogs}
-          loading={loading}
+          title="Registros de Auditoría"
+          height="70vh"
           columns={[
             { 
               field: "id", 
@@ -463,12 +461,6 @@ export default function AuditLogsPage() {
               width: 100,
               renderCell: (params: any) => renderSuccessChip(params.value)
             },
-            { 
-              field: "ipAddress", 
-              headerName: "IP", 
-              width: 120,
-              valueFormatter: (params: any) => params || '-'
-            },
             {
               field: "createdAt",
               headerName: "Fecha",
@@ -488,28 +480,9 @@ export default function AuditLogsPage() {
               filterable: false,
             },
           ]}
-          paginationMode="server"
-          rowCount={total}
-          paginationModel={{
-            page: page - 1,
-            pageSize: limit,
-          }}
-          onPaginationModelChange={(model: any) => {
-            const newPageNumber = model.page + 1;
-            setPage(newPageNumber);
-            handleFilterChange('page', newPageNumber);
-          }}
-          pageSizeOptions={[25, 50, 100]}
-          disableRowSelectionOnClick
-          localeText={{
-            noRowsLabel: 'No hay registros de auditoría',
-            toolbarFilters: 'Filtros',
-            toolbarDensity: 'Densidad',
-            toolbarColumns: 'Columnas',
-            toolbarExport: 'Exportar',
-          }}
+          refresh={fetchAuditLogs}
         />
-      </Paper>
+      </Box>
       
       {/* Modal de detalles */}
       {renderDetailsModal()}

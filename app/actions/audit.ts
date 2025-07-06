@@ -52,7 +52,38 @@ export async function getAuditStats(days: number = 30): Promise<AuditStats> {
 
     return await res.json();
   } catch (error: any) {
-    throw new Error(error.message || "Error inesperado al obtener las estadísticas");
+    throw new Error(error.message || "Error inesperado al obtener las estadísticas de auditoría");
+  }
+}
+
+// Función para crear logs de auditoría desde el frontend
+export async function createAuditLog(logData: {
+  userId?: number;
+  action: string;
+  entityType: string;
+  entityId?: number;
+  description: string;
+  metadata?: any;
+  oldValues?: any;
+  newValues?: any;
+  success?: boolean;
+  errorMessage?: string;
+}): Promise<void> {
+  try {
+    const res = await fetch(`${backendUrl}/audit/manual`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(logData),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || "Error al crear el log de auditoría");
+    }
+  } catch (error: any) {
+    throw new Error(error.message || "Error inesperado al crear el log de auditoría");
   }
 }
 
@@ -97,3 +128,23 @@ export async function getEntityAuditLogs(entityType: string, entityId: number) {
     throw new Error(error.message || "Error inesperado al obtener los logs de la entidad");
   }
 }
+
+export const cleanupInvalidAuditValues = async (): Promise<{ cleaned: number; message: string }> => {
+  try {
+    const response = await fetch(`${backendUrl}/audit/cleanup-invalid-values`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al limpiar valores inválidos: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error al limpiar valores inválidos:', error);
+    throw error;
+  }
+};

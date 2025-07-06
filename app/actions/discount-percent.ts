@@ -23,12 +23,17 @@ export async function getDiscountPercentById(id: number): Promise<any> {
 }
 
 // ➕ Crear
-export async function createDiscountPercent(data: CreateDiscountPercentDto): Promise<any> {
+export async function createDiscountPercent(data: CreateDiscountPercentDto, userId?: number): Promise<any> {
   try {
+    const payload = {
+      ...data,
+      userId, // Incluir userId en el payload
+    };
+
     const res = await fetch(`${backendUrl}/discounts-percent`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     const result = await res.json();
@@ -47,12 +52,17 @@ export async function createDiscountPercent(data: CreateDiscountPercentDto): Pro
 }
 
 // ✏️ Actualizar
-export async function updateDiscountPercent(id: number, data: UpdateDiscountPercentDto): Promise<any> {
+export async function updateDiscountPercent(id: number, data: UpdateDiscountPercentDto, userId?: number): Promise<any> {
   try {
+    const payload = {
+      ...data,
+      userId, // Incluir userId en el payload
+    };
+
     const res = await fetch(`${backendUrl}/discounts-percent/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     const result = await res.json();
@@ -72,8 +82,10 @@ export async function updateDiscountPercent(id: number, data: UpdateDiscountPerc
 
 
 // 🗑️ Eliminar
-export async function deleteDiscountPercent(id: number): Promise<void> {
+export async function deleteDiscountPercent(id: number, userId?: number): Promise<void> {
   await fetch(`${backendUrl}/discounts-percent/${id}`, {
     method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
   });
 }

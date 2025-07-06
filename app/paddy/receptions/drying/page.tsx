@@ -18,6 +18,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Edit, Delete } from "@mui/icons-material";
 import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
 import { useAlertContext } from "@/context/AlertContext";
+import { useUser } from "@/hooks/useUser";
 
 const DISCOUNT_CODE = 8;
 const TITLE = "Rangos % de secado";
@@ -28,6 +29,7 @@ export default function DryingDiscountPage() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const { showAlert } = useAlertContext();
+  const { user } = useUser();
 
   const fetchData = async () => {
     const result = await getDiscountPercentsByCode(DISCOUNT_CODE);
@@ -103,7 +105,7 @@ export default function DryingDiscountPage() {
         }}
         submit={async () => {
           if (rowData) {
-            await deleteDiscountPercent(rowData.id);
+            await deleteDiscountPercent(rowData.id, user?.id);
             showAlert("Rango eliminado correctamente", "success");
             setOpenDeleteDialog(false);
             fetchData();

@@ -105,3 +105,16 @@ export const AUDIT_ACTION_COLORS: Record<AuditAction, string> = {
   EXPORT: '#607d8b',     // Gris azul
   IMPORT: '#795548',     // Marrón
 };
+
+// Función helper para verificar si un valor es válido para mostrar
+export const isValidDisplayValue = (value: any): boolean => {
+  return value && 
+         value !== 'N/A' && 
+         value !== '' && 
+         value.toString().trim() !== '';
+};
+
+// Función helper para formatear valores para mostrar
+export const formatDisplayValue = (value: any, fallback: string = '-'): string => {
+  return isValidDisplayValue(value) ? value : fallback;
+};

@@ -5,6 +5,7 @@ import { BaseForm } from "@/components/appForm/CreateBaseForm";
 import { useAlertContext } from "@/context/AlertContext";
 import { createDiscountPercent } from "@/app/actions/discount-percent";
 import { DiscountPercent } from "@/types/discount-percent";
+import { useUser } from "@/hooks/useUser";
 
 const initialForm = {
   discountCode: 1,
@@ -23,13 +24,15 @@ export const CreateDiscountPercentForm: React.FC<Props> = ({ defaultCode, afterS
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const { showAlert } = useAlertContext();
+  const { user } = useUser(); // Obtener usuario actual
 
   const save = async () => {
     setIsSubmitting(true);
     setErrors([]);
 
     try {
-      const result = await createDiscountPercent(formData);
+      // Pasar el userId al crear el rango de descuento
+      const result = await createDiscountPercent(formData, user?.id);
 
       if (result?.error) {
         setErrors(Array.isArray(result.message) ? result.message : [result.message]);
