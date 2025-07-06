@@ -3,7 +3,6 @@
 import { useReceptionContext } from "@/context/ReceptionDataContext";
 import {
   Box,
-  Divider,
   Grid,
   IconButton,
   InputAdornment,
@@ -571,9 +570,6 @@ export default function GrainAnalysisForm() {
         />
       ))}
       
-      {/* Divisor para separar parámetros individuales de totales */}
-      <Divider sx={{ my: 2 }} />
-      
       {/* GroupSummary: Se muestra después de los parámetros del grupo de tolerancia */}
       {hasGroupToleranceParams && (
         <GrainRow
@@ -608,13 +604,6 @@ export default function GrainAnalysisForm() {
           percent={liveClusters.Dry.percent}
         />
       )}
-
-      {/* Sección de Descuentos Totales */}
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="h6">Descuentos</Typography>
-        <Typography>Total Descuentos (kg): {data.totalDiscounts || 0}</Typography>
-        <Typography>Porcentaje de Descuentos: {((data.totalDiscounts / data.grossWeight) * 100).toFixed(2) || 0}%</Typography>
-      </Box>
     </Paper>
   );
 }
