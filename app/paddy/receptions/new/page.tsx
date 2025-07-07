@@ -109,9 +109,11 @@ export default function NewReceptionPage() {
       console.log('data.riceTypeId:', data.riceTypeId);
       console.log('data.producerId:', data.producerId);
       console.log('data.template?.id:', data.template?.id);
+      console.log('user:', user);
       console.log('data completo:', JSON.stringify(data, null, 2));
       
       const payload: CreateReceptionPayload = {
+        userId: user?.id, // Incluir el ID del usuario que crea la recepción
         producerId: data.producerId,
         riceTypeId: data.riceTypeId,
         templateId: data.template?.id || undefined, // Usando el nuevo campo templateId

@@ -89,16 +89,36 @@ export async function getReceptionByIdToLoad(id: number): Promise<FindReceptionB
 
 export async function createReception(data: CreateReceptionPayload): Promise<Reception> {
   try {
+    // Obtener la sesión del usuario autenticado
+    const session = await auth();
+    
     // Validar que la URL del backend esté definida
     if (!backendUrl) {
       throw new Error('URL del backend no configurada. Verifique sus variables de entorno.');
     }
     
+    // Validar que el usuario esté autenticado
+    if (!session?.user) {
+      throw new Error('Usuario no autenticado. Debe iniciar sesión para crear una recepción.');
+    }
+    
+    // Agregar información del usuario autenticado al payload si no está presente
+    const payloadWithUser = {
+      ...data,
+      userId: data.userId || (session.user as any)?.id, // Usar el userId del session si no está en el payload
+    };
+
+    console.log('🔐 DEBUG - Usuario autenticado:', session.user);
+    console.log('🔐 DEBUG - Payload con userId:', payloadWithUser);
+    
     // Realizar la petición al backend
     const res = await fetch(`${backendUrl}/receptions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      headers: { 
+        'Content-Type': 'application/json',
+        // Si hay información adicional de autenticación en la sesión, se puede agregar aquí
+      },
+      body: JSON.stringify(payloadWithUser),
     });
     
     // Si la respuesta no es exitosa, intentar obtener un mensaje de error detallado
@@ -132,20 +152,44 @@ export async function updateReception(
   reason?: string,
   changedBy?: string
 ): Promise<Reception> {
-  // Crear parámetros de consulta para razón de cambio
-  const queryParams = new URLSearchParams();
-  if (reason) queryParams.append('reason', reason);
-  if (changedBy) queryParams.append('changedBy', changedBy);
-  
-  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-  
-  const res = await fetch(`${backendUrl}/receptions/${id}${queryString}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Error al actualizar recepción");
-  return res.json();
+  try {
+    // Obtener la sesión del usuario autenticado
+    const session = await auth();
+    
+    // Validar que el usuario esté autenticado
+    if (!session?.user) {
+      throw new Error('Usuario no autenticado. Debe iniciar sesión para actualizar una recepción.');
+    }
+
+    // Usar el usuario autenticado si no se proporciona changedBy
+    const finalChangedBy = changedBy || (session.user as any)?.name || (session.user as any)?.email || 'Usuario autenticado';
+    
+    console.log('🔐 DEBUG - Usuario autenticado actualizando recepción:', session.user);
+    console.log('🔐 DEBUG - changedBy final:', finalChangedBy);
+
+    // Crear parámetros de consulta para razón de cambio
+    const queryParams = new URLSearchParams();
+    if (reason) queryParams.append('reason', reason);
+    if (finalChangedBy) queryParams.append('changedBy', finalChangedBy);
+    
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    
+    const res = await fetch(`${backendUrl}/receptions/${id}${queryString}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Error al actualizar recepción");
+    }
+    
+    return res.json();
+  } catch (error) {
+    console.error('Error en updateReception:', error);
+    throw error;
+  }
 }
 
 export async function deleteReception(
