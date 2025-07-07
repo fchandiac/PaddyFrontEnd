@@ -127,6 +127,7 @@ export default function ReceptionGeneralData() {
 
   // Sincronizar el precio con el contexto
   useEffect(() => {
+    console.log('💰 DEBUG - Sincronizando precio local con contexto:', data.price, 'tipo:', typeof data.price);
     setPrice(data.price || 0);
   }, [data.price]);
 

@@ -627,7 +627,7 @@ export interface DataReceptionContextType {
     id: number;
     name: string;
     description: string;
-    price: string;
+    price: number;
     enable: boolean;
   };
   template: TemplateType;
@@ -730,7 +730,7 @@ export const defaultReceptionData: DataReceptionContextType = {
     id: 0,
     name: "",
     description: "",
-    price: "",
+    price: 0,
     enable: false,
   },
 

@@ -12,9 +12,9 @@ export const ReceptionDataProvider = ({ children, reception, initialData }: { ch
     riceType: {
       id: reception?.riceType?.id || 0,
       name: reception?.riceType?.name || "",
-      description: "N/A",
-      price: "0",
-      enable: true,
+      description: reception?.riceType?.description || "N/A",
+      price: reception?.riceType?.price || 0,
+      enable: reception?.riceType?.enable ?? true,
     },
   });
   return (
