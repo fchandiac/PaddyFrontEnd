@@ -81,7 +81,6 @@ export interface Reception {
 
 // Payload para crear una recepción (POST)
 export interface CreateReceptionPayload {
-  userId?: number; // ID del usuario que crea la recepción
   producerId: number;
   riceTypeId: number;
   templateId?: number;
@@ -430,7 +429,6 @@ export interface FindReceptionByIdType {
 }
 
 export type UpdateReceptionPayload = {
-  userId?: number; // ID del usuario que actualiza la recepción
   producerId?: number;
   riceTypeId?: number;
   templateId?: number;

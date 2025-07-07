@@ -11,6 +11,7 @@ import {
 } from "@/types/reception";
 import { createRecord } from "./record"; // importa desde donde esté
 import { auth } from "../../auth";
+import { cookies } from 'next/headers';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -91,34 +92,70 @@ export async function createReception(data: CreateReceptionPayload): Promise<Rec
   try {
     // Obtener la sesión del usuario autenticado
     const session = await auth();
+    const cookieStore = cookies();
     
     // Validar que la URL del backend esté definida
     if (!backendUrl) {
       throw new Error('URL del backend no configurada. Verifique sus variables de entorno.');
     }
     
-    // Validar que el usuario esté autenticado
-    if (!session?.user) {
-      throw new Error('Usuario no autenticado. Debe iniciar sesión para crear una recepción.');
+    console.log('🔐 DEBUG - Intentando crear recepción con payload:', data);
+    console.log('🔐 DEBUG - Sesión de usuario:', session?.user);
+    
+    // Obtener todas las cookies de NextAuth
+    const nextAuthCookies = Array.from(cookieStore.getAll())
+      .filter(cookie => cookie.name.includes('next-auth') || cookie.name.includes('authjs'))
+      .map(cookie => `${cookie.name}=${cookie.value}`)
+      .join('; ');
+    
+    console.log('🍪 DEBUG - Cookies de autenticación:', nextAuthCookies);
+    
+    // Crear headers con cookies de autenticación
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Agregar cookies si las hay
+    if (nextAuthCookies) {
+      headers['Cookie'] = nextAuthCookies;
     }
     
-    // Agregar información del usuario autenticado al payload si no está presente
-    const payloadWithUser = {
-      ...data,
-      userId: data.userId || (session.user as any)?.id, // Usar el userId del session si no está en el payload
-    };
-
-    console.log('🔐 DEBUG - Usuario autenticado:', session.user);
-    console.log('🔐 DEBUG - Payload con userId:', payloadWithUser);
+    // Agregar headers personalizados explícitos para el backend
+    if (session?.user) {
+      headers['X-User-Email'] = session.user.email || '';
+      headers['X-User-ID'] = String((session.user as any)?.id || '');
+      headers['X-Created-By'] = (session.user as any)?.name || session.user.email || 'Usuario autenticado';
+      
+      console.log('📧 DEBUG - Headers de usuario agregados:', {
+        'X-User-Email': headers['X-User-Email'],
+        'X-User-ID': headers['X-User-ID'],
+        'X-Created-By': headers['X-Created-By']
+      });
+    }
+    
+    // Crear query parameters para información del usuario (por si el backend los necesita)
+    const queryParams = new URLSearchParams();
+    
+    if (session?.user) {
+      // Usar el nombre del usuario o email como identificador
+      const userIdentifier = (session.user as any)?.name || session.user.email || 'Usuario autenticado';
+      queryParams.append('createdBy', userIdentifier);
+      
+      // También agregar el userId si está disponible
+      if ((session.user as any)?.id) {
+        queryParams.append('userId', String((session.user as any).id));
+      }
+      
+      console.log('🔐 DEBUG - Usuario identificado como:', userIdentifier);
+    }
+    
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     
     // Realizar la petición al backend
-    const res = await fetch(`${backendUrl}/receptions`, {
+    const res = await fetch(`${backendUrl}/receptions${queryString}`, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        // Si hay información adicional de autenticación en la sesión, se puede agregar aquí
-      },
-      body: JSON.stringify(payloadWithUser),
+      headers,
+      body: JSON.stringify(data),
     });
     
     // Si la respuesta no es exitosa, intentar obtener un mensaje de error detallado
@@ -156,27 +193,34 @@ export async function updateReception(
     // Obtener la sesión del usuario autenticado
     const session = await auth();
     
-    // Validar que el usuario esté autenticado
-    if (!session?.user) {
-      throw new Error('Usuario no autenticado. Debe iniciar sesión para actualizar una recepción.');
-    }
+    console.log('🔐 DEBUG - Actualizando recepción:', id, 'con datos:', data);
+    console.log('🔐 DEBUG - Sesión de usuario:', session?.user);
 
     // Usar el usuario autenticado si no se proporciona changedBy
-    const finalChangedBy = changedBy || (session.user as any)?.name || (session.user as any)?.email || 'Usuario autenticado';
+    let finalChangedBy = changedBy;
     
-    console.log('🔐 DEBUG - Usuario autenticado actualizando recepción:', session.user);
-    console.log('🔐 DEBUG - changedBy final:', finalChangedBy);
+    if (!finalChangedBy && session?.user) {
+      finalChangedBy = (session.user as any)?.name || session.user.email || 'Usuario autenticado';
+      console.log('🔐 DEBUG - Usando usuario autenticado como changedBy:', finalChangedBy);
+    }
 
     // Crear parámetros de consulta para razón de cambio
     const queryParams = new URLSearchParams();
     if (reason) queryParams.append('reason', reason);
     if (finalChangedBy) queryParams.append('changedBy', finalChangedBy);
     
+    // También agregar userId si está disponible
+    if (session?.user && (session.user as any)?.id) {
+      queryParams.append('userId', String((session.user as any).id));
+    }
+    
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     
     const res = await fetch(`${backendUrl}/receptions/${id}${queryString}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(data),
     });
     
