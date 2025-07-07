@@ -394,7 +394,11 @@ export default function ReceptionGeneralData() {
             onChange={(_, newValue) => {
               setField('riceTypeId', newValue?.id || 0);
               if (newValue?.price != null) {
+                console.log('🔥 Asignando precio desde tipo de arroz:', newValue.price, 'Tipo:', newValue.name);
                 setPrice(newValue.price);
+                // ✅ SOLUCIÓN: También actualizar el contexto con el nuevo precio
+                setField("price", newValue.price);
+                console.log('✅ Precio actualizado en contexto:', newValue.price);
               }
             }}
             renderInput={(params) => (
