@@ -394,11 +394,23 @@ export default function ReceptionGeneralData() {
             onChange={(_, newValue) => {
               setField('riceTypeId', newValue?.id || 0);
               if (newValue?.price != null) {
-                console.log('🔥 Asignando precio desde tipo de arroz:', newValue.price, 'Tipo:', newValue.name);
-                setPrice(newValue.price);
+                console.log('🔥 DEBUG - Asignando precio desde tipo de arroz:', newValue.price, 'Tipo:', newValue.name, 'Tipo del precio:', typeof newValue.price);
+                
+                // Asegurar que el precio sea número
+                const numericPrice = typeof newValue.price === 'string' ? parseFloat(newValue.price) : newValue.price;
+                const finalPrice = isNaN(numericPrice) ? 0 : numericPrice;
+                
+                console.log('🔢 DEBUG - Precio convertido:', finalPrice, 'Tipo:', typeof finalPrice);
+                
+                setPrice(finalPrice);
                 // ✅ SOLUCIÓN: También actualizar el contexto con el nuevo precio
-                setField("price", newValue.price);
-                console.log('✅ Precio actualizado en contexto:', newValue.price);
+                setField("price", finalPrice);
+                console.log('✅ DEBUG - Precio actualizado en contexto:', finalPrice);
+                
+                // Verificar inmediatamente si el valor se guardó en el contexto
+                setTimeout(() => {
+                  console.log('🕐 DEBUG - Verificando precio en contexto después de 100ms:', data.price);
+                }, 100);
               }
             }}
             renderInput={(params) => (

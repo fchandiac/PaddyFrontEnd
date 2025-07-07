@@ -104,6 +104,13 @@ export default function NewReceptionPage() {
       };
 
       // Construir el payload para la API
+      console.log('🔥 DEBUG - Estado completo del contexto antes de crear payload:');
+      console.log('data.price:', data.price, 'tipo:', typeof data.price);
+      console.log('data.riceTypeId:', data.riceTypeId);
+      console.log('data.producerId:', data.producerId);
+      console.log('data.template?.id:', data.template?.id);
+      console.log('data completo:', JSON.stringify(data, null, 2));
+      
       const payload: CreateReceptionPayload = {
         producerId: data.producerId,
         riceTypeId: data.riceTypeId,
@@ -157,6 +164,11 @@ export default function NewReceptionPage() {
         // Estado predeterminado
         status: "pending"
       };
+
+      console.log('🔥 DEBUG - Payload final que se enviará al backend:');
+      console.log('payload.price:', payload.price, 'tipo:', typeof payload.price);
+      console.log('ensureNumber(data.price):', ensureNumber(data.price), 'data.price original:', data.price, 'tipo data.price:', typeof data.price);
+      console.log('payload completo:', JSON.stringify(payload, null, 2));
 
       // Llamar a la API para crear la recepción
       const result = await createReception(payload);

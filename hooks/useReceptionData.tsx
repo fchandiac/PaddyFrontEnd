@@ -247,7 +247,12 @@ export function useReceptionData(
 
   const setField = useCallback(
     (field: keyof DataReceptionContextType, value: any) => {
-      setData((prev) => ({ ...prev, [field]: value }));
+      console.log('🔧 DEBUG - setField llamado:', field, '=', value, 'tipo:', typeof value);
+      setData((prev) => {
+        const newData = { ...prev, [field]: value };
+        console.log('🔧 DEBUG - Nuevo estado después de setField:', field, '=', newData[field]);
+        return newData;
+      });
     },
     []
   );
@@ -343,6 +348,7 @@ export function useReceptionData(
   );
 
   const resetData = useCallback(() => {
+    console.log('🔄 DEBUG - resetData llamado - reseteando todos los datos incluido price');
     // Reset data to default values but preserve the template
     setData((prevData) => ({
       ...defaultReceptionData,
