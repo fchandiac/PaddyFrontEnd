@@ -36,6 +36,8 @@ export default function NewReceptionPage() {
   const { user } = useUserContext();
   const { handleKeyDown } = useKeyboardNavigation();
 
+  const [receptionSaved, setReceptionSaved] = useState(false);
+
   const [loadingTemplate, setLoadingTemplate] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
 
@@ -178,12 +180,13 @@ export default function NewReceptionPage() {
       
       // Guardar temporalmente los datos para imprimir
       const savedReceptionId = result.id;
+      setReceptionSaved(true);
       
-      // Abrir el diálogo de impresión
+      // Abrir automáticamente el diálogo de impresión
       setOpenPrintDialog(true);
       
-      // Limpiar todos los datos y clusters para una nueva recepción
-      resetData();
+      // NO limpiar los datos aquí - se hará cuando se cierre el diálogo de impresión
+      // resetData();
       
     } catch (error) {
       console.error("Error al guardar la recepción:", error);
@@ -193,17 +196,18 @@ export default function NewReceptionPage() {
     }
   };
 
-  const handlePrint = () => {
-    setOpenPrintDialog(true);
-  };
-
   // Effect para manejar el focus cuando se cierra el diálogo de impresión
   useEffect(() => {
-    if (!openPrintDialog) {
+    if (!openPrintDialog && receptionSaved) {
       // Focus on producer field when dialog is closed with increased timeout
       setTimeout(focusOnProducer, 500);
+      
+      // Resetear los datos cuando se cierre el diálogo de impresión
+      // (esto permite que la impresión tenga acceso a los datos antes de resetear)
+      resetData();
+      setReceptionSaved(false);
     }
-  }, [openPrintDialog]);
+  }, [openPrintDialog, receptionSaved, resetData]);
 
   return (
     <>
@@ -356,35 +360,20 @@ export default function NewReceptionPage() {
               </Box>
             </Box>
 
-            <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-              <IconButton
-                color="primary"
-                sx={{
-                  border: '1px solid',
-                  borderColor: 'primary.main',
-                  '&:hover': {
-                    backgroundColor: 'primary.light',
-                    borderColor: 'primary.dark',
-                  },
-                }}
-                onClick={handlePrint}
-              >
-                <PrintIcon />
-              </IconButton>
-              
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={handleSave}
-                disabled={loadingSave || hasValidationErrors()}
-              >
-                {loadingSave ? (
-                  <CircularProgress size={24} />
-                ) : (
-                  "Guardar recepción"
-                )}
-              </Button>
-            </Stack>            <Divider />
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleSave}
+              disabled={loadingSave || hasValidationErrors()}
+            >
+              {loadingSave ? (
+                <CircularProgress size={24} />
+              ) : (
+                "Guardar recepción"
+              )}
+            </Button>
+            
+            <Divider />
             <Typography gutterBottom sx={{ textAlign: 'right' }}>Plantillas</Typography>
 
             <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
