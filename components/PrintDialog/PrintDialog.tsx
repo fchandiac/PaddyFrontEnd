@@ -25,9 +25,8 @@ export default function PrintDialog({
     documentTitle: title,
   });
 
-  const handleGoToList = () => {
+  const handleClose = () => {
     setOpen(false);
-    window.location.href = "/paddy/receptions/receptions";
   };
 
   return (
@@ -63,10 +62,10 @@ export default function PrintDialog({
           </Button>
           <Button
             variant="outlined"
-            onClick={handleGoToList}
+            onClick={handleClose}
             sx={{ ml: 1 }}
           >
-            Ver Lista
+            Cerrar
           </Button>
         </Box>
       </Box>
