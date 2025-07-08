@@ -27,3 +27,10 @@
 .textRight {
   text-align: right;
 }
+
+/* Ocultar plantilla en la versión de impresión */
+@media print {
+  .templateInfo {
+    display: none !important;
+  }
+}

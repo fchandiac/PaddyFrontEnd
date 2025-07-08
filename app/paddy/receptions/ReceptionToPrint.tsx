@@ -226,7 +226,9 @@ export default function ReceptionToPrint() {
   // Bonificación
   const calcPenaltyBonificacion = liveClusters.Bonus.tolerance.value > 0
     ? +((liveClusters.Bonus.tolerance.value * netWeight) / 100).toFixed(2) : 0;
-  if (template.availableBonus) {
+  
+  // Solo agregar bonificación si está disponible en la plantilla Y tiene un valor mayor a 0
+  if (template.availableBonus && liveClusters.Bonus.tolerance.value > 0) {
     rows.push({
       name: "Bonificación",
       percent: liveClusters.Bonus.tolerance.value,
@@ -236,8 +238,8 @@ export default function ReceptionToPrint() {
     });
   }
 
-  // Secado
-  if (template.availableDry)
+  // Solo agregar secado si está disponible en la plantilla Y tiene un valor mayor a 0
+  if (template.availableDry && liveClusters.Dry.percent.value > 0) {
     rows.push({
       name: "Secado",
       percent: liveClusters.Dry.percent.value,
@@ -245,6 +247,7 @@ export default function ReceptionToPrint() {
       penalty: "",
       groupTolerance: false,
     });
+  }
 
   return (
     <Box px={4}>
@@ -263,7 +266,7 @@ export default function ReceptionToPrint() {
           <Typography>
             Fecha: {new Date().toLocaleDateString("es-CL")}
           </Typography>
-          <Typography>Recepción N° {data.guide || "Nueva"}</Typography>
+          <Typography>Recepción N° {data.id || data.guide || "Nueva"}</Typography>
         </Box>
       </Box>
       <Divider sx={{ borderBottom: "1px solid #212121", my: 2 }} />
@@ -344,7 +347,7 @@ export default function ReceptionToPrint() {
           Análisis de granos
         </Typography>
         {template.name && (
-          <Typography variant="body2" sx={{ fontSize: "11px", color: "#666" }}>
+          <Typography variant="body2" sx={{ fontSize: "11px", color: "#666" }} className={styles.templateInfo}>
             Plantilla: {template.name}
           </Typography>
         )}
