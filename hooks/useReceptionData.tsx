@@ -402,6 +402,14 @@ export function useReceptionData(
     setVersion(v => v + 1);
   }, [liveClusters]);
 
+  // Función para actualizar el ID de la recepción
+  const updateReceptionId = useCallback((id: number) => {
+    setData(prev => ({
+      ...prev,
+      id
+    }));
+  }, []);
+
   return {
     data,
     setField,
@@ -410,5 +418,6 @@ export function useReceptionData(
     liveClusters,
     updateToleranceGroupMode,
     resetData,
+    updateReceptionId,
   };
 }

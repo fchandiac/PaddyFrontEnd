@@ -32,7 +32,7 @@ import ReceptionToPrint from "../ReceptionToPrint";
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
-  const { data, liveClusters, setTemplate, resetData } = useReceptionContext();
+  const { data, liveClusters, setTemplate, resetData, updateReceptionId } = useReceptionContext();
   const { user } = useUserContext();
   const { handleKeyDown } = useKeyboardNavigation();
 
@@ -176,10 +176,12 @@ export default function NewReceptionPage() {
       // Llamar a la API para crear la recepción
       const result = await createReception(payload);
       
+      // Actualizar el ID de la recepción en el contexto para que aparezca en la impresión
+      updateReceptionId(result.id);
+      
       showAlert("Recepción guardada correctamente", "success");
       
       // Guardar temporalmente los datos para imprimir
-      const savedReceptionId = result.id;
       setReceptionSaved(true);
       
       // Abrir automáticamente el diálogo de impresión
