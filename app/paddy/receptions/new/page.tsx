@@ -447,6 +447,11 @@ export default function NewReceptionPage() {
         setOpen={setOpenPrintDialog}
         title="Recepción de Paddy"
         dialogWidth="md"
+        receptionData={{
+          id: data.id,
+          producerRut: data.producerRut,
+          producerName: data.producerName
+        }}
       >
         <ReceptionToPrint />
       </PrintDialog>

@@ -1,6 +1,9 @@
 import React, { useRef } from "react";
-import { Dialog, Box, Typography, Button } from "@mui/material";
+import { Dialog, Box, Typography, Button, IconButton, Tooltip } from "@mui/material";
+import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import { useReactToPrint } from "react-to-print";
+// @ts-ignore
+import html2pdf from 'html2pdf.js';
 
 interface PrintDialogProps {
   open: boolean;
@@ -9,6 +12,11 @@ interface PrintDialogProps {
   children: React.ReactNode;
   dialogWidth?: "xs" | "sm" | "md" | "lg" | "xl";
   pageStyle?: string; // Estilo de la página de impresión
+  receptionData?: {
+    id?: number;
+    producerRut?: string;
+    producerName?: string;
+  };
 }
 
 export default function PrintDialog({
@@ -17,6 +25,7 @@ export default function PrintDialog({
   title,
   children,
   dialogWidth = "md",
+  receptionData,
 }: PrintDialogProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +36,50 @@ export default function PrintDialog({
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleDownloadPDF = () => {
+    if (contentRef.current) {
+      // Generar el nombre del archivo según el patrón solicitado
+      const today = new Date();
+      const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+      
+      let fileName = `recepcion`;
+      
+      // Añadir ID de recepción si está disponible
+      if (receptionData?.id) {
+        fileName += `-${receptionData.id}`;
+      }
+      
+      // Añadir RUT del productor si está disponible
+      if (receptionData?.producerRut) {
+        fileName += `_${receptionData.producerRut.replace(/\./g, '').replace(/-/g, '')}`;
+      }
+      
+      // Añadir nombre del productor si está disponible
+      if (receptionData?.producerName) {
+        // Limpiar el nombre para que sea válido como nombre de archivo
+        const cleanName = receptionData.producerName
+          .replace(/[^\w\s]/gi, '') // Eliminar caracteres especiales
+          .replace(/\s+/g, '_');    // Reemplazar espacios con guiones bajos
+        fileName += `_${cleanName}`;
+      }
+      
+      // Añadir la fecha
+      fileName += `_${formattedDate}`;
+      
+      // Configuración para html2pdf
+      const opt = {
+        margin: 10,
+        filename: `${fileName}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      // Generar el PDF
+      html2pdf().from(contentRef.current).set(opt).save();
+    }
   };
 
   return (
@@ -53,6 +106,15 @@ export default function PrintDialog({
         </Box>
 
         <Box textAlign="right" mt={2}>
+          <Tooltip title="Descargar PDF">
+            <IconButton 
+              onClick={handleDownloadPDF}
+              color="primary"
+              sx={{ mr: 1 }}
+            >
+              <PictureAsPdfOutlinedIcon />
+            </IconButton>
+          </Tooltip>
           <Button
             variant="contained"
             onClick={() => handlePrint?.()}
