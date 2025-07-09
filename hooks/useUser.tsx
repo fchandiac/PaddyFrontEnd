@@ -18,20 +18,6 @@ export const useUser = () => {
   useEffect(() => {
     if (status === 'loading') return;
 
-    // TEMPORAL: Usuario mock mientras no hay backend disponible
-    if (!session?.user) {
-      const mockUser: User = {
-        id: 1001,
-        email: 'admin@ayg.cl',
-        name: 'Administrador Principal',
-        role: 'administrador'
-      };
-      console.log('USANDO USUARIO MOCK TEMPORAL:', mockUser);
-      setUser(mockUser);
-      setLoading(false);
-      return;
-    }
-
     if (session?.user) {
       // Validar el role y asignar un valor por defecto si no es válido
       const role = isValidRole(session.user.role) ? session.user.role : 'operador';

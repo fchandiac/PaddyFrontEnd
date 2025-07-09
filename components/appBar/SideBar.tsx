@@ -27,9 +27,20 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
 
   const handleLogout = async () => {
     toggleDrawer(false); // cierra el drawer
-    await signOut({
-      callbackUrl: "/", // redirige al login después de cerrar sesión
-    });
+    
+    console.log('Cerrando sesión...');
+    
+    try {
+      // Cerrar sesión de NextAuth
+      await signOut({
+        callbackUrl: "/",
+        redirect: true
+      });
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // En caso de error, forzar redirección
+      window.location.href = "/";
+    }
   };
 
   return (
