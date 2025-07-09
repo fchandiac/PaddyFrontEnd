@@ -57,71 +57,47 @@ export default function PrintDialog({
 
   const handleDownloadPDF = () => {
     if (contentRef.current) {
-      // Generar el nombre del archivo según el patrón solicitado
-      const today = new Date();
-      const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
-      
-      let fileName = `recepcion`;
-      
-      // Añadir ID de recepción si está disponible
-      if (receptionData?.id) {
-        fileName += `-${receptionData.id}`;
+      // Diagnóstico: Verificar si el contenido existe
+      console.log('DIAGNÓSTICO PDF - innerHTML:', contentRef.current.innerHTML);
+      // Crear un iframe oculto
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      iframe.style.width = '210mm'; // A4 width
+      iframe.style.height = '297mm'; // A4 height
+      document.body.appendChild(iframe);
+      // Copiar los estilos globales y de MUI
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (doc) {
+        doc.open();
+        doc.write('<!DOCTYPE html><html><head>');
+        document.querySelectorAll('style, link[rel="stylesheet"]').forEach(node => {
+          doc.write(node.outerHTML);
+        });
+        doc.write('</head><body>');
+        // Clonar el contenido y agregar marginTop al primer div (Box)
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = contentRef.current.innerHTML;
+        const firstBox = tempDiv.querySelector('div');
+        if (firstBox) {
+          firstBox.style.marginTop = '30px';
+        }
+        doc.write(tempDiv.innerHTML);
+        doc.write('</body></html>');
+        doc.close();
+        // Esperar a que los estilos se apliquen y luego generar el PDF
+        setTimeout(() => {
+          html2pdf().from(doc.body).set({
+            margin: [0, 10, 10, 10],
+            filename: 'recepcion.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          }).save().then(() => {
+            document.body.removeChild(iframe);
+          });
+        }, 500); // 500ms para asegurar que los estilos se apliquen
       }
-      
-      // Añadir RUT del productor si está disponible
-      if (receptionData?.producerRut) {
-        fileName += `_${receptionData.producerRut.replace(/\./g, '').replace(/-/g, '')}`;
-      }
-      
-      // Añadir nombre del productor si está disponible
-      if (receptionData?.producerName) {
-        // Limpiar el nombre para que sea válido como nombre de archivo
-        const cleanName = receptionData.producerName
-          .replace(/[^\w\s]/gi, '') // Eliminar caracteres especiales
-          .replace(/\s+/g, '_');    // Reemplazar espacios con guiones bajos
-        fileName += `_${cleanName}`;
-      }
-      
-      // Añadir la fecha
-      fileName += `_${formattedDate}`;
-      
-      // Crear un clon del contenido para manipularlo antes de generar el PDF
-      const contentClone = contentRef.current.cloneNode(true) as HTMLElement;
-      
-      // Eliminar explícitamente el borde superior y el padding en el clon
-      contentClone.style.borderTop = 'none';
-      contentClone.style.paddingTop = '0';
-      contentClone.style.marginTop = '0';
-      
-      // Eliminar cualquier elemento con clase no-print del clon
-      const elementsToRemove = contentClone.querySelectorAll('.no-print');
-      elementsToRemove.forEach(el => el.parentNode?.removeChild(el));
-      
-      // Configuración para html2pdf
-      const opt = {
-        margin: [0, 10, 10, 10], // [top, right, bottom, left]
-        filename: `${fileName}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true,
-          // Asegurar que no haya márgenes adicionales
-          windowWidth: contentClone.scrollWidth,
-          windowHeight: contentClone.scrollHeight
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      
-      // Agregar el clon temporalmente al DOM para generar el PDF
-      contentClone.style.position = 'absolute';
-      contentClone.style.left = '-9999px';
-      document.body.appendChild(contentClone);
-      
-      // Generar el PDF desde el clon
-      html2pdf().from(contentClone).set(opt).save().then(() => {
-        // Eliminar el clon después de generar el PDF
-        document.body.removeChild(contentClone);
-      });
     }
   };
 
