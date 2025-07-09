@@ -19,6 +19,21 @@ interface PrintDialogProps {
   };
 }
 
+// Estilos CSS para impresión y PDF
+const printStyles = `
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    
+    .print-content {
+      border-top: none !important;
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+  }
+`;
+
 export default function PrintDialog({
   open,
   setOpen,
@@ -32,6 +47,7 @@ export default function PrintDialog({
   const handlePrint = useReactToPrint({
     contentRef, // ✅ nuevo uso recomendado por la documentación oficial
     documentTitle: title,
+    pageStyle: printStyles,
   });
 
   const handleClose = () => {
@@ -68,6 +84,13 @@ export default function PrintDialog({
       // Añadir la fecha
       fileName += `_${formattedDate}`;
       
+      // Crear un clon del contenido para manipularlo antes de generar el PDF
+      const contentClone = contentRef.current.cloneNode(true) as HTMLElement;
+      
+      // Eliminar explícitamente el borde superior y el padding en el clon
+      contentClone.style.borderTop = 'none';
+      contentClone.style.paddingTop = '0';
+      
       // Configuración para html2pdf
       const opt = {
         margin: 10,
@@ -77,8 +100,16 @@ export default function PrintDialog({
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
       
-      // Generar el PDF
-      html2pdf().from(contentRef.current).set(opt).save();
+      // Agregar el clon temporalmente al DOM para generar el PDF
+      contentClone.style.position = 'absolute';
+      contentClone.style.left = '-9999px';
+      document.body.appendChild(contentClone);
+      
+      // Generar el PDF desde el clon
+      html2pdf().from(contentClone).set(opt).save().then(() => {
+        // Eliminar el clon después de generar el PDF
+        document.body.removeChild(contentClone);
+      });
     }
   };
 
@@ -90,7 +121,7 @@ export default function PrintDialog({
       onClose={() => setOpen(false)}
     >
       <Box sx={{ padding: 2 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom className="no-print">
           {"Vista previa de impresión " + title}
         </Typography>
 
@@ -101,11 +132,12 @@ export default function PrintDialog({
             borderTop: "1px solid #ccc",
             paddingTop: 2,
           }}
+          className="print-content"
         >
           {children}
         </Box>
 
-        <Box textAlign="right" mt={2}>
+        <Box textAlign="right" mt={2} className="no-print">
           <Tooltip title="Descargar PDF">
             <IconButton 
               onClick={handleDownloadPDF}
