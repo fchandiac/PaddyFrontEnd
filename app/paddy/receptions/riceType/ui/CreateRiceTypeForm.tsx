@@ -7,6 +7,7 @@ import { useAlertContext } from "@/context/AlertContext";
 import { useUser } from "@/hooks/useUser";
 
 const initialForm = {
+  code: 0,
   name: "",
   description: "",
   price: 0,
@@ -20,6 +21,13 @@ export const CreateRiceTypeForm = ({ afterSubmit }: { afterSubmit: () => void })
   const { showAlert } = useAlertContext();
   const { user } = useUser();
 
+  const handleChange = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   const save = async () => {
     setIsSubmitting(true);
     setErrors([]);
@@ -29,6 +37,7 @@ export const CreateRiceTypeForm = ({ afterSubmit }: { afterSubmit: () => void })
         ...formData,
         userId: user?.id,
       };
+
       const result = await createRiceType(dataWithUser);
 
       if (result?.error) {
@@ -50,6 +59,7 @@ export const CreateRiceTypeForm = ({ afterSubmit }: { afterSubmit: () => void })
     <BaseForm
       title="Tipo de Arroz"
       fields={[
+        { name: "code", label: "Código", type: "number", required: true },
         { name: "name", label: "Nombre", type: "text", required: true },
         { name: "description", label: "Descripción", type: "text" },
         { name: "price", label: "Precio (CLP)", type: "number", required: true },
@@ -60,10 +70,10 @@ export const CreateRiceTypeForm = ({ afterSubmit }: { afterSubmit: () => void })
         },
       ]}
       values={formData}
-      onChange={(field, value) => setFormData({ ...formData, [field]: value })}
-      onSubmit={save}
-      isSubmitting={isSubmitting}
       errors={errors}
+      isSubmitting={isSubmitting}
+      onChange={handleChange}
+      onSubmit={save}
     />
   );
 };

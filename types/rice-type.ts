@@ -1,5 +1,6 @@
 export interface RiceType {
     id: number;
+    code: number;
     name: string;
     description?: string;
     price: number;
@@ -9,6 +10,7 @@ export interface RiceType {
   }
   
   export interface CreateRiceTypeDto {
+    code: number;
     name: string;
     description?: string;
     price: number;
@@ -16,9 +18,9 @@ export interface RiceType {
   }
   
   export interface UpdateRiceTypeDto {
+    code?: number;
     name?: string;
     description?: string;
     price?: number;
     enable?: boolean;
   }
-  

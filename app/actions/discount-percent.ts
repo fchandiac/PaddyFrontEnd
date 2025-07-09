@@ -4,16 +4,35 @@ import { CreateDiscountPercentDto, UpdateDiscountPercentDto } from "@/types/disc
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
-// 🔍 Obtener todos
+// 🟢 Obtener todos
 export async function getAllDiscountPercents(): Promise<any[]> {
-  const res = await fetch(`${backendUrl}/discounts-percent`);
-  return res.json();
+  try {
+    const res = await fetch(`${backendUrl}/discounts-percent`);
+    if (!res.ok) throw new Error('Error al obtener porcentajes de descuento');
+    return res.json();
+  } catch (error) {
+    console.error('Error al obtener porcentajes de descuento:', error);
+    return [];
+  }
 }
 
 // 🔍 Obtener por código
 export async function getDiscountPercentsByCode(code: number): Promise<any[]> {
-  const res = await fetch(`${backendUrl}/discounts-percent/code/${code}`);
-  return res.json();
+  try {
+    const res = await fetch(`${backendUrl}/discounts-percent/code/${code}`, {
+      cache: 'no-store' // Deshabilitar el caché para asegurar datos frescos
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Error al obtener porcentajes de descuento para el código ${code}`);
+    }
+    
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(`Error al obtener porcentajes de descuento para el código ${code}:`, error);
+    return [];
+  }
 }
 
 // 🔍 Obtener por ID

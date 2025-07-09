@@ -14,25 +14,56 @@ export default {
       authorize: async (credentials) => {
         const { email, password } = credentials;
 
-        const res = await fetch(`${backendUrl}/auth/sign-in`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: email, pass: password }),
-        });
+        console.log('Intentando autenticar con:', { email });
+        console.log('URL del backend:', backendUrl);
 
-        if (!res.ok) {
+        try {
+          const res = await fetch(`${backendUrl}/auth/sign-in`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ 
+              email: email, 
+              pass: password // CORRECTO: El backend espera 'pass', no 'password'
+            }),
+          });
+
+          const responseText = await res.text();
+          console.log('Respuesta del servidor:', responseText);
+
+          if (!res.ok) {
+            console.error('Error de autenticación. Status:', res.status);
+            console.error('Respuesta:', responseText);
+            return null;
+          }
+
+          let user;
+          try {
+            user = JSON.parse(responseText);
+          } catch (e) {
+            console.error('Error al parsear la respuesta:', e);
+            return null;
+          }
+
+          console.log('Datos de usuario recibidos:', user);
+
+          // Asegurarse de que tenemos todos los datos necesarios
+          if (!user.userId || !user.email || !user.role) {
+            console.error('Datos de usuario incompletos:', user);
+            return null;
+          }
+
+          return {
+            id: user.userId,
+            email: user.email,
+            role: user.role,
+            name: user.name || '',
+          };
+        } catch (error) {
+          console.error('Error en authorize:', error);
           return null;
         }
-
-        const user = await res.json();
-
-        return {
-          id: user.userId,
-          email: user.email,
-          role: user.role,
-        };
       },
     }),
   ],

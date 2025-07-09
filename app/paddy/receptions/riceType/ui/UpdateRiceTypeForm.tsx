@@ -30,6 +30,7 @@ export const UpdateRiceTypeForm: React.FC<UpdateRiceTypeFormProps> = ({
         ...values,
         userId: user?.id,
       };
+
       const result = await updateRiceType(initialData.id, dataWithUser);
 
       if (result?.error) {
@@ -49,12 +50,14 @@ export const UpdateRiceTypeForm: React.FC<UpdateRiceTypeFormProps> = ({
     <BaseUpdateForm
       title="Tipo de Arroz"
       initialState={{
+        code: initialData.code,
         name: initialData.name,
         description: initialData.description,
         price: initialData.price,
         enable: initialData.enable,
       }}
       fields={[
+        { name: "code", label: "Código", type: "number", required: true },
         { name: "name", label: "Nombre", type: "text", required: true },
         { name: "description", label: "Descripción", type: "text" },
         { name: "price", label: "Precio (CLP)", type: "number", required: true },

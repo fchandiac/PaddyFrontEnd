@@ -33,20 +33,28 @@ export default function Page() {
     const password = formData.get("password") as string;
 
     try {
+      console.log("Intentando login con:", { email });
+
       const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
+        callbackUrl: "/paddy",
       });
 
+      console.log("Resultado del login:", result);
+
       if (result?.error) {
+        console.error("Error en login:", result.error);
         setError("Credenciales incorrectas");
+      } else if (result?.url) {
+        router.push(result.url);
       } else {
         router.push("/paddy");
       }
     } catch (err) {
-      console.error(err);
-      setError("Ocurrió un error inesperado.");
+      console.error("Error inesperado en login:", err);
+      setError("Ocurrió un error inesperado. Por favor, intente nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -60,6 +68,12 @@ export default function Page() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // TEMPORAL: Redirección automática mientras no hay autenticación
+  useEffect(() => {
+    console.log('REDIRIGIENDO AUTOMÁTICAMENTE A /paddy');
+    router.push("/paddy");
+  }, [router]);
 
   return (
     <Fade in={showLogin} timeout={1000}>
@@ -160,9 +174,9 @@ export default function Page() {
                   variant="caption"
                   sx={{
                     fontWeight: 400,
-                    color: '#666666',
-                    fontSize: '0.8rem',
-                    display: 'block',
+                    color: "#666666",
+                    fontSize: "0.8rem",
+                    display: "block",
                     mb: 0.3,
                   }}
                 >
@@ -173,8 +187,8 @@ export default function Page() {
                   component="h2"
                   sx={{
                     fontWeight: 600,
-                    color: '#1976d2',
-                    fontSize: '1rem',
+                    color: "#1976d2",
+                    fontSize: "1rem",
                     mb: 1,
                   }}
                 >
@@ -183,10 +197,10 @@ export default function Page() {
                 <Typography
                   variant="caption"
                   sx={{
-                    color: '#888888',
-                    fontSize: '0.75rem',
-                    fontStyle: 'italic',
-                    display: 'block',
+                    color: "#888888",
+                    fontSize: "0.75rem",
+                    fontStyle: "italic",
+                    display: "block",
                     mb: 0.5,
                   }}
                 >
@@ -195,8 +209,8 @@ export default function Page() {
                 <Typography
                   variant="caption"
                   sx={{
-                    color: '#aaaaaa',
-                    fontSize: '0.65rem',
+                    color: "#aaaaaa",
+                    fontSize: "0.65rem",
                     fontWeight: 500,
                   }}
                 >

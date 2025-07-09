@@ -6,7 +6,7 @@ import { Box, Dialog, Grid } from "@mui/material";
 import AppDataGrid from "@/components/appDataGrid";
 import { getAllRiceTypes, deleteRiceType } from "@/app/actions/rice-type";
 import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
-import { GridActionsCellItem, GridRenderCellParams, GridValueFormatterParams } from "@mui/x-data-grid";
+import { GridActionsCellItem, GridRenderCellParams } from "@mui/x-data-grid";
 import { Delete, Edit } from "@mui/icons-material";
 import { useAlertContext } from "@/context/AlertContext";
 import { useUser } from "@/hooks/useUser";
@@ -51,21 +51,21 @@ export default function RiceTypePage() {
                 field: "price", 
                 headerName: "Precio (CLP)", 
                 flex: 1,
-                valueFormatter: (params: GridValueFormatterParams) => 
+                valueFormatter: (params: GridRenderCellParams<RiceType>) => 
                   params.value.toLocaleString('es-CL')
               },
               { 
                 field: "enable", 
                 headerName: "Estado", 
                 flex: 1,
-                valueFormatter: (params: GridValueFormatterParams) => 
+                valueFormatter: (params: GridRenderCellParams<RiceType>) => 
                   params.value ? "Habilitado" : "Deshabilitado"
               },
               {
                 field: "createdAt",
                 headerName: "Fecha de creación",
                 flex: 2,
-                valueFormatter: (params: GridValueFormatterParams) => 
+                valueFormatter: (params: GridRenderCellParams<RiceType>) => 
                   moment(params.value).format("DD/MM/YYYY HH:mm")
               },
               {
@@ -106,7 +106,6 @@ export default function RiceTypePage() {
               />
             )}
             refresh={fetchRiceTypes}
-            sortModel={[{ field: 'code', sort: 'asc' }]}
           />
         </Grid>
       </Grid>
