@@ -256,7 +256,9 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
         <Grid container spacing={2} sx={{ minWidth: 0 }}>
           {/* General Data - Arriba de todo */}
           <Grid item xs={12}>
-            <Typography gutterBottom>Datos de la recepción</Typography>
+            <Typography gutterBottom sx={{
+              marginBottom: '16px',
+            }}>Datos de la recepción</Typography>
             <ReceptionGeneralDataEdit />
 
             <Divider sx={{ my: 2 }} />
