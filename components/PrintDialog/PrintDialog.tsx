@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { Dialog, Box, Typography, Button, IconButton, Tooltip } from "@mui/material";
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import PrintIcon from '@mui/icons-material/Print';
 import { useReactToPrint } from "react-to-print";
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
@@ -140,13 +141,13 @@ export default function PrintDialog({
               <InsertDriveFileIcon />
             </IconButton>
           </Tooltip>
-          <Button
-            variant="contained"
+          <IconButton
             onClick={() => handlePrint?.()}
-            sx={{ mr: 1 }}
+            color="primary"
+            sx={{ mr: 1, backgroundColor: 'primary.main', color: 'white', '&:hover': { backgroundColor: 'primary.dark' }, boxShadow: 1 }}
           >
-            Imprimir
-          </Button>
+            <PrintIcon />
+          </IconButton>
           <Button
             variant="outlined"
             onClick={handleClose}
