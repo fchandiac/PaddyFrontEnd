@@ -31,14 +31,26 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
     console.log('Cerrando sesión...');
     
     try {
-      // Cerrar sesión de NextAuth
-      await signOut({
-        callbackUrl: "/",
-        redirect: true
+      // Cerrar sesión de NextAuth con redirect manual
+      const result = await signOut({
+        redirect: false,
+        callbackUrl: "/"
       });
+      
+      console.log('Resultado del logout:', result);
+      
+      // Limpiar cualquier estado local
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Redireccionar manualmente
+      window.location.href = "/";
+      
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
-      // En caso de error, forzar redirección
+      // En caso de error, limpiar y forzar redirección
+      localStorage.clear();
+      sessionStorage.clear();
       window.location.href = "/";
     }
   };
