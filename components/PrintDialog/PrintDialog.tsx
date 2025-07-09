@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Dialog, Box, Typography, Button, IconButton, Tooltip } from "@mui/material";
-import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useReactToPrint } from "react-to-print";
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
@@ -135,9 +135,9 @@ export default function PrintDialog({
             <IconButton 
               onClick={handleDownloadPDF}
               color="primary"
-              sx={{ mr: 1 }}
+              sx={{ mr: 1, border: '1.5px solid', borderColor: 'primary.main' }}
             >
-              <PictureAsPdfOutlinedIcon />
+              <InsertDriveFileIcon />
             </IconButton>
           </Tooltip>
           <Button
