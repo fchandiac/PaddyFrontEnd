@@ -16,19 +16,23 @@ import ArticleIcon from "@mui/icons-material/Article";
 import PrintIcon from "@mui/icons-material/Print";
 import { useAlertContext } from "@/context/AlertContext";
 import { createReception } from "@/app/actions/reception";
-import ReceptionGeneralData, { focusOnProducer } from "./ui/ReceptionGeneralData";
-import GrainAnalysis from "./ui/GrainAnalysis";
 import { useReceptionContext } from "@/context/ReceptionDataContext";
 import { CreateReceptionPayload } from "@/types/reception";
 import { useUserContext } from "@/context/UserContext";
 import { getDefaultTemplate } from "@/app/actions/discount-template";
 import { TemplateType } from "@/types/discount-template";
-import SelectTemplate from "./ui/template/SelectTemplate";
-import TemplateComponent from "./ui/template/Template";
-import ErrorSummary from "./ui/ErrorSummary";
-import PrintDialog from "@/components/PrintDialog/PrintDialog";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
-import ReceptionToPrint from "../ReceptionToPrint";
+import { focusOnProducer } from "./ui/utils";
+import dynamic from "next/dynamic";
+
+// Dynamic imports para componentes pesados o con dependencias de navegador
+const ReceptionGeneralData = dynamic(() => import("./ui/ReceptionGeneralData"), { ssr: false });
+const GrainAnalysis = dynamic(() => import("./ui/GrainAnalysis"), { ssr: false });
+const SelectTemplate = dynamic(() => import("./ui/template/SelectTemplate"), { ssr: false });
+const TemplateComponent = dynamic(() => import("./ui/template/Template"), { ssr: false });
+const ErrorSummary = dynamic(() => import("./ui/ErrorSummary"), { ssr: false });
+const PrintDialog = dynamic(() => import("@/components/PrintDialog/PrintDialog"), { ssr: false });
+const ReceptionToPrint = dynamic(() => import("../ReceptionToPrint"), { ssr: false });
 
 export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();

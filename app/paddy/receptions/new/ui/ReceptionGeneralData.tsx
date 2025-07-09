@@ -14,41 +14,10 @@ import { getAllProducers } from "@/app/actions/producer";
 import { getAllRiceTypes } from "@/app/actions/rice-type";
 import { useReceptionContext } from "@/context/ReceptionDataContext";
 import { CreateProducerForm } from "@/app/paddy/producers/producers/ui/CreateProducerForm";
+import { focusOnProducer } from "./utils";
 
 // Create a ref to access the component from outside
 export const producerInputRef = { current: null as HTMLInputElement | null };
-
-export function focusOnProducer(): void {
-  if (producerInputRef.current) {
-    producerInputRef.current.focus();
-    // También intenta seleccionar el texto si es posible
-    if (producerInputRef.current.select) {
-      producerInputRef.current.select();
-    }
-    console.log("Productor enfocado correctamente");
-  } else {
-    console.log("No se pudo enfocar el productor: producerInputRef.current es null");
-    // Intento alternativo usando setTimeout y querySelector
-    setTimeout(() => {
-      if (producerInputRef.current) {
-        producerInputRef.current.focus();
-        console.log("Productor enfocado con retraso");
-      } else {
-        // Último intento usando querySelector como fallback
-        const producerInput = document.querySelector('input[aria-label="Productor"]') as HTMLInputElement;
-        if (producerInput) {
-          producerInput.focus();
-          if (producerInput.select) {
-            producerInput.select();
-          }
-          console.log("Productor enfocado usando querySelector");
-        } else {
-          console.log("No se pudo enfocar el productor incluso con querySelector");
-        }
-      }
-    }, 500);
-  }
-}
 
 export default function ReceptionGeneralData() {
   const { data, liveClusters, setField } = useReceptionContext();
@@ -108,13 +77,6 @@ export default function ReceptionGeneralData() {
     fetchProducers();
     fetchRiceTypes();
   }, []);
-
-  // Función para foco en el productor - exportada para uso externo
-  const focusOnProducer = () => {
-    if (producerRef.current) {
-      producerRef.current.focus();
-    }
-  };
 
   // Enfocar automáticamente el campo del productor cuando se carga la página
   useEffect(() => {

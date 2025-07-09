@@ -1,3 +1,5 @@
+"use client";
+
 import { useReceptionContext } from "@/context/ReceptionDataContext";
 import {
   Box,
