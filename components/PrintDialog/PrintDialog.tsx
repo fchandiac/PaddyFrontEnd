@@ -28,8 +28,9 @@ const printStyles = `
     
     .print-content {
       border-top: none !important;
+      border: none !important;
       padding-top: 0 !important;
-      margin-top: 0 !important;
+      margin-top: 30px !important; /* Añadir margen superior de 30px (aproximadamente 1cm) */
     }
   }
 `;
@@ -90,13 +91,24 @@ export default function PrintDialog({
       // Eliminar explícitamente el borde superior y el padding en el clon
       contentClone.style.borderTop = 'none';
       contentClone.style.paddingTop = '0';
+      contentClone.style.marginTop = '0';
+      
+      // Eliminar cualquier elemento con clase no-print del clon
+      const elementsToRemove = contentClone.querySelectorAll('.no-print');
+      elementsToRemove.forEach(el => el.parentNode?.removeChild(el));
       
       // Configuración para html2pdf
       const opt = {
-        margin: 10,
+        margin: [0, 10, 10, 10], // [top, right, bottom, left]
         filename: `${fileName}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true,
+          // Asegurar que no haya márgenes adicionales
+          windowWidth: contentClone.scrollWidth,
+          windowHeight: contentClone.scrollHeight
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
       
@@ -131,6 +143,11 @@ export default function PrintDialog({
           sx={{
             borderTop: "1px solid #ccc",
             paddingTop: 2,
+            '@media print': {
+              marginTop: '30px',
+              borderTop: 'none',
+              paddingTop: 0
+            }
           }}
           className="print-content"
         >
