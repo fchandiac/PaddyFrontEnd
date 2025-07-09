@@ -21,6 +21,8 @@ export function useReceptionDataEdit(
   // Función para inicializar los clusters con datos de una recepción existente
   const initializeWithReception = useCallback((reception: any) => {
     console.log('🔄 DEBUG - Inicializando clusters de edición con datos de recepción:', reception);
+    console.log('🔄 DEBUG - Productor:', reception.producer);
+    console.log('🔄 DEBUG - Tipo de arroz:', reception.riceType);
     
     // Inicializar pesos
     if (liveClusters.grossWeight?.node) liveClusters.grossWeight.node.value = reception.grossWeight || 0;
@@ -61,23 +63,31 @@ export function useReceptionDataEdit(
     if (liveClusters.totalPaddy?.node) liveClusters.totalPaddy.node.value = reception.paddyNet || 0;
     if (liveClusters.DiscountTotal?.node) liveClusters.DiscountTotal.node.value = reception.totalDiscount || 0;
 
-    // Actualizar los datos del contexto
+    // Actualizar los datos del contexto con toda la información de la recepción
     setData(prevData => ({
       ...prevData,
       id: reception.id,
-      producerId: reception.producerId,
-      riceTypeId: reception.riceTypeId,
+      producerId: reception.producerId || reception.producer?.id,
+      riceTypeId: reception.riceTypeId || reception.riceType?.id,
       templateId: reception.templateId,
-      price: reception.price,
+      price: reception.price || 0,
       guide: reception.guide || "",
       licensePlate: reception.licensePlate || "",
       note: reception.note || "",
-      status: reception.status,
+      status: reception.status || "pending",
       createdAt: reception.createdAt,
       updatedAt: reception.updatedAt,
+      
+      // Información detallada del productor y tipo de arroz
+      producer: reception.producer || prevData.producer,
       riceType: reception.riceType || prevData.riceType,
+      
+      // Datos de la plantilla si existe
+      template: reception.template || prevData.template,
     }));
-  }, [liveClusters]);
+    
+    console.log('🔄 DEBUG - Datos del contexto actualizados');
+  }, [liveClusters, setData]);
 
 
   useEffect(() => {

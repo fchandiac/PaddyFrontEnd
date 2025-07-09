@@ -20,7 +20,7 @@ import { Reception, UpdateReceptionPayload } from "@/types/reception";
 import { useReceptionDataEdit } from "@/hooks/useReceptionDataEdit";
 import { ReceptionDataProvider } from "@/context/ReceptionDataContext";
 import { getDefaultTemplate } from "@/app/actions/discount-template";
-import ReceptionGeneralDataEdit from "./ReceptionGeneralDataEdit";
+import ReceptionGeneralData from "../../new/ui/ReceptionGeneralData";
 import GrainAnalysis from "../../new/ui/GrainAnalysis";
 import ErrorSummary from "../../new/ui/ErrorSummary";
 import PrintDialog from "@/components/PrintDialog/PrintDialog";
@@ -254,25 +254,24 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
         </Typography>
         
         <Grid container spacing={2} sx={{ minWidth: 0 }}>
-          {/* General Data - Arriba de todo */}
-          <Grid item xs={12}>
+          {/* General Data */}
+          <Grid item xs={12} md={3}>
             <Typography gutterBottom>Datos de la recepción</Typography>
-            <ReceptionGeneralDataEdit />
+            <ReceptionGeneralData />
 
-            <Divider sx={{ my: 2 }} />
+            <Divider />
             
             {/* Error Summary - Solo visible cuando hay errores */}
             {hasValidationErrors() && (
-              <Box sx={{ mb: 2 }}>
+              <>
                 <Typography gutterBottom sx={{ textAlign: 'right' }}>Errores de validación</Typography>
                 <ErrorSummary />
-                <Divider sx={{ my: 2 }} />
-              </Box>
+              </>
             )}
           </Grid>
 
-          {/* Grain Analysis - Lado izquierdo */}
-          <Grid item xs={12} md={8}>
+          {/* Grain Analysis */}
+          <Grid item xs={12} md={6.5}>
             <Box
               sx={{
                 display: "flex",
@@ -289,8 +288,8 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
             <GrainAnalysis />
           </Grid>
 
-          {/* Summary & Actions - Lado derecho */}
-          <Grid item xs={12} md={4}>
+          {/* Summary & Actions */}
+          <Grid item xs={12} md={2.5}>
             <Typography gutterBottom>Totales</Typography>
 
             {/* Box resumen con borde redondeado y valores */}

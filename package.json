@@ -20,6 +20,7 @@
     "@mui/material": "6.4.10",
     "@mui/material-nextjs": "6.4.3",
     "@mui/x-data-grid": "7.28.3",
+    "html2pdf.js": "^0.10.3",
     "moment": "2.30.1",
     "moment-timezone": "0.5.48",
     "mysql2": "3.14.0",

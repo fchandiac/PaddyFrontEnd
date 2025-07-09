@@ -1,63 +1,50 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import { 
-  Box, 
-  Typography, 
-  Grid, 
-  Button, 
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Grid,
+  Box,
+  Typography,
+  Button,
   CircularProgress,
+  IconButton,
   Divider,
+  Dialog,
   Stack,
-  Dialog
 } from "@mui/material";
-import { 
-  getReceptionById,
-  updateReception
-} from "@/app/actions/reception";
+import SaveIcon from "@mui/icons-material/Save";
+import ArticleIcon from "@mui/icons-material/Article";
+import PrintIcon from "@mui/icons-material/Print";
 import { useAlertContext } from "@/context/AlertContext";
-import { Reception, UpdateReceptionPayload } from "@/types/reception";
-import { useReceptionDataEdit } from "@/hooks/useReceptionDataEdit";
-import { ReceptionDataProvider } from "@/context/ReceptionDataContext";
+import { createReception } from "@/app/actions/reception";
+import ReceptionGeneralData, { focusOnProducer } from "./ui/ReceptionGeneralData";
+import GrainAnalysis from "./ui/GrainAnalysis";
+import { useReceptionContext } from "@/context/ReceptionDataContext";
+import { CreateReceptionPayload } from "@/types/reception";
+import { useUserContext } from "@/context/UserContext";
 import { getDefaultTemplate } from "@/app/actions/discount-template";
-import ReceptionGeneralDataEdit from "./ReceptionGeneralDataEdit";
-import GrainAnalysis from "../../new/ui/GrainAnalysis";
-import ErrorSummary from "../../new/ui/ErrorSummary";
+import { TemplateType } from "@/types/discount-template";
+import SelectTemplate from "./ui/template/SelectTemplate";
+import TemplateComponent from "./ui/template/Template";
+import ErrorSummary from "./ui/ErrorSummary";
 import PrintDialog from "@/components/PrintDialog/PrintDialog";
-import ReceptionToPrint from "../../ReceptionToPrint";
+import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import ReceptionToPrint from "../ReceptionToPrint";
 
-interface EditReceptionProps {
-  receptionId: number;
-  onClose: () => void;
-  afterUpdate: () => void;
-}
-
-export default function EditReception({ receptionId, onClose, afterUpdate }: EditReceptionProps) {
-  return (
-    <ReceptionDataProvider>
-      <EditReceptionContent 
-        receptionId={receptionId}
-        onClose={onClose}
-        afterUpdate={afterUpdate}
-      />
-    </ReceptionDataProvider>
-  );
-}
-
-function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditReceptionProps) {
-  const [loading, setLoading] = useState(true);
-  const [loadingSave, setLoadingSave] = useState(false);
-  const [reception, setReception] = useState<Reception | null>(null);
-  const [openPrintDialog, setOpenPrintDialog] = useState(false);
+export default function NewReceptionPage() {
   const { showAlert } = useAlertContext();
-  
-  // Usar el hook de edición con los mismos clusters reactivos que nueva recepción
-  const { 
-    data, 
-    liveClusters, 
-    setTemplate, 
-    initializeWithReception
-  } = useReceptionDataEdit();
+  const { data, liveClusters, setTemplate, resetData } = useReceptionContext();
+  const { user } = useUserContext();
+  const { handleKeyDown } = useKeyboardNavigation();
+
+  const [receptionSaved, setReceptionSaved] = useState(false);
+
+  const [loadingTemplate, setLoadingTemplate] = useState(true);
+  const [loadingSave, setLoadingSave] = useState(false);
+
+  // dialog state
+  const [openTemplateDialog, setOpenTemplateDialog] = useState(false);
+  const [openSaveTemplateDialog, setOpenSaveTemplateDialog] = useState(false);
+  const [openPrintDialog, setOpenPrintDialog] = useState(false);
 
   // Función para detectar si hay errores de validación
   const hasValidationErrors = (): boolean => {
@@ -76,39 +63,19 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
     );
   };
 
-  // Cargar datos de la recepción y configurar los clusters
   useEffect(() => {
-    const fetchReception = async () => {
-      try {
-        setLoading(true);
-        console.log('🔄 DEBUG - Cargando recepción con ID:', receptionId);
-        
-        const receptionData = await getReceptionById(receptionId);
-        console.log('🔄 DEBUG - Datos de recepción recibidos:', receptionData);
-        
-        setReception(receptionData);
-        
-        // Cargar plantilla por defecto
-        const defaultTemplate = await getDefaultTemplate();
-        if (defaultTemplate) {
-          setTemplate(defaultTemplate);
-        }
-        
-        // Inicializar los clusters con los datos de la recepción
-        initializeWithReception(receptionData);
-        
-      } catch (error) {
-        console.error("Error al cargar la recepción:", error);
-        showAlert("Error al cargar la recepción", "error");
-      } finally {
-        setLoading(false);
+    const fetchTemplate = async () => {
+      setLoadingTemplate(true);
+      const template = await getDefaultTemplate();
+      if (template) {
+        setTemplate(template);
+      } else {
+        showAlert("No se encontró la plantilla por defecto", "error");
       }
+      setLoadingTemplate(false);
     };
-    
-    if (receptionId) {
-      fetchReception();
-    }
-  }, [receptionId, showAlert, setTemplate, initializeWithReception]);
+    fetchTemplate();
+  }, [setTemplate]);
 
   const handleSave = async () => {
     // Verificar si hay errores de validación antes de guardar
@@ -119,12 +86,12 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
 
     // Verificar datos obligatorios
     if (!data.producerId) {
-      showAlert("Error: No se puede encontrar el productor", "error");
+      showAlert("Seleccione un productor", "error");
       return;
     }
 
     if (!data.riceTypeId) {
-      showAlert("Error: No se puede encontrar el tipo de arroz", "error");
+      showAlert("Seleccione un tipo de arroz", "error");
       return;
     }
 
@@ -138,17 +105,19 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
         return isNaN(num) ? 0 : num;
       };
 
-      console.log('🔥 DEBUG - Estado completo del contexto antes de actualizar:');
+      // Construir el payload para la API
+      console.log('🔥 DEBUG - Estado completo del contexto antes de crear payload:');
       console.log('data.price:', data.price, 'tipo:', typeof data.price);
       console.log('data.riceTypeId:', data.riceTypeId);
       console.log('data.producerId:', data.producerId);
       console.log('data.template?.id:', data.template?.id);
-      console.log('liveClusters estado:', liveClusters);
+      console.log('user:', user);
+      console.log('data completo:', JSON.stringify(data, null, 2));
       
-      const payload: UpdateReceptionPayload = {
+      const payload: CreateReceptionPayload = {
         producerId: data.producerId,
         riceTypeId: data.riceTypeId,
-        templateId: data.template?.id || undefined,
+        templateId: data.template?.id || undefined, // Usando el nuevo campo templateId
         price: ensureNumber(data.price),
         guide: data.guide || "",
         licensePlate: data.licensePlate || "",
@@ -195,84 +164,73 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
         // Nota/observación
         note: data.note || "",
         
-        // Mantener el estado original
-        status: data.status || "pending"
+        // Estado predeterminado
+        status: "pending"
       };
 
       console.log('🔥 DEBUG - Payload final que se enviará al backend:');
+      console.log('payload.price:', payload.price, 'tipo:', typeof payload.price);
+      console.log('ensureNumber(data.price):', ensureNumber(data.price), 'data.price original:', data.price, 'tipo data.price:', typeof data.price);
       console.log('payload completo:', JSON.stringify(payload, null, 2));
 
-      // Llamar a la API para actualizar la recepción
-      const result = await updateReception(receptionId, payload);
+      // Llamar a la API para crear la recepción
+      const result = await createReception(payload);
       
-      showAlert("Recepción actualizada correctamente", "success");
+      showAlert("Recepción guardada correctamente", "success");
+      
+      // Guardar temporalmente los datos para imprimir
+      const savedReceptionId = result.id;
+      setReceptionSaved(true);
       
       // Abrir automáticamente el diálogo de impresión
       setOpenPrintDialog(true);
       
-      // Notificar al componente padre que se actualizó
-      afterUpdate();
+      // NO limpiar los datos aquí - se hará cuando se cierre el diálogo de impresión
+      // resetData();
       
     } catch (error) {
-      console.error("Error al actualizar la recepción:", error);
-      showAlert(`Error al actualizar la recepción: ${error instanceof Error ? error.message : 'Error desconocido'}`, "error");
+      console.error("Error al guardar la recepción:", error);
+      showAlert(`Error al guardar la recepción: ${error instanceof Error ? error.message : 'Error desconocido'}`, "error");
     } finally {
       setLoadingSave(false);
     }
   };
 
-  const handlePrint = () => {
-    setOpenPrintDialog(true);
-  };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" p={4}>
-        <CircularProgress />
-        <Typography variant="body2" sx={{ ml: 2 }}>
-          Cargando recepción...
-        </Typography>
-      </Box>
-    );
-  }
-
-  if (!reception) {
-    return (
-      <Box p={4}>
-        <Typography variant="h6" color="error">
-          No se pudo cargar la recepción
-        </Typography>
-      </Box>
-    );
-  }
+  // Effect para manejar el focus cuando se cierra el diálogo de impresión
+  useEffect(() => {
+    if (!openPrintDialog && receptionSaved) {
+      // Focus on producer field when dialog is closed with increased timeout
+      setTimeout(focusOnProducer, 500);
+      
+      // Resetear los datos cuando se cierre el diálogo de impresión
+      // (esto permite que la impresión tenga acceso a los datos antes de resetear)
+      resetData();
+      setReceptionSaved(false);
+    }
+  }, [openPrintDialog, receptionSaved, resetData]);
 
   return (
     <>
-      <Box sx={{ p: 2 }}>
-        <Typography variant="h5" gutterBottom>
-          Editar Recepción Nº{reception.id}
-        </Typography>
-        
+      <Box sx={{ p: 2 }} onKeyDown={handleKeyDown}>
         <Grid container spacing={2} sx={{ minWidth: 0 }}>
-          {/* General Data - Arriba de todo */}
-          <Grid item xs={12}>
+          {/* General Data */}
+          <Grid item xs={12} md={3}>
             <Typography gutterBottom>Datos de la recepción</Typography>
-            <ReceptionGeneralDataEdit />
+            <ReceptionGeneralData />
 
-            <Divider sx={{ my: 2 }} />
+            <Divider />
             
             {/* Error Summary - Solo visible cuando hay errores */}
             {hasValidationErrors() && (
-              <Box sx={{ mb: 2 }}>
+              <>
                 <Typography gutterBottom sx={{ textAlign: 'right' }}>Errores de validación</Typography>
                 <ErrorSummary />
-                <Divider sx={{ my: 2 }} />
-              </Box>
+              </>
             )}
           </Grid>
 
-          {/* Grain Analysis - Lado izquierdo */}
-          <Grid item xs={12} md={8}>
+          {/* Grain Analysis */}
+          <Grid item xs={12} md={6.5}>
             <Box
               sx={{
                 display: "flex",
@@ -282,15 +240,18 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
             >
               <Typography gutterBottom>Análisis de granos</Typography>
               <Typography gutterBottom>
-                Plantilla: {data.template?.name || "Sin plantilla"}
+                Plantilla: {data.template.name}
               </Typography>
             </Box>
 
-            <GrainAnalysis />
+            <GrainAnalysis
+            // template={data.template}
+            // loadingTemplate={loadingTemplate}
+            />
           </Grid>
 
-          {/* Summary & Actions - Lado derecho */}
-          <Grid item xs={12} md={4}>
+          {/* Summary & Actions */}
+          <Grid item xs={12} md={2.5}>
             <Typography gutterBottom>Totales</Typography>
 
             {/* Box resumen con borde redondeado y valores */}
@@ -399,48 +360,90 @@ function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditRecepti
               </Box>
             </Box>
 
-            <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleSave}
+              disabled={loadingSave || hasValidationErrors()}
+            >
+              {loadingSave ? (
+                <CircularProgress size={24} />
+              ) : (
+                "Guardar recepción"
+              )}
+            </Button>
+            
+            <Divider />
+            <Typography gutterBottom sx={{ textAlign: 'right' }}>Plantillas</Typography>
+
+            <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
+              <IconButton
+                color="primary"
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                    borderColor: 'primary.dark',
+                  },
+                }}
+                onClick={() => {
+                  setOpenSaveTemplateDialog(true);
+                }}
+              >
+                <SaveIcon />
+              </IconButton>
               <Button
                 variant="outlined"
-                onClick={handlePrint}
-                disabled={loadingSave}
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                    borderColor: 'primary.dark',
+                  },
+                }}
+                onClick={() => setOpenTemplateDialog(true)}
+                startIcon={<ArticleIcon />}
               >
-                Imprimir
-              </Button>
-              
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={handleSave}
-                disabled={loadingSave || hasValidationErrors()}
-              >
-                {loadingSave ? (
-                  <CircularProgress size={24} />
-                ) : (
-                  "Actualizar"
-                )}
+                Selección
               </Button>
             </Stack>
-
-            <Box mt={2}>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={onClose}
-                disabled={loadingSave}
-              >
-                Cancelar
-              </Button>
-            </Box>
           </Grid>
         </Grid>
       </Box>
+
+      {/* Dialog para seleccionar plantilla */}
+      <Dialog
+        fullWidth
+        maxWidth="lg"
+        open={openTemplateDialog}
+        onClose={() => setOpenTemplateDialog(false)}
+      >
+        <Box sx={{ p: 2 }}>
+          <SelectTemplate closeDialog={() => setOpenTemplateDialog(false)} />
+        </Box>
+      </Dialog>
+
+      {/* Dialog para guardar plantilla */}
+      <Dialog
+        fullWidth
+        maxWidth="lg"
+        open={openSaveTemplateDialog}
+        onClose={() => setOpenSaveTemplateDialog(false)}
+      >
+        <Box sx={{ p: 2 }}>
+          <TemplateComponent
+            closeDialog={() => setOpenSaveTemplateDialog(false)}
+          />
+        </Box>
+      </Dialog>
 
       {/* Dialog para imprimir */}
       <PrintDialog
         open={openPrintDialog}
         setOpen={setOpenPrintDialog}
-        title={`Recepción Nº${reception.id}`}
+        title="Recepción de Paddy"
         dialogWidth="md"
       >
         <ReceptionToPrint />

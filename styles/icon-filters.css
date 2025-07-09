@@ -1,0 +1,34 @@
+/* Variables CSS para filtros SVG basados en el tema */
+:root {
+  /* Filtro CSS para convertir un SVG a color primario (azul de Material UI) */
+  --icon-filter-primary: brightness(0) saturate(100%) invert(24%) sepia(90%) saturate(1200%) hue-rotate(204deg) brightness(92%) contrast(96%);
+  
+  /* Filtro CSS para convertir un SVG a color secundario */
+  --icon-filter-secondary: brightness(0) saturate(100%) invert(73%) sepia(50%) saturate(4692%) hue-rotate(321deg) brightness(99%) contrast(96%);
+  
+  /* Filtro CSS para convertir un SVG a color de éxito (verde) */
+  --icon-filter-success: brightness(0) saturate(100%) invert(62%) sepia(91%) saturate(461%) hue-rotate(77deg) brightness(91%) contrast(85%);
+  
+  /* Filtro CSS para convertir un SVG a color de error (rojo) */
+  --icon-filter-error: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(3650%) hue-rotate(338deg) brightness(98%) contrast(88%);
+  
+  /* Filtro CSS para convertir un SVG a color de advertencia (naranja) */
+  --icon-filter-warning: brightness(0) saturate(100%) invert(77%) sepia(40%) saturate(4963%) hue-rotate(359deg) brightness(103%) contrast(104%);
+  
+  /* Filtro CSS para convertir un SVG a color de información (azul claro) */
+  --icon-filter-info: brightness(0) saturate(100%) invert(62%) sepia(93%) saturate(4699%) hue-rotate(179deg) brightness(99%) contrast(96%);
+  
+  /* Filtro CSS para convertir un SVG a color de texto (casi negro) */
+  --icon-filter-text: brightness(0) saturate(100%);
+  
+  /* Valor por defecto que usaremos - color primario */
+  --icon-filter: var(--icon-filter-primary);
+}
+
+/* Modo oscuro (si la aplicación lo implementa) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Ajustar filtros para modo oscuro si es necesario */
+    --icon-filter-text: brightness(0) saturate(100%) invert(100%);
+  }
+}
