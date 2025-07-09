@@ -69,12 +69,6 @@ export default function Page() {
     return () => clearTimeout(timer);
   }, []);
 
-  // TEMPORAL: Redirección automática mientras no hay autenticación
-  useEffect(() => {
-    console.log('REDIRIGIENDO AUTOMÁTICAMENTE A /paddy');
-    router.push("/paddy");
-  }, [router]);
-
   return (
     <Fade in={showLogin} timeout={1000}>
       <Box
