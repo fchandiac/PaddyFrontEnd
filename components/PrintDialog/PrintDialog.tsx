@@ -58,8 +58,6 @@ export default function PrintDialog({
 
   const handleDownloadPDF = () => {
     if (contentRef.current) {
-      // Diagnóstico: Verificar si el contenido existe
-      console.log('DIAGNÓSTICO PDF - innerHTML:', contentRef.current.innerHTML);
       // Crear un iframe oculto
       const iframe = document.createElement('iframe');
       iframe.style.position = 'absolute';
