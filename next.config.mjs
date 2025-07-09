@@ -2,9 +2,11 @@
 const nextConfig = {
   // Transpile MUI y otras dependencias que lo necesiten
   transpilePackages: [
-    '@mui/material', 
+    '@mui/material',
+    '@mui/system',
+    '@mui/x-data-grid',
     '@mui/icons-material',
-    '@mui/x-data-grid'
+    'moment-timezone'
   ],
   
   // Configurar webpack para manejar dependencias del navegador
@@ -17,6 +19,14 @@ const nextConfig = {
         module: false,
       };
     }
+
+    // Configuración adicional para @mui/x-data-grid
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: /node_modules/,
+      type: 'javascript/auto',
+    });
+
     return config;
   },
 };

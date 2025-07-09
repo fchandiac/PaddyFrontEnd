@@ -2,48 +2,108 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Box, Typography, Dialog } from "@mui/material";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Print, Delete, Edit } from "@mui/icons-material";
-import AppDataGrid from "@/components/appDataGrid/AppDataGrid";
 import { getAllReceptions, deleteReception } from "@/app/actions/reception";
-import PrintDialog from "@/components/PrintDialog/PrintDialog";
 import moment from "moment-timezone";
 import { useAlertContext } from "@/context/AlertContext";
-import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
-import ReceptionPrintWrapper from "./ReceptionPrintWrapper";
-import EditReception from "./ui/EditReception";
 import styles from "./receptions-grid.module.css";
+import dynamic from "next/dynamic";
+import { Reception, ReceptionListItem } from "@/types/reception";
+
+// Función utilitaria para convertir Reception a ReceptionListItem
+function toListItem(reception: Reception): ReceptionListItem {
+  return {
+    id: reception.id,
+    producer: reception.producer?.name || 'Sin productor',
+    riceType: reception.riceType?.name || 'Sin tipo',
+    guide: reception.guide || '',
+    licensePlate: reception.licensePlate || '',
+    price: reception.price || 0,
+    grossWeight: reception.grossWeight || 0,
+    tare: reception.tare || 0,
+    netWeight: reception.netWeight || 0,
+    createdAt: reception.createdAt || '',
+    status: reception.status || 'pending',
+    paddyNeto: reception.paddyNet || 0,
+    totalConDescuentos: reception.totalDiscount || 0
+  };
+}
+
+// Definir interfaces para los props
+interface GridActionsProps {
+  row: ReceptionListItem;
+  onPrint: (row: ReceptionListItem) => void;
+  onEdit: (row: ReceptionListItem) => void;
+  onDelete: (row: ReceptionListItem) => void;
+}
+
+// Dynamic imports para componentes con dependencias del navegador
+const AppDataGrid = dynamic(() => import("@/components/appDataGrid/AppDataGrid"), { 
+  ssr: false,
+  loading: () => (
+    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+      <Typography>Cargando tabla...</Typography>
+    </Box>
+  )
+});
+
+const PrintDialog = dynamic(() => import("@/components/PrintDialog/PrintDialog"), { ssr: false });
+const DeleteDialog = dynamic(() => import("@/components/deleteDialog/DeleteDialog").then(mod => mod.DeleteDialog), { ssr: false });
+const ReceptionPrintWrapper = dynamic(() => import("./ReceptionPrintWrapper"), { ssr: false });
+const EditReception = dynamic(() => import("./ui/EditReception"), { ssr: false });
+
+// Componente wrapper para las acciones de la grid
+const GridActions = dynamic(() => 
+  import("@mui/x-data-grid").then(mod => {
+    const { GridActionsCellItem } = mod;
+    return function GridActions({ row, onPrint, onEdit, onDelete }: GridActionsProps) {
+      return [
+        <GridActionsCellItem
+          key="print"
+          icon={<Print />}
+          label="Imprimir"
+          onClick={() => onPrint(row)}
+          showInMenu
+        />,
+        <GridActionsCellItem
+          key="edit"
+          icon={<Edit />}
+          label="Editar"
+          onClick={() => onEdit(row)}
+          showInMenu
+        />,
+        <GridActionsCellItem
+          key="delete"
+          icon={<Delete />}
+          label="Eliminar"
+          onClick={() => onDelete(row)}
+          showInMenu
+        />
+      ];
+    };
+  }),
+  { ssr: false }
+);
 
 export default function ReceptionListPage() {
   const [openPrintDialog, setOpenPrintDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [rowData, setRowData] = useState<any>(null);
-  const [receptions, setReceptions] = useState<any[]>([]);
+  const [rowData, setRowData] = useState<ReceptionListItem | null>(null);
+  const [receptions, setReceptions] = useState<ReceptionListItem[]>([]);
   const { showAlert } = useAlertContext();
 
   const fetchData = useCallback(async () => {
     try {
       const data = await getAllReceptions();
       console.log("Datos recibidos en el grid:", data);
-      // Log detallado para cada fila
-      if (data && data.length > 0) {
-        console.log("Primera recepción completa:", JSON.stringify(data[0], null, 2));
-        console.log("ID de primera recepción:", data[0].id, "Tipo:", typeof data[0].id);
-      }
+      // Los datos ya vienen como ReceptionListItem[] desde getAllReceptions
       setReceptions(data);
     } catch (error) {
       console.error("Error al cargar recepciones:", error);
       showAlert("Error al cargar las recepciones", "error");
     }
   }, [showAlert]);
-
-  useEffect(() => {
-    // Refresh data when dialogs close
-    if (!openPrintDialog && !openEditDialog) {
-      fetchData();
-    }
-  }, [openPrintDialog, openEditDialog, fetchData]);
 
   useEffect(() => {
     fetchData();
@@ -178,33 +238,22 @@ export default function ReceptionListPage() {
       field: "actions",
       type: "actions",
       headerName: "",
-      flex: 0.8, // Botones de acción (aumentado)
-      getActions: (params: any) => [
-        <GridActionsCellItem
-          key="print"
-          icon={<Print />}
-          label="Imprimir"
-          onClick={() => {
-            setRowData(params.row);
+      flex: 0.8,
+      getActions: (params: { row: ReceptionListItem }) => [
+        <GridActions
+          key="actions"
+          row={params.row}
+          onPrint={(row: ReceptionListItem) => {
+            setRowData(row);
             setOpenPrintDialog(true);
           }}
-        />,
-        <GridActionsCellItem
-          key="edit"
-          icon={<Edit />}
-          label="Editar"
-          onClick={() => {
-            setRowData(params.row);
-            console.log("Datos de la fila seleccionada:", params.row);
+          onEdit={(row: ReceptionListItem) => {
+            setRowData(row);
+            console.log("Datos de la fila seleccionada:", row);
             setOpenEditDialog(true);
           }}
-        />,
-        <GridActionsCellItem
-          key="delete"
-          icon={<Delete />}
-          label="Eliminar"
-          onClick={() => {
-            setRowData(params.row);
+          onDelete={(row: ReceptionListItem) => {
+            setRowData(row);
             setOpenDeleteDialog(true);
           }}
         />,
@@ -228,17 +277,24 @@ export default function ReceptionListPage() {
       <PrintDialog
         open={openPrintDialog}
         setOpen={setOpenPrintDialog}
-        title={`Recepción Nº${rowData?.id}`}
+        title={`Recepción Nº${rowData?.id || ''}`}
         dialogWidth="md"
       >
-        <ReceptionPrintWrapper receptionId={rowData?.id?.toString() || "0"} />
+        <ReceptionPrintWrapper receptionId={(rowData?.id || 0).toString()} />
       </PrintDialog>
 
       <DeleteDialog
         open={openDeleteDialog}
-        message={`¿Estás seguro de eliminar la recepción Nº ${rowData?.id}?`}
-        onClose={() => setOpenDeleteDialog(false)}
+        message={`¿Estás seguro de eliminar la recepción Nº ${rowData?.id || ''}`}
+        onClose={() => {
+          setOpenDeleteDialog(false);
+          setRowData(null);
+        }}
         submit={async () => {
+          if (!rowData?.id) {
+            showAlert("Error: ID de recepción no válido", "error");
+            return;
+          }
           try {
             await deleteReception(rowData.id);
             showAlert("Recepción eliminada correctamente", "success");
@@ -262,14 +318,16 @@ export default function ReceptionListPage() {
         maxWidth="lg"
       >
         <Box sx={{ p: 2 }}>
-          <EditReception
-            receptionId={rowData?.id}
-            onClose={() => {
-              setOpenEditDialog(false);
-              setRowData(null);
-            }}
-            afterUpdate={fetchData}
-          />
+          {rowData?.id && (
+            <EditReception
+              receptionId={rowData.id}
+              onClose={() => {
+                setOpenEditDialog(false);
+                setRowData(null);
+              }}
+              afterUpdate={fetchData}
+            />
+          )}
         </Box>
       </Dialog>
     </>

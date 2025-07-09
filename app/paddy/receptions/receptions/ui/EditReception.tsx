@@ -32,7 +32,7 @@ interface EditReceptionProps {
   afterUpdate: () => void;
 }
 
-export default function EditReception({ receptionId, onClose, afterUpdate }: EditReceptionProps) {
+export default function EditReception({ receptionId, onClose, afterUpdate }: EditReceptionProps): JSX.Element {
   return (
     <ReceptionDataProvider>
       <EditReceptionContent 
@@ -44,7 +44,7 @@ export default function EditReception({ receptionId, onClose, afterUpdate }: Edi
   );
 }
 
-function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditReceptionProps) {
+function EditReceptionContent({ receptionId, onClose, afterUpdate }: EditReceptionProps): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
   const [reception, setReception] = useState<Reception | null>(null);
