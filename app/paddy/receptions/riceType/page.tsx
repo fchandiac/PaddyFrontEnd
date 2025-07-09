@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { RiceType } from "@/types/rice-type";
-import { Box, Dialog } from "@mui/material";
+import { Box, Dialog, Grid } from "@mui/material";
 import AppDataGrid from "@/components/appDataGrid";
 import { getAllRiceTypes, deleteRiceType } from "@/app/actions/rice-type";
 import { DeleteDialog } from "@/components/deleteDialog/DeleteDialog";
-import { GridActionsCellItem } from "@mui/x-data-grid";
+import { GridActionsCellItem, GridRenderCellParams, GridValueFormatterParams } from "@mui/x-data-grid";
 import { Delete, Edit } from "@mui/icons-material";
 import { useAlertContext } from "@/context/AlertContext";
 import { useUser } from "@/hooks/useUser";
 import { CreateRiceTypeForm } from "./ui/CreateRiceTypeForm";
 import { UpdateRiceTypeForm } from "./ui/UpdateRiceTypeForm";
 import moment from "moment-timezone";
+
+const TITLE = "Tipos de Arroz";
 
 export default function RiceTypePage() {
   const [riceTypes, setRiceTypes] = useState<RiceType[]>([]);
@@ -36,117 +38,121 @@ export default function RiceTypePage() {
   }, []);
 
   return (
-    <>
-      <Box sx={{ p: 2 }}>
-        <AppDataGrid
-          rows={riceTypes}
-          columns={[
-            { field: "id", headerName: "ID", flex: 1 },
-            { field: "name", headerName: "Nombre", flex: 1 },
-            { field: "description", headerName: "Descripción", flex: 2 },
-            {
-              field: "price",
-              headerName: "Precio",
-              flex: 1,
-              type: "number",
-              valueFormatter: (params: any) =>
-              {
-                return Number(params).toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })
-              }
-            },
-            {
-              field: "enable",
-              headerName: "Habilitado",
-              flex: 1,
-              valueFormatter: (params: any) => (params ? "Sí" : "No"),
-            },
-            {
-              field: "createdAt",
-              headerName: "Creado",
-              flex: 1,
-              valueFormatter: (params: any) => {
-                return moment(params).tz("America/Santiago").format("DD-MM-YYYY HH:mm");
-                  
+    <Box sx={{ p: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <AppDataGrid
+            rows={riceTypes}
+            columns={[
+              { field: "code", headerName: "Código", flex: 1 },
+              { field: "name", headerName: "Nombre", flex: 2 },
+              { field: "description", headerName: "Descripción", flex: 2 },
+              { 
+                field: "price", 
+                headerName: "Precio (CLP)", 
+                flex: 1,
+                valueFormatter: (params: GridValueFormatterParams) => 
+                  params.value.toLocaleString('es-CL')
               },
-            },
-            {
-              field: "actions",
-              type: "actions",
-              headerName: "",
-              flex: 1,
-              getActions: (params: any) => [
-                <GridActionsCellItem
-                  icon={<Edit />}
-                  label="Editar"
-                  onClick={() => {
-                    setRowData(params.row);
-                    setOpenEditDialog(true);
-                  }}
-                />,
-                <GridActionsCellItem
-                  icon={<Delete />}
-                  label="Eliminar"
-                  onClick={() => {
-                    setRowData(params.row);
-                    setOpenDeleteDialog(true);
-                  }}
-                />,
-              ],
-            },
-          ]}
-          title="Tipos de Arroz"
-          height="80vh"
-          FormComponent={({ afterSubmit }) => (
-            <CreateRiceTypeForm
-              afterSubmit={() => {
-                afterSubmit();
-                setRowData(null);
-              }}
-            />
-          )}
-          refresh={fetchRiceTypes}
-        />
-      </Box>
+              { 
+                field: "enable", 
+                headerName: "Estado", 
+                flex: 1,
+                valueFormatter: (params: GridValueFormatterParams) => 
+                  params.value ? "Habilitado" : "Deshabilitado"
+              },
+              {
+                field: "createdAt",
+                headerName: "Fecha de creación",
+                flex: 2,
+                valueFormatter: (params: GridValueFormatterParams) => 
+                  moment(params.value).format("DD/MM/YYYY HH:mm")
+              },
+              {
+                field: "actions",
+                type: "actions",
+                headerName: "Acciones",
+                flex: 1,
+                getActions: (params: GridRenderCellParams<RiceType>) => [
+                  <GridActionsCellItem
+                    key="edit"
+                    icon={<Edit />}
+                    label="Editar"
+                    onClick={() => {
+                      setRowData(params.row);
+                      setOpenEditDialog(true);
+                    }}
+                  />,
+                  <GridActionsCellItem
+                    key="delete"
+                    icon={<Delete />}
+                    label="Eliminar"
+                    onClick={() => {
+                      setRowData(params.row);
+                      setOpenDeleteDialog(true);
+                    }}
+                  />,
+                ],
+              },
+            ]}
+            title={TITLE}
+            height="70vh"
+            FormComponent={({ afterSubmit }) => (
+              <CreateRiceTypeForm
+                afterSubmit={() => {
+                  afterSubmit();
+                  fetchRiceTypes();
+                }}
+              />
+            )}
+            refresh={fetchRiceTypes}
+            sortModel={[{ field: 'code', sort: 'asc' }]}
+          />
+        </Grid>
+      </Grid>
 
-      <DeleteDialog
-        open={openDeleteDialog}
-        message={`¿Seguro que deseas eliminar el tipo de arroz "${rowData?.name}"?`}
-        onClose={() => setOpenDeleteDialog(false)}
-        submit={async () => {
-          if (rowData) {
-            try {
-              await deleteRiceType(rowData.id, user?.id);
-              showAlert("Tipo de arroz eliminado correctamente", "success");
-              fetchRiceTypes();
-            } catch (error) {
-              showAlert("Error al eliminar tipo de arroz", "error");
-            } finally {
-              setOpenDeleteDialog(false);
-              setRowData(null);
-            }
-          }
-        }}
-      />
-
+      {/* Diálogo de edición */}
       <Dialog
         open={openEditDialog}
         onClose={() => {
           setOpenEditDialog(false);
+          setRowData(null);
         }}
-        fullWidth
         maxWidth="sm"
+        fullWidth
       >
         <Box sx={{ p: 2 }}>
-          <UpdateRiceTypeForm
-            initialData={rowData!}
-            afterSubmit={() => {
-              fetchRiceTypes();
-              setOpenEditDialog(false);
-            }}
-          />
+          {rowData && (
+            <UpdateRiceTypeForm
+              initialData={rowData}
+              afterSubmit={() => {
+                setOpenEditDialog(false);
+                setRowData(null);
+                fetchRiceTypes();
+              }}
+            />
+          )}
         </Box>
       </Dialog>
 
-    </>
+      {/* Diálogo de eliminación */}
+      <DeleteDialog
+        open={openDeleteDialog}
+        message={`¿Está seguro que desea eliminar el tipo de arroz ${rowData?.name}?`}
+        onClose={() => {
+          setOpenDeleteDialog(false);
+          setRowData(null);
+        }}
+        submit={async () => {
+          if (rowData && rowData.id) {
+            await deleteRiceType(rowData.id, user?.id);
+            showAlert("Tipo de arroz eliminado correctamente", "success");
+            setRowData(null);
+            fetchRiceTypes();
+          }
+          setOpenDeleteDialog(false);
+        }}
+      />
+    </Box>
   );
 }
