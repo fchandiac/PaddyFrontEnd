@@ -34,6 +34,7 @@ interface CustomToolbarProps {
   FormComponent?: React.FC<FormComponentProps>;
   rows?: any[];
   columns?: any[];
+  allRows?: any[];
 }
 
 const CustomToolbar: React.FC<CustomToolbarProps> = ({
@@ -42,16 +43,18 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
   FormComponent,
   rows = [],
   columns = [],
+  allRows = [],
 }) => {
   const isSmall = useMediaQuery("(max-width:500px)");
 
   const handleExport = () => {
-    if (!rows.length || !columns.length) return;
+    const exportRows = allRows.length ? allRows : rows;
+    if (!exportRows.length || !columns.length) return;
     const headers = columns.map((col: any) => col.headerName || col.field);
     const fields = columns.map((col: any) => col.field);
     const data = [
       headers,
-      ...rows.map((row: any) => fields.map((field: string) => row[field] ?? "")),
+      ...exportRows.map((row: any) => fields.map((field: string) => row[field] ?? "")),
     ];
     const XLSX = require("xlsx");
     const worksheet = XLSX.utils.aoa_to_sheet(data);
@@ -246,6 +249,7 @@ interface AppDataGridProps {
   rowCount?: number;
   onPaginationModelChange?: (model: { page: number; pageSize: number }) => void;
   paginationMode?: 'client' | 'server';
+  allRows?: any[]; // <-- nuevo prop para exportar todos los datos
 }
 
 export default function AppDataGrid({
@@ -262,6 +266,7 @@ export default function AppDataGrid({
   rowCount,
   onPaginationModelChange,
   paginationMode = 'client',
+  allRows = [],
 }: AppDataGridProps) {
   const [openDialog, setOpenDialog] = useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
@@ -330,6 +335,7 @@ export default function AppDataGrid({
         rowCount={rowCount ?? rowsWithIds.length}
         onPaginationModelChange={onPaginationModelChange}
         paginationMode={paginationMode}
+        pageSizeOptions={[10, 25, 50, 100]}
         className={className}
         sx={{
           height: height,
@@ -377,6 +383,7 @@ export default function AppDataGrid({
               FormComponent={FormComponent}
               rows={rowsWithIds}
               columns={formattedColumns}
+              allRows={allRows}
             />
           ),
         }}

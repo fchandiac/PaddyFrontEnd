@@ -1,3 +1,4 @@
+
 import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
 import { JWT } from 'next-auth/jwt';
@@ -69,9 +70,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     signIn: async ({ user }) => {
       console.log('Usuario ha iniciado sesión:', user);
-    },
-    signOut: async () => {
-      console.log('Usuario ha cerrado sesión');
     },
   },
   ...authConfig,

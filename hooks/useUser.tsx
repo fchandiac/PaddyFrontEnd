@@ -10,6 +10,22 @@ function isValidRole(role: string): role is UserRole {
   return ['administrador', 'contador', 'operador'].includes(role);
 }
 
+function mapBackendRole(backendRole: string): UserRole {
+  // Mapear roles del backend a roles del frontend
+  switch (backendRole.toLowerCase()) {
+    case 'admin':
+    case 'administrador':
+      return 'administrador';
+    case 'contador':
+      return 'contador';
+    case 'operador':
+    case 'operator':
+      return 'operador';
+    default:
+      return 'operador'; // rol por defecto
+  }
+}
+
 export const useUser = () => {
   const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
@@ -19,20 +35,29 @@ export const useUser = () => {
     if (status === 'loading') return;
 
     if (session?.user) {
-      // Validar el role y asignar un valor por defecto si no es válido
-      const role = isValidRole(session.user.role) ? session.user.role : 'operador';
+      // Mapear el role del backend al formato del frontend
+      const role = mapBackendRole(session.user.role);
       
-      // La sesión ya contiene todos los datos necesarios del usuario
+      // Usar los datos de la sesión que ya incluyen el name del backend
       const userFromSession: User = {
         id: session.user.id,
         email: session.user.email,
-        name: session.user.name || '',
+        name: session.user.name || session.user.email || 'Usuario',
         role: role,
       };
       
       setUser(userFromSession);
+      
+      // Persistir userId en sessionStorage para auditoría de cierre de sesión
+      if (typeof window !== 'undefined' && userFromSession.id) {
+        sessionStorage.setItem('userId', String(userFromSession.id));
+      }
     } else {
       setUser(null);
+      // Eliminar userId de sessionStorage al cerrar sesión
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('userId');
+      }
     }
     
     setLoading(false);

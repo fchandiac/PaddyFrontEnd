@@ -11,7 +11,9 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { logSignOutAudit } from "@/app/actions/signout";
 import Image from "next/image";
+import { useUser } from "@/hooks/useUser";
 import packageJson from "../../package.json";
 
 const AppName = "Paddy AyG";
@@ -24,6 +26,7 @@ interface SideBarProps {
 
 export default function SideBar({ open, toggleDrawer }: SideBarProps) {
   const router = useRouter();
+  const { user } = useUser();
 
   const handleLogout = async () => {
     toggleDrawer(false); // cierra el drawer
@@ -31,27 +34,24 @@ export default function SideBar({ open, toggleDrawer }: SideBarProps) {
     console.log('Cerrando sesión...');
     
     try {
-      // Cerrar sesión de NextAuth con redirect manual
-      const result = await signOut({
-        redirect: false,
-        callbackUrl: "/"
+      // Registrar auditoría antes del signOut si hay usuario
+      if (user?.id) {
+        await logSignOutAudit(user.id);
+      }
+      
+      // Ejecutar el signOut de NextAuth
+      await signOut({ 
+        callbackUrl: "/",
+        redirect: true 
       });
-      
-      console.log('Resultado del logout:', result);
-      
-      // Limpiar cualquier estado local
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Redireccionar manualmente
-      window.location.href = "/";
       
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
-      // En caso de error, limpiar y forzar redirección
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = "/";
+      // En caso de error, aún así ejecutar el signOut
+      await signOut({ 
+        callbackUrl: "/",
+        redirect: true 
+      });
     }
   };
 

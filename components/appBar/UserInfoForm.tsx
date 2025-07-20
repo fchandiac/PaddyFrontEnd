@@ -16,6 +16,7 @@ import { useAlertContext } from "@/context/AlertContext";
 import { updateUserPassword, getUserById } from "@/app/actions/user";
 import { User } from "@/types/user";
 import { signOut } from "next-auth/react";
+import { logSignOutAudit } from "@/app/actions/signout";
 
 type Props = {
   user: User;
@@ -73,8 +74,15 @@ const UserInfoForm = ({ user }: Props) => {
       setOldPassword("");
 
       // Cierra sesión después de unos milisegundos
-      setTimeout(() => {
-        signOut({ callbackUrl: "/" }); // Redirige al login
+      setTimeout(async () => {
+        // Registrar auditoría antes del signOut
+        try {
+          await logSignOutAudit(user.id);
+        } catch (error) {
+          console.error('Error registrando auditoría:', error);
+        }
+        // Ejecutar signOut
+        signOut({ callbackUrl: "/" });
       }, 1000); // Espera 1 segundo para que el usuario vea el mensaje
     }
 

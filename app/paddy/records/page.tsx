@@ -77,7 +77,7 @@ export default function AuditLogsPage() {
     try {
       setLoading(true);
       const result = await getAuditLogs({ ...filters, page: newPage + 1, limit: newPageSize });
-      setAuditLogs((result.data || []).slice().reverse());
+      setAuditLogs(result.data || []);
       setRowCount(result.total || 0);
       setPage(newPage);
       setPageSize(newPageSize);
@@ -475,6 +475,7 @@ export default function AuditLogsPage() {
           }}>
             <AppDataGrid
               rows={auditLogs}
+              allRows={auditLogs}
               title=""
               height="80vh"
               columns={[
@@ -519,9 +520,7 @@ export default function AuditLogsPage() {
                   headerName: "Fecha",
                   width: 150,
                   valueFormatter: (params: any) => {
-                    return moment(params)
-                      .subtract(4, "hours")
-                      .format("DD-MM-YYYY HH:mm");
+                    return moment(params).local().format("DD-MM-YYYY HH:mm");
                   },
                 },
                 {
