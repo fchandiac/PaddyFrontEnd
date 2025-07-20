@@ -62,10 +62,13 @@ export async function getAllRiceTypes(): Promise<any[]> {
 export async function createRiceType(data: CreateRiceTypeDto & { userId?: number }): Promise<any> {
   const headers = await getAuthHeaders();
   
+  // Filtrar userId del payload ya que va en los headers JWT
+  const { userId, ...payload } = data;
+  
   const res = await fetch(`${backendUrl}/rice-types`, {
     method: "POST",
     headers,
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
 
   const result = await res.json();
@@ -77,10 +80,13 @@ export async function createRiceType(data: CreateRiceTypeDto & { userId?: number
 export async function updateRiceType(id: number, data: UpdateRiceTypeDto & { userId?: number }): Promise<any> {
   const headers = await getAuthHeaders();
   
+  // Filtrar userId del payload ya que va en los headers JWT
+  const { userId, ...payload } = data;
+  
   const res = await fetch(`${backendUrl}/rice-types/${id}`, {
     method: "PUT",
     headers,
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
 
   const result = await res.json();
