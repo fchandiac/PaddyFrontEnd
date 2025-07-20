@@ -30,16 +30,41 @@ interface FormComponentProps {
 
 interface CustomToolbarProps {
   title?: string;
-  onOpenDialog?: () => void; // Nueva función para abrir el diálogo
-  FormComponent?: React.FC<FormComponentProps>; // Componente opcional para el formulario
+  onOpenDialog?: () => void;
+  FormComponent?: React.FC<FormComponentProps>;
+  rows?: any[];
+  columns?: any[];
 }
 
 const CustomToolbar: React.FC<CustomToolbarProps> = ({
   title = "",
   onOpenDialog,
   FormComponent,
+  rows = [],
+  columns = [],
 }) => {
   const isSmall = useMediaQuery("(max-width:500px)");
+
+  const handleExport = () => {
+    if (!rows.length || !columns.length) return;
+    const headers = columns.map((col: any) => col.headerName || col.field);
+    const fields = columns.map((col: any) => col.field);
+    const data = [
+      headers,
+      ...rows.map((row: any) => fields.map((field: string) => row[field] ?? "")),
+    ];
+    const XLSX = require("xlsx");
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, title);
+    const formatTitle = title || "excel";
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const filename = `${formatTitle}_${date}_${hours}:${minutes}.xlsx`;
+    XLSX.writeFile(workbook, filename);
+  };
 
   return (
     <Box
@@ -76,6 +101,23 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
         <Typography fontSize={isSmall ? "1.3rem" : "1.50rem"}>
           {title}
         </Typography>
+        <IconButton aria-label="Exportar a Excel" onClick={handleExport} size="large" sx={{ ml: 2 }}>
+          <svg width="24" height="24" viewBox="0 0 26 26">
+            <path
+              fill="#757575"
+              d="M25.162,3H16v2.984h3.031v2.031H16V10h3v2h-3v2h3v2h-3v2h3v2h-3v3h9.162
+                C25.623,23,26,22.609,26,22.13V3.87C26,3.391,25.623,3,25.162,3z M24,20h-4v-2h4V20z M24,16h-4v-2h4V16z M24,12h-4v-2h4V12z M24,8
+                h-4V6h4V8z"
+            />
+            <path
+              fill="#424242"
+              d="M0,2.889v20.223L15,26V0L0,2.889z M9.488,18.08l-1.745-3.299c-0.066-0.123-0.134-0.349-0.205-0.678
+                H7.511C7.478,14.258,7.4,14.494,7.277,14.81l-1.751,3.27H2.807l3.228-5.064L3.082,7.951h2.776l1.448,3.037
+                c0.113,0.24,0.214,0.525,0.304,0.854h0.028c0.057-0.198,0.163-0.492,0.318-0.883l1.61-3.009h2.542l-3.037,5.022l3.122,5.107
+                L9.488,18.08L9.488,18.08z"
+            />
+          </svg>
+        </IconButton>
       </Box>
 
       {/* Segunda línea: buscador */}
@@ -318,6 +360,7 @@ export default function AppDataGrid({
         rows={rowsWithIds}
         columns={formattedColumns}
         localeText={esESGrid}
+
         density="compact"
         getRowId={(row) => {
           if (row.id === undefined || row.id === null) {
@@ -332,6 +375,8 @@ export default function AppDataGrid({
               title={title}
               onOpenDialog={handleOpenDialog}
               FormComponent={FormComponent}
+              rows={rowsWithIds}
+              columns={formattedColumns}
             />
           ),
         }}

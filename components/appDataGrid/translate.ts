@@ -91,6 +91,10 @@ const esESGrid = {
       ? `${count} filas seleccionadas`
       : `${count} fila seleccionada`,
 
+  // Rows per page (pagination)
+  footerRowsPerPage: "filas por hoja",
+  footerPaginationRowsPerPage: "filas por hoja",
+
   // Total row amount footer text
   footerTotalRows: "Filas Totales:",
 

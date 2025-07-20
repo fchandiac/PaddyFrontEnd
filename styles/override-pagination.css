@@ -1,0 +1,10 @@
+.MuiTablePagination-selectLabel {
+  font-size: 0 !important;
+}
+.MuiTablePagination-selectLabel:before {
+  content: 'filas por hoja';
+  font-size: 0.75rem !important;
+}
+.MuiTablePagination-selectLabel:after {
+  content: '';
+}

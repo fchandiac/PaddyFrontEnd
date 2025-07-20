@@ -5,6 +5,7 @@ import RootWrapper from "./RootWrapper"; // 👈 Nuevo archivo que usará el hoo
 import { ReceptionDataProvider } from "@/context/ReceptionDataContext";
 import { SessionProvider } from 'next-auth/react';
 import '@/app/globals.css';
+import '../styles/override-pagination.css';
 
 export const metadata = {
   title: "Paddy AyG",
