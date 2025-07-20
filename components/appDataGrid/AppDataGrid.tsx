@@ -19,6 +19,7 @@ import esESGrid from "./translate";
 import { formatNumericColumns } from "./gridFormatters";
 
 //       valueFormatter: (params) => params.value.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 2  })
+import DownloadIcon from "@mui/icons-material/Download";
 import * as XLSX from "xlsx";
 import { getVisibleRows } from "@mui/x-data-grid/internals";
 import { useTheme, useMediaQuery } from "@mui/material";
@@ -198,6 +199,11 @@ interface AppDataGridProps {
   setGridApiRef?: (apiRef: any) => void;
   height?: string;
   className?: string; // Clase CSS opcional
+  page?: number;
+  pageSize?: number;
+  rowCount?: number;
+  onPaginationModelChange?: (model: { page: number; pageSize: number }) => void;
+  paginationMode?: 'client' | 'server';
 }
 
 export default function AppDataGrid({
@@ -209,6 +215,11 @@ export default function AppDataGrid({
   setGridApiRef = () => {},
   height = "auto",
   className = "", // Clase CSS opcional
+  page = 0,
+  pageSize = 50,
+  rowCount,
+  onPaginationModelChange,
+  paginationMode = 'client',
 }: AppDataGridProps) {
   const [openDialog, setOpenDialog] = useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
@@ -272,6 +283,11 @@ export default function AppDataGrid({
   return (
     <>
       <DataGrid
+        pagination
+        paginationModel={{ page, pageSize }}
+        rowCount={rowCount ?? rowsWithIds.length}
+        onPaginationModelChange={onPaginationModelChange}
+        paginationMode={paginationMode}
         className={className}
         sx={{
           height: height,
@@ -318,7 +334,6 @@ export default function AppDataGrid({
               FormComponent={FormComponent}
             />
           ),
-          footer: () => <CustomFooter setGridApiRef={setGridApiRef}  title={title}/>,
         }}
       />
 

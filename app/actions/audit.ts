@@ -7,15 +7,13 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001
 export async function getAuditLogs(filters: AuditFilterDto = {}): Promise<AuditResponse> {
   try {
     const params = new URLSearchParams();
-    
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         params.append(key, String(value));
       }
     });
-
     const url = `${backendUrl}/audit?${params.toString()}`;
-    
+    console.log('[AUDIT] URL solicitada:', url);
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -23,14 +21,27 @@ export async function getAuditLogs(filters: AuditFilterDto = {}): Promise<AuditR
       },
       cache: "no-store",
     });
-
+    const responseText = await res.text();
+    console.log('[AUDIT] Respuesta cruda del backend:', responseText);
     if (!res.ok) {
-      const error = await res.json();
+      let error;
+      try {
+        error = JSON.parse(responseText);
+      } catch {
+        error = { message: responseText };
+      }
       throw new Error(error.message || "Error al obtener los logs de auditoría");
     }
-
-    return await res.json();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error('[AUDIT] Error al parsear la respuesta:', e);
+      throw new Error('Respuesta inválida del backend');
+    }
+    return data;
   } catch (error: any) {
+    console.error('[AUDIT] Error en getAuditLogs:', error);
     throw new Error(error.message || "Error inesperado al obtener los logs de auditoría");
   }
 }

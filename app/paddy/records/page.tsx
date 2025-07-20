@@ -58,6 +58,9 @@ import moment from "moment-timezone";
 export default function AuditLogsPage() {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [rowCount, setRowCount] = useState(0);
   const [users, setUsers] = useState<Array<{id: number, name: string, email: string}>>([]);
   
   // Modal de detalles
@@ -66,14 +69,18 @@ export default function AuditLogsPage() {
   
   // Filtros
   const [filters, setFilters] = useState<AuditFilterDto>({
-    limit: 1000, // Obtener más registros para paginación local
+    page: 1,
+    limit: 50,
   });
 
-  const fetchAuditLogs = async () => {
+  const fetchAuditLogs = async (newPage = page, newPageSize = pageSize) => {
     try {
       setLoading(true);
-      const result = await getAuditLogs(filters);
-      setAuditLogs(result.data || []);
+      const result = await getAuditLogs({ ...filters, page: newPage + 1, limit: newPageSize });
+      setAuditLogs((result.data || []).slice().reverse());
+      setRowCount(result.total || 0);
+      setPage(newPage);
+      setPageSize(newPageSize);
       console.log("Logs de auditoría obtenidos:", result);
     } catch (error) {
       console.error("Error al obtener los logs de auditoría:", error);
@@ -105,8 +112,8 @@ export default function AuditLogsPage() {
   };
 
   useEffect(() => {
-    fetchAuditLogs();
-  }, [filters]);
+    fetchAuditLogs(page, pageSize);
+  }, [filters, page, pageSize]);
 
   useEffect(() => {
     fetchUsers();
@@ -117,6 +124,7 @@ export default function AuditLogsPage() {
       ...prev,
       [field]: value,
     }));
+    setPage(0); // Reiniciar a la primera página al cambiar filtros
   };
 
   const clearFilters = () => {
@@ -445,17 +453,6 @@ export default function AuditLogsPage() {
               {/* Botones de acción */}
               <Box display="flex" flexDirection="column" gap={1} sx={{ mt: 1 }}>
                 <Button
-                  variant="contained"
-                  size="small"
-                  onClick={fetchAuditLogs}
-                  startIcon={<FilterIcon />}
-                  fullWidth
-                  color="primary"
-                  disabled={loading}
-                >
-                  {loading ? 'Aplicando...' : 'Aplicar Filtros'}
-                </Button>
-                <Button
                   variant="outlined"
                   size="small"
                   onClick={clearFilters}
@@ -479,7 +476,7 @@ export default function AuditLogsPage() {
             <AppDataGrid
               rows={auditLogs}
               title=""
-              height="100%"
+              height="80vh"
               columns={[
                 { 
                   field: "id", 
@@ -537,6 +534,13 @@ export default function AuditLogsPage() {
                 },
               ]}
               refresh={fetchAuditLogs}
+              page={page}
+              pageSize={pageSize}
+              rowCount={rowCount}
+              paginationMode="server"
+              onPaginationModelChange={({ page: newPage, pageSize: newPageSize }) => {
+                fetchAuditLogs(newPage, newPageSize);
+              }}
             />
           </Paper>
         </Grid>
