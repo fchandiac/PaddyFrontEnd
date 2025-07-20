@@ -13,10 +13,9 @@ export default {
       },
       authorize: async (credentials) => {
         const { email, password } = credentials;
-
+        console.log('---[AUTH DEBUG]---');
         console.log('Intentando autenticar con:', { email });
         console.log('URL del backend:', backendUrl);
-
         try {
           const res = await fetch(`${backendUrl}/auth/sign-in`, {
             method: "POST",
@@ -28,16 +27,14 @@ export default {
               pass: password // CORRECTO: El backend espera 'pass', no 'password'
             }),
           });
-
+          console.log('Status de respuesta:', res.status);
           const responseText = await res.text();
-          console.log('Respuesta del servidor:', responseText);
-
+          console.log('Texto de respuesta del backend:', responseText);
           if (!res.ok) {
             console.error('Error de autenticación. Status:', res.status);
             console.error('Respuesta:', responseText);
             return null;
           }
-
           let user;
           try {
             user = JSON.parse(responseText);
@@ -45,15 +42,12 @@ export default {
             console.error('Error al parsear la respuesta:', e);
             return null;
           }
-
-          console.log('Datos de usuario recibidos:', user);
-
+          console.log('Usuario recibido del backend:', user);
           // Asegurarse de que tenemos todos los datos necesarios
           if (!user.userId || !user.email || !user.role) {
             console.error('Datos de usuario incompletos:', user);
             return null;
           }
-
           return {
             id: user.userId,
             email: user.email,

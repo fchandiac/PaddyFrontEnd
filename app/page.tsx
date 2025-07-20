@@ -33,24 +33,18 @@ export default function Page() {
     const password = formData.get("password") as string;
 
     try {
-      console.log("Intentando login con:", { email });
-
+      setLoading(true);
+      setError(null);
       const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
         callbackUrl: "/paddy",
       });
-
-      console.log("Resultado del login:", result);
-
       if (result?.error) {
-        console.error("Error en login:", result.error);
         setError("Credenciales incorrectas");
       } else if (result?.url) {
         router.push(result.url);
-      } else {
-        router.push("/paddy");
       }
     } catch (err) {
       console.error("Error inesperado en login:", err);

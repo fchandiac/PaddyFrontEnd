@@ -1,8 +1,10 @@
 'use server';
 
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+
 export async function loginUser(email: string, pass: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/login`, {
+    const res = await fetch(`${backendUrl}/auth/sign-in`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -11,13 +13,13 @@ export async function loginUser(email: string, pass: string) {
     });
 
     if (!res.ok) {
-      const { error } = await res.json();
-      throw new Error(error || 'Error al iniciar sesión');
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Error al iniciar sesión');
     }
 
-    const { user } = await res.json();
-    return user;
+    const data = await res.json();
+    return { success: true, data };
   } catch (error: any) {
-    throw new Error(error.message || 'Error desconocido');
+    return { success: false, error: error.message };
   }
 }
