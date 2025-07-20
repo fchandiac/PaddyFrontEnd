@@ -27,6 +27,16 @@ export default function RiceTypePage() {
   const fetchRiceTypes = async () => {
     try {
       const res = await getAllRiceTypes();
+      console.log('🌾 DEBUG - Datos de tipos de arroz recibidos:', res);
+      
+      // Debuggear el primer elemento para ver la estructura
+      if (res.length > 0) {
+        console.log('🌾 DEBUG - Primer tipo de arroz:', res[0]);
+        console.log('🌾 DEBUG - Campos disponibles:', Object.keys(res[0]));
+        console.log('🌾 DEBUG - Campo createdAt:', res[0].createdAt);
+        console.log('🌾 DEBUG - Tipo de createdAt:', typeof res[0].createdAt);
+      }
+      
       setRiceTypes(res);
     } catch (error) {
       showAlert("Error al obtener tipos de arroz", "error");
@@ -52,21 +62,37 @@ export default function RiceTypePage() {
                 headerName: "Precio (CLP)", 
                 flex: 1,
                 valueFormatter: (params: GridRenderCellParams<RiceType>) => 
-                  params.value.toLocaleString('es-CL')
+                  params.value != null ? params.value.toLocaleString('es-CL') : 'Sin precio'
               },
               { 
                 field: "enable", 
                 headerName: "Estado", 
                 flex: 1,
                 valueFormatter: (params: GridRenderCellParams<RiceType>) => 
-                  params.value ? "Habilitado" : "Deshabilitado"
+                  params.value != null ? (params.value ? "Habilitado" : "Deshabilitado") : 'Sin estado'
               },
               {
                 field: "createdAt",
                 headerName: "Fecha de creación",
                 flex: 2,
-                valueFormatter: (params: GridRenderCellParams<RiceType>) => 
-                  moment(params.value).format("DD/MM/YYYY HH:mm")
+                valueFormatter: (params: any) => {
+                  console.log('🗓️ DEBUG - Params completo:', params);
+                  console.log('🗓️ DEBUG - Valor fecha (params):', params, 'Tipo:', typeof params);
+                  console.log('🗓️ DEBUG - Valor fecha (params.value):', params?.value, 'Tipo:', typeof params?.value);
+                  
+                  // Probar ambos enfoques como en records
+                  const dateValue = params?.value || params;
+                  if (!dateValue) return 'Sin fecha';
+                  
+                  try {
+                    const formatted = moment(dateValue).local().format("DD/MM/YYYY HH:mm");
+                    console.log('🗓️ DEBUG - Fecha formateada:', formatted);
+                    return formatted;
+                  } catch (error) {
+                    console.error('🗓️ ERROR - Error formateando fecha:', error);
+                    return 'Fecha inválida';
+                  }
+                }
               },
               {
                 field: "actions",

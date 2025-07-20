@@ -43,17 +43,25 @@ export default {
             return null;
           }
           console.log('Usuario recibido del backend:', user);
+          console.log('🔑 Access token del backend:', user.access_token);
+          
           // Asegurarse de que tenemos todos los datos necesarios
           if (!user.userId || !user.email || !user.role) {
             console.error('Datos de usuario incompletos:', user);
             return null;
           }
-          return {
+          
+          const userObject = {
             id: user.userId,
             email: user.email,
             role: user.role,
             name: user.name || '',
+            accessToken: user.access_token, // Agregar el token
           };
+          
+          console.log('🔑 Usuario que se retorna con token:', userObject);
+          
+          return userObject;
         } catch (error) {
           console.error('Error en authorize:', error);
           return null;

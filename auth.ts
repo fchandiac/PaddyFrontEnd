@@ -11,6 +11,7 @@ declare module 'next-auth' {
       email: string;
       role: string;
       name?: string;
+      accessToken?: string;
     }
   }
 }
@@ -20,6 +21,7 @@ declare module 'next-auth/jwt' {
     id: number;
     email: string;
     role: string;
+    accessToken?: string;
   }
 }
 
@@ -33,6 +35,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        console.log('🔑 JWT callback - usuario recibido:', user);
+        
         // Asegurarse de que tenemos un id válido
         if (user.id === undefined) {
           throw new Error('User ID is undefined');
@@ -42,18 +46,43 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = typeof user.id === 'string' ? parseInt(user.id, 10) : (user.id as number);
         token.email = user.email as string;
         token.role = (user as any).role as string;
+        token.accessToken = (user as any).accessToken as string; // Agregar token
+        
+        console.log('🔑 JWT callback - token creado:', {
+          id: token.id,
+          email: token.email,
+          role: token.role,
+          hasAccessToken: !!token.accessToken
+        });
       }
       return token;
     },
     async session({ session, token }) {
-      return {
+      console.log('🔑 Session callback - token recibido:', {
+        id: token.id,
+        email: token.email,
+        role: token.role,
+        hasAccessToken: !!token.accessToken
+      });
+      
+      const sessionResult = {
         ...session,
         user: {
           ...session.user,
           id: token.id,
-          role: token.role
+          role: token.role,
+          accessToken: token.accessToken, // Agregar token a la sesión
         }
       } as Session;
+      
+      console.log('🔑 Session callback - sesión final:', {
+        userId: sessionResult.user.id,
+        email: sessionResult.user.email,
+        role: sessionResult.user.role,
+        hasAccessToken: !!sessionResult.user.accessToken
+      });
+      
+      return sessionResult;
     },
     signIn: async ({ user }) => {
       // Verificar que el usuario tiene un ID válido
