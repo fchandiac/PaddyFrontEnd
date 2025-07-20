@@ -15,6 +15,34 @@ import { cookies } from 'next/headers';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+// Helper function para obtener headers autenticados
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const session = await auth();
+  
+  // Crear headers básicos
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Agregar token JWT si está disponible
+  if (session?.user?.accessToken) {
+    headers['Authorization'] = `Bearer ${session.user.accessToken}`;
+  } else {
+    console.warn('No se encontró token JWT en la sesión para recepciones');
+  }
+  
+  // Agregar headers personalizados si hay sesión
+  if (session?.user) {
+    headers['X-User-Email'] = session.user.email || '';
+    headers['X-User-ID'] = String(session.user.id || '');
+  }
+
+  // Marcar como consulta automática de UI para no generar auditoría
+  headers['X-Request-Source'] = 'UI_AUTO';
+  
+  return headers;
+}
+
 // Función utilitaria para transformar datos del backend al formato del frontend
 function transformReceptionData(item: any): ReceptionListItem {
   // Función auxiliar para convertir valores a números seguros
@@ -44,12 +72,11 @@ function transformReceptionData(item: any): ReceptionListItem {
 export async function getAllReceptions(): Promise<ReceptionListItem[]> {
   try {
     const url = `${backendUrl}/receptions`;
+    const headers = await getAuthHeaders();
     
     const res = await fetch(url, { 
       cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
     });
     
     if (!res.ok) {
