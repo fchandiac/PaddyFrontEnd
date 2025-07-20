@@ -55,13 +55,13 @@ export const CreateDiscountPercentForm: React.FC<Props> = ({ defaultCode, afterS
       fields={[
         {
           name: "start",
-          label: "Desde (%)",
+          label: "Desde",
           type: "number",
           required: true,
         },
         {
           name: "end",
-          label: "Hasta (%)",
+          label: "Hasta",
           type: "number",
           required: true,
         },

@@ -63,8 +63,8 @@ export const UpdateDiscountPercentForm: React.FC<Props> = ({
       title="Descuento"
       initialState={memoInitialState}     // <-- aquí usamos la versión memoizada
       fields={[
-        { name: "start",   label: "Desde (%)",  type: "number", required: true },
-        { name: "end",     label: "Hasta (%)",  type: "number", required: true },
+        { name: "start",   label: "Desde",  type: "number", required: true },
+        { name: "end",     label: "Hasta",  type: "number", required: true },
         { name: "percent", label: "Descuento (%)", type: "number", required: true },
       ]}
       onSubmit={handleUpdate}
