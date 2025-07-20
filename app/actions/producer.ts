@@ -34,6 +34,9 @@ async function getAuthHeaders(): Promise<HeadersInit> {
     headers['X-User-Email'] = session.user.email || '';
     headers['X-User-ID'] = String(session.user.id || '');
   }
+
+  // Marcar como consulta automática de UI para no generar auditoría
+  headers['X-Request-Source'] = 'UI_AUTO';
   
   console.log('📤 Headers finales:', headers);
   
