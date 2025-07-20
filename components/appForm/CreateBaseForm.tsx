@@ -92,6 +92,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
           <Grid item key={field.name}>
             {["text", "textarea", "number", "email", "password"].includes(field.type) ? (
               <TextField
+                name={field.name}
                 label={field.label}
                 variant="outlined"
                 size="small"
@@ -120,14 +121,15 @@ export const BaseForm: React.FC<BaseFormProps> = ({
                     field.formatFn ? field.formatFn(e.target.value) : e.target.value
                   )
                 }
-                inputProps={
-                  field.type === "email"
+                inputProps={{
+                  ...(field.type === "email"
                     ? {
                         pattern: "[^@\\s]+@[^@\\s]+\\.[^@\\s]{2,}$",
                         title: "Ingresa un correo válido (ej: persona@dominio.com)",
                       }
-                    : undefined
-                }
+                    : {}),
+                  'data-testid': `form-input-${field.name}`,
+                }}
                 InputProps={{
                   startAdornment: field.startAdornment ? (
                     <InputAdornment position="start">
