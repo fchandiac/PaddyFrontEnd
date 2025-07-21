@@ -31,8 +31,8 @@ const waitForFormDialog = async () => {
 };
 
 describe('Página de rangos de secado /paddy/receptions/drying', () => {
-  beforeEach(async () => {
-    // Autenticarse
+  before(async () => {
+    // Autenticarse solo una vez
     try {
       await authenticateForTests(browser);
       console.log('Autenticación completada exitosamente');
@@ -40,13 +40,15 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       console.error('Error durante la autenticación:', error);
       throw error;
     }
-    
+  });
+
+  beforeEach(async () => {
     // Navegar a la página de rangos de secado
     await browser.url('/paddy/receptions/drying');
-    
+
     // Esperar a que la página se cargue completamente (tiempo aumentado para mayor estabilidad)
     await browser.pause(5000);
-    
+
     // Verificar que estamos en la página correcta
     const url = await browser.getUrl();
     if (!url.includes('/paddy/receptions/drying')) {
@@ -61,7 +63,7 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       // Buscar el título específico "Rangos % de secado" en los elementos Typography
       await browser.waitUntil(async () => {
         const headings = await $$('h6, .MuiTypography-root');
-        
+
         for (let heading of headings) {
           try {
             const text = await heading.getText();
@@ -74,7 +76,7 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
           }
         }
         return false;
-      }, { 
+      }, {
         timeout: 10000,
         timeoutMsg: 'No se encontró el título "Rangos % de secado" en la página'
       });
@@ -521,6 +523,9 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       await browser.pause(1500);
       await browser.saveScreenshot('./errorShots/validation-errors-1.png');
 
+    // Verifica que el formulario sigue abierto
+    const dialogStillOpenFinMenor = await $('.MuiDialog-root').isExisting();
+    expect(dialogStillOpenFinMenor).toBe(true);
       // Resetear el formulario si sigue abierto
       if (await $('button*=Cancelar').isExisting()) {
         await $('button*=Cancelar').click();
@@ -549,6 +554,9 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       await browser.pause(1500);
       await browser.saveScreenshot('./errorShots/validation-errors-2.png');
 
+    // Verifica que el formulario sigue abierto
+    const dialogStillOpenPorcentajeNeg = await $('.MuiDialog-root').isExisting();
+    expect(dialogStillOpenPorcentajeNeg).toBe(true);
       if (await $('button*=Cancelar').isExisting()) {
         await $('button*=Cancelar').click();
         await browser.pause(1000);
@@ -575,6 +583,9 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       await browser.pause(1500);
       await browser.saveScreenshot('./errorShots/validation-errors-3.png');
 
+    // Verifica que el formulario sigue abierto
+    const dialogStillOpenPorcentaje100 = await $('.MuiDialog-root').isExisting();
+    expect(dialogStillOpenPorcentaje100).toBe(true);
       if (await $('button*=Cancelar').isExisting()) {
         await $('button*=Cancelar').click();
         await browser.pause(1000);
@@ -595,6 +606,9 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       await browser.pause(1500);
       await browser.saveScreenshot('./errorShots/validation-errors-4.png');
       
+    // Verifica que el formulario sigue abierto
+    const dialogStillOpenCamposVacios = await $('.MuiDialog-root').isExisting();
+    expect(dialogStillOpenCamposVacios).toBe(true);
       // Después de cada intento, verificar si el formulario sigue abierto y si hay errores
       const errorSelector = '.MuiFormHelperText-root.Mui-error, [role="alert"]';
       const hasErrorElements = await $(errorSelector).isExisting();
@@ -666,11 +680,63 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
         console.warn('El diálogo no se cerró después de crear el primer rango, verificando errores...');
         await browser.saveScreenshot('./errorShots/overlap-first-range-error.png');
         
-        // Intentar cerrar el diálogo
+        // Buscar mensajes de error en la pantalla
+        const errorMessages = await $$('.MuiFormHelperText-root.Mui-error, [role="alert"]');
+        const errorCount = await errorMessages.length;
+        if (errorCount > 0) {
+          for (const error of errorMessages) {
+            console.error(`Error encontrado: ${await error.getText()}`);
+          }
+        } else {
+          console.error('No se encontraron mensajes de error visibles en el diálogo');
+        }
+        
+        // Verificar si ya existe un rango similar (podría ser la causa del error)
+        const tableRows = await $$('.MuiDataGrid-row');
+        console.log(`Número de filas en la tabla: ${tableRows.length}`);
+        
+        for (const row of tableRows) {
+          try {
+            const cells = await row.$$('.MuiDataGrid-cell');
+            const cellTexts: string[] = [];
+            for (const cell of cells) {
+              cellTexts.push(await cell.getText());
+            }
+            console.log(`Fila encontrada: ${cellTexts.join(', ')}`);
+            
+            // Verificar si alguna celda tiene valores cercanos a los que intentamos crear
+            if (cellTexts.some(text => ['70', '80', '12'].includes(text))) {
+              console.warn('Posible conflicto: Se encontró un rango con valores similares en la tabla');
+            }
+          } catch (e) {
+            console.warn('Error al leer celdas de la tabla:', e);
+          }
+        }
+        
+        // Intentar cerrar el diálogo para continuar
         try {
-          const cancelButton = await $('.MuiDialog-root').$('button*=Cancelar');
+          // Probar primero con el botón Cancelar directamente
+          const cancelButton = await $('button=Cancelar');
           if (await cancelButton.isExisting()) {
             await cancelButton.click();
+            console.log('Diálogo cerrado con botón Cancelar');
+            await browser.pause(1000);
+          } else {
+            // Si no encuentra el botón directamente, buscar dentro del diálogo
+            const dialogButtons = await $$('.MuiDialog-root button');
+            console.log(`Encontrados ${dialogButtons.length} botones en el diálogo`);
+            
+            // Buscar un botón que contenga texto como "Cancelar" o similar
+            for (const btn of dialogButtons) {
+              const text = await btn.getText();
+              console.log(`Botón encontrado: "${text}"`);
+              if (text.includes('Cancel') || text === 'Cerrar' || text === 'Cancelar' || text === 'X') {
+                await btn.click();
+                console.log(`Clickeado botón: ${text}`);
+                await browser.pause(1000);
+                break;
+              }
+            }
           }
         } catch (e) {
           console.warn('No se pudo cerrar el diálogo del primer rango:', e);
@@ -727,30 +793,27 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       // 11. Verificar si el formulario sigue abierto (esperamos que sí, debido a la validación)
       const formStillOpen = await $('input[data-testid="form-input-start"]').isExisting();
 
+      // Verifica que el rango superpuesto NO aparece en la tabla
+      const cellSuperpuesto = await $(`.MuiDataGrid-cell*=75`);
+      expect(await cellSuperpuesto.isExisting()).toBe(false);
+
       if (formStillOpen) {
         console.log('El formulario sigue abierto, verificando errores de validación...');
-
         // Verificar si hay mensajes de error en el formulario
         const errorSelector = '.MuiFormHelperText-root.Mui-error, [role="alert"]';
         const hasErrorElements = await $(errorSelector).isExisting();
-
         if (hasErrorElements) {
-          try {
-            const errorElements = await $$(errorSelector);
-            const errorTexts: string[] = [];
-            for (const el of errorElements) {
-              const text = await el.getText();
-              errorTexts.push(text);
-            }
-            console.log('Errores de validación encontrados:', errorTexts);
-            expect(hasErrorElements).toBe(true);
-          } catch (e) {
-            console.warn('No se pudieron obtener los textos de error:', e);
+          const errorElements = await $$(errorSelector);
+          const errorTexts: string[] = [];
+          for (const el of errorElements) {
+            const text = await el.getText();
+            errorTexts.push(text);
           }
+          console.log('Errores de validación encontrados:', errorTexts);
+          expect(errorTexts.join(' ')).toMatch(/superpuesto|solapado|ya existe|rango.*inválido|no permitido/i);
         } else {
-          console.warn('El formulario sigue abierto pero no se encontraron mensajes de error');
+          throw new Error('El formulario sigue abierto pero no se encontraron mensajes de error de validación');
         }
-
         // Cerrar el formulario
         try {
           const cancelButton = await $('button*=Cancelar');
@@ -764,22 +827,14 @@ describe('Página de rangos de secado /paddy/receptions/drying', () => {
       } else {
         // Si el formulario se cerró, debería haber un mensaje de error en una alerta
         console.log('El formulario se cerró, verificando alerta de error...');
-
-        try {
-          const errorAlert = await $('.MuiAlert-standardError, [role="alert"]');
-          const errorExists = await errorAlert.isExisting();
-
-          if (errorExists) {
-            const errorText = await errorAlert.getText();
-            console.log('Alerta de error encontrada:', errorText);
-            expect(errorExists).toBe(true);
-          } else {
-            console.warn('No se encontró alerta de error después de cerrar el formulario');
-            throw new Error('El formulario se cerró sin mostrar error de superposición');
-          }
-        } catch (error) {
-          console.warn('Error al buscar alerta de error:', error);
-          throw error;
+        const errorAlert = await $('.MuiAlert-standardError, [role="alert"]');
+        const errorExists = await errorAlert.isExisting();
+        if (errorExists) {
+          const errorText = await errorAlert.getText();
+          console.log('Alerta de error encontrada:', errorText);
+          expect(errorText).toMatch(/superpuesto|solapado|ya existe|rango.*inválido|no permitido/i);
+        } else {
+          throw new Error('El formulario se cerró sin mostrar error de superposición');
         }
       }
     } catch (error) {
